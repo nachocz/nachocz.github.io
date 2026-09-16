@@ -67,6 +67,13 @@ const translations = {
         highlightedPublications: 'Highlighted Publications',
         codeAvailable: 'Code Available',
 
+        // Zaragoza faculty
+        zaragozaFacultyTitle: 'Joining the University of Zaragoza as Assistant Professor',
+        zaragozaFacultyClermont: 'I’m finishing my postdoc at Clermont (CA-INP), where I’ve been lucky to work with Prof. Youcef Mezouar and a great group of colleagues. John, Bastien, Edoardo, and everyone else, thanks for making me feel so welcome (and for the raclette plans!). It’s been an excellent experience, with some exciting research from this time hopefully coming out soon.',
+        zaragozaFacultyRole: 'I’m now joining the University of Zaragoza faculty as an Assistant Professor (Profesor Ayudante Doctor), based at EUPT and working with the ISA group within the Department of Computer Science and Systems Engineering (DIIS).',
+        zaragozaFacultyClosing: 'Very grateful for the experience, and looking forward to what comes next!',
+        zaragozaFacultyCaption: 'Clermont-Ferrand · CA-INP',
+
         // ERF 2026
         erf2026Title: 'Paper presented at ERF 2026',
         erf2026Desc: 'I presented our paper "The Language of Deformation: Semantic Failure Analysis as a Prerequisite for Dexterous Manipulation of Deformable Objects" at ERF 2026 in Stavanger, Norway, coauthored with David Hardman, Michele Pierallini and Erfan Shahriari. We met last year as finalists for the Georges Giralt PhD Award, each from a different institution in Europe, and ended up writing a paper together. A great example of what conferences like ERF are for :)',
@@ -85,7 +92,9 @@ const translations = {
         bsc: 'BSc (2013–2017):',
         bscThesis: 'Thesis:',
         academicExperienceTitle: 'Academic Experience',
-        postdoc: '2025–Present:',
+        assistantProf: '2026–Present:',
+        assistantProfDesc: 'Assistant Professor (Profesor Ayudante Doctor), EUPT, ISA group, Department of Computer Science and Systems Engineering (DIIS), University of Zaragoza, Spain.',
+        postdoc: '2025–2026:',
         postdocDesc: 'Postdoctoral Researcher, CA-INP',
         adjunct: '2024–2025:',
         adjunctDesc: 'Adjunct Professor, Systems Engineering and Automation, University of Zaragoza.',
@@ -278,6 +287,13 @@ const translations = {
         highlightedPublications: 'Publicaciones Destacadas',
         codeAvailable: 'Código Disponible',
 
+        // Zaragoza faculty
+        zaragozaFacultyTitle: 'Me incorporo a la Universidad de Zaragoza como Profesor Ayudante Doctor',
+        zaragozaFacultyClermont: 'Estoy terminando mi postdoc en Clermont (CA-INP), donde he tenido la suerte de trabajar con el Prof. Youcef Mezouar y un gran grupo de compañeros. John, Bastien, Edoardo y todos los demás, gracias por hacerme sentir tan bienvenido (¡y por los planes de raclette!). Ha sido una experiencia excelente, y espero que pronto salga a la luz parte de la investigación de esta etapa.',
+        zaragozaFacultyRole: 'Ahora me incorporo a la Universidad de Zaragoza como Profesor Ayudante Doctor, en la EUPT y trabajando con el grupo ISA dentro del Departamento de Informática e Ingeniería de Sistemas (DIIS).',
+        zaragozaFacultyClosing: '¡Muy agradecido por la experiencia y con muchas ganas de lo que viene!',
+        zaragozaFacultyCaption: 'Clermont-Ferrand · CA-INP',
+
         // ERF 2026
         erf2026Title: 'Artículo presentado en ERF 2026',
         erf2026Desc: 'Presenté nuestro artículo "The Language of Deformation: Semantic Failure Analysis as a Prerequisite for Dexterous Manipulation of Deformable Objects" en ERF 2026 en Stavanger, Noruega, junto con David Hardman, Michele Pierallini y Erfan Shahriari. Nos conocimos el año pasado como finalistas del premio Georges Giralt PhD Award, cada uno de una institución diferente en Europa, y acabamos escribiendo un artículo juntos. Un buen ejemplo de para qué sirven conferencias como ERF :)',
@@ -296,7 +312,9 @@ const translations = {
         bsc: 'Grado (2013–2017):',
         bscThesis: 'TFG:',
         academicExperienceTitle: 'Experiencia Académica',
-        postdoc: '2025–Presente:',
+        assistantProf: '2026–Presente:',
+        assistantProfDesc: 'Profesor Ayudante Doctor, EUPT, grupo ISA, Departamento de Informática e Ingeniería de Sistemas (DIIS), Universidad de Zaragoza, España.',
+        postdoc: '2025–2026:',
         postdocDesc: 'Investigador postdoctoral, CA-INP',
         adjunct: '2024–2025:',
         adjunctDesc: 'Profesor Asociado, Ingeniería de Sistemas y Automática, Universidad de Zaragoza.',

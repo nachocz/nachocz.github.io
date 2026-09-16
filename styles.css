@@ -684,6 +684,10 @@ strong {
     line-height: 1.35;
 }
 
+.news-text > div + div:not(.news-meta) {
+    margin-top: 10px;
+}
+
 .news-meta {
     margin-top: 13px;
     color: var(--muted);
