@@ -291,7 +291,7 @@ const translations = {
         zaragozaFacultyTitle: 'Me incorporo a la Universidad de Zaragoza como Profesor Ayudante Doctor',
         zaragozaFacultyClermont: 'Estoy terminando mi postdoc en Clermont (CA-INP), donde he tenido la suerte de trabajar con el Prof. Youcef Mezouar y un gran grupo de compañeros. John, Bastien, Edoardo y todos los demás, gracias por hacerme sentir tan bienvenido (¡y por los planes de raclette!). Ha sido una experiencia excelente, y espero que pronto salga a la luz parte de la investigación de esta etapa.',
         zaragozaFacultyRole: 'Ahora me incorporo a la Universidad de Zaragoza como Profesor Ayudante Doctor, en la EUPT y trabajando con el grupo ISA dentro del Departamento de Informática e Ingeniería de Sistemas (DIIS).',
-        zaragozaFacultyClosing: '¡Muy agradecido por la experiencia y con muchas ganas de lo que viene!',
+        zaragozaFacultyClosing: 'Estoy super agradecido por la oportunidad que el Prof. Youcef Mezouar me ha dado, y muy emocionado con lo que está por venir :)',
         zaragozaFacultyCaption: 'Clermont-Ferrand · CA-INP',
 
         // ERF 2026
