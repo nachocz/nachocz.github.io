@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nachocz.github.io/sitemap.xml
+Sitemap: https://nachocz.github.io/ignacio-cuiral-zueco.github.io/sitemap.xml

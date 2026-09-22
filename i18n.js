@@ -4,7 +4,7 @@ const translations = {
         // Interface
         skipToContent: 'Skip to main content',
         heroEyebrow: 'Robotics · Perception · Control',
-        heroStatus: 'Postdoctoral researcher',
+        heroStatus: 'Assistant Professor',
         newsKicker: 'Field notes',
         cvKicker: 'Experience & education',
         researchKicker: 'Research agenda',
@@ -36,7 +36,7 @@ const translations = {
 
         // Summary
         profileLabel: 'Profile:',
-        profileText: 'Postdoctoral researcher in robotics for deformable object manipulation and shape control.',
+        profileText: 'Assistant Professor at the University of Zaragoza researching robotics, deformable-object manipulation and shape control.',
         focusLabel: 'Focus:',
         focusText: 'Perception-to-manipulation pipelines, shape analysis, continuum mechanics, non-linear control, data-driven estimation and control.',
 
@@ -224,7 +224,7 @@ const translations = {
         // Interfaz
         skipToContent: 'Saltar al contenido principal',
         heroEyebrow: 'Robótica · Percepción · Control',
-        heroStatus: 'Investigador postdoctoral',
+        heroStatus: 'Profesor Ayudante Doctor',
         newsKicker: 'Notas de campo',
         cvKicker: 'Experiencia y formación',
         researchKicker: 'Agenda de investigación',
@@ -256,7 +256,7 @@ const translations = {
 
         // Summary
         profileLabel: 'Perfil:',
-        profileText: 'Investigador postdoctoral en robótica para la manipulación y control de objetos deformables.',
+        profileText: 'Profesor Ayudante Doctor en la Universidad de Zaragoza e investigador en robótica, manipulación de objetos deformables y control de forma.',
         focusLabel: 'Enfoque:',
         focusText: 'Percepción y manipulación, análisis de forma, mecánica, control no lineal, métodos basados en datos.',
 
