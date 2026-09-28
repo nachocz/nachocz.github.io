@@ -2,7 +2,7 @@
 
 A bilingual research portfolio focused on robotics, deformable-object manipulation, and shape control. The site is built with semantic HTML, modern CSS, and dependency-free JavaScript so it can be served directly by GitHub Pages.
 
-[View the published website](https://nachocz.github.io/ignacio-cuiral-zueco.github.io/)
+[View the published website](https://nachocz.github.io)
 
 ## Local preview
 
