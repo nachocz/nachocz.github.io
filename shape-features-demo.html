@@ -29,45 +29,43 @@
     <style>
         :root {
             color-scheme: light;
-            --bg: #f7f8f7;
+            --bg: #ffffff;
             --surface: #ffffff;
-            --surface-soft: #f0f3f1;
-            --ink: #1d2522;
-            --ink-soft: #46504b;
-            --muted: #6d7773;
-            --line: #dce1de;
-            --line-strong: #c2cac6;
-            --accent: #527563;
-            --accent-strong: #3e624f;
-            --accent-soft: #eaf1ed;
-            --canvas: #fbfcfb;
-            --plot: #fbfcfb;
+            --surface-soft: #f4f5f6;
+            --ink: #1f2328;
+            --ink-soft: #3d444d;
+            --muted: #697179;
+            --line: #e3e6e9;
+            --line-strong: #c9ced3;
+            --accent: #1d5b94;
+            --accent-strong: #23282d;
+            --accent-soft: #f1f3f5;
+            --canvas: #fafbfb;
+            --plot: #fafbfb;
             --rep-points: #2a78d6;
             --rep-edges: #eb6834;
             --rep-curvature: #1baf7a;
-            --shadow: 0 12px 36px rgba(28, 39, 34, 0.07);
-            font-family: "Aptos", "Segoe UI Variable", "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         [data-theme="dark"] {
             color-scheme: dark;
-            --bg: #111513;
-            --surface: #171c19;
-            --surface-soft: #202723;
-            --ink: #eef1ef;
-            --ink-soft: #c3cbc7;
-            --muted: #929d97;
-            --line: #303833;
-            --line-strong: #48524c;
-            --accent: #91b19f;
-            --accent-strong: #b2cdbf;
-            --accent-soft: #26372f;
-            --canvas: #1c221f;
-            --plot: #1c221f;
+            --bg: #15181b;
+            --surface: #15181b;
+            --surface-soft: #1e2226;
+            --ink: #e3e6e9;
+            --ink-soft: #c3c9cf;
+            --muted: #949da6;
+            --line: #2c3136;
+            --line-strong: #434a51;
+            --accent: #8dbbe8;
+            --accent-strong: #e3e6e9;
+            --accent-soft: #23282d;
+            --canvas: #1a1d20;
+            --plot: #1a1d20;
             --rep-points: #3987e5;
             --rep-edges: #d95926;
             --rep-curvature: #199e70;
-            --shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
         }
 
         *,
@@ -112,11 +110,7 @@
         .demo-shell {
             width: min(100%, 1120px);
             margin: 0 auto;
-            padding: 24px;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: var(--surface);
-            box-shadow: var(--shadow);
+            padding: 24px 0;
         }
 
         .is-embedded body {
@@ -129,10 +123,7 @@
         .is-embedded .demo-shell {
             width: 100%;
             max-width: none;
-            padding: 20px;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
+            padding: 4px 0 8px;
         }
 
         .standalone-back {
@@ -179,6 +170,11 @@
 
         [data-demo-mode="manipulate"] .experiment-guide {
             grid-template-columns: 1fr;
+        }
+
+        /* the host page already states the step-1 task above the frame */
+        .is-embedded[data-demo-mode="manipulate"] .experiment-guide {
+            display: none;
         }
 
         [data-demo-mode="representations"] .status-line {
@@ -279,9 +275,9 @@
         }
 
         .manual-control-btn[aria-pressed="true"] {
-            color: #102019;
-            border-color: var(--accent);
-            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent-strong);
+            background: var(--accent-strong);
         }
 
         .manual-coach strong,
@@ -472,7 +468,7 @@
             align-items: center;
             margin-bottom: 12px;
             padding: 10px 0 10px 16px;
-            border-left: 3px solid var(--accent);
+            border-left: 2px solid var(--line-strong);
         }
 
         .experiment-guide h2 {
@@ -678,7 +674,7 @@
 
         [data-theme="dark"] .button-primary,
         [data-theme="dark"] .button-primary:hover:not(:disabled) {
-            color: #152019;
+            color: #15181b;
         }
 
         .glyph {
@@ -1084,7 +1080,7 @@
             align-items: center;
             margin-top: 12px;
             padding: 13px 0 13px 16px;
-            border-left: 3px solid var(--accent);
+            border-left: 2px solid var(--line-strong);
         }
 
         .takeaway-label {
@@ -1193,40 +1189,40 @@
 <body>
     <main class="demo-shell">
         <header>
-            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the demonstrations</a>
+            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the demos</a>
             <div class="demo-topline">
-                <p class="demo-kicker" data-i18n="demoKicker">Interactive research demo</p>
+                <p class="demo-kicker" data-i18n="demoKicker">Interactive demo</p>
                 <div class="language-switcher" aria-label="Language">
                     <button class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
                     <button class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
                 </div>
             </div>
-            <h1 data-i18n="title">Data-Driven Shape Control</h1>
-            <p class="demo-intro" data-i18n="intro">Estimate how robot motion changes shape, then use that local model to drive the object toward a target.</p>
+            <h1 data-i18n="title">Data-driven shape control</h1>
+            <p class="demo-intro" data-i18n="intro">Estimate the relation between gripper motion and shape change, then use this local model to drive the object to a target shape.</p>
         </header>
 
         <section class="experiment-guide" aria-labelledby="experimentTitle">
             <div>
-                <p class="guide-eyebrow" data-i18n="experimentEyebrow">Explore first</p>
-                <h2 id="experimentTitle" data-i18n="experimentTitle">What should count as the same shape?</h2>
-                <p data-i18n="experimentDesc">Predict what each representation will notice, then use Translate, Rotate and Bend to test your idea.</p>
+                <p class="guide-eyebrow" data-i18n="experimentEyebrow">Try this</p>
+                <h2 id="experimentTitle" data-i18n="experimentTitle">Which motions change each feature vector?</h2>
+                <p data-i18n="experimentDesc">Translate and Rotate move the rod as a rigid body; Bend deforms it. Apply each motion and compare which of the three traces change.</p>
             </div>
             <div class="prediction-card" id="predictionCard" data-state="start" role="status" aria-live="polite">
                 <span class="prediction-mark" aria-hidden="true">?</span>
-                <span class="prediction-copy"><strong id="predictionTitle" data-i18n="predictionStartTitle">Start with Translate</strong><span id="predictionText" data-i18n="predictionStartDesc">Point coordinates should change. Edge vectors and curvature should stay nearly unchanged.</span></span>
+                <span class="prediction-copy"><strong id="predictionTitle" data-i18n="predictionStartTitle">Start with Translate</strong><span id="predictionText" data-i18n="predictionStartDesc">Before pressing it: which of the three traces will change when the rod is displaced without deformation?</span></span>
             </div>
         </section>
 
         <section class="control-loop mode-data-only" aria-labelledby="controlLoopTitle">
             <div class="control-loop-heading">
-                <h2 id="controlLoopTitle" data-i18n="controlLoopTitle">The complete data-driven control loop</h2>
-                <p data-i18n="controlLoopDesc">An offline identification phase supplies the local input–shape relation; the online phase repeatedly measures error and corrects it.</p>
+                <h2 id="controlLoopTitle" data-i18n="controlLoopTitle">The shape servoing loop</h2>
+                <p data-i18n="controlLoopDesc">The Jacobian is estimated once from test motions, then used and updated at every cycle of the feedback loop.</p>
             </div>
             <div class="control-loop-grid">
-                <div class="loop-step"><span data-i18n="phaseOffline">Offline phase</span><strong data-i18n="loopProbeTitle">1. Probe the object</strong><small data-i18n="loopProbeDesc">Apply small robot commands and observe the resulting shape change.</small><code>Δu → Δs</code></div>
-                <div class="loop-step"><span data-i18n="phaseOffline">Offline phase</span><strong data-i18n="loopEstimateTitle">2. Estimate the Jacobian</strong><small data-i18n="loopEstimateDesc">Fit the local mapping from robot motion to feature motion.</small><code>Ĵ ≈ Δs / Δu</code></div>
-                <div class="loop-step"><span data-i18n="phaseOnline">Online phase</span><strong data-i18n="loopCompareTitle">3. Measure shape error</strong><small data-i18n="loopCompareDesc">Compare the current and target feature vectors.</small><code>e = s* − s</code></div>
-                <div class="loop-step"><span data-i18n="phaseOnline">Online phase</span><strong data-i18n="loopControlTitle">4. Correct and repeat</strong><small data-i18n="loopControlDesc">Convert that error into a robot command, observe again and update.</small><code>u̇ = λ Ĵ† e</code></div>
+                <div class="loop-step"><span data-i18n="phaseOffline">Offline · once</span><strong data-i18n="loopProbeTitle">1. Perturb</strong><small data-i18n="loopProbeDesc">Apply a small motion to one command at a time and record the change in the features.</small><code>Δu → Δs</code></div>
+                <div class="loop-step"><span data-i18n="phaseOffline">Offline · once</span><strong data-i18n="loopEstimateTitle">2. Estimate Ĵ</strong><small data-i18n="loopEstimateDesc">Each feature change divided by its command increment gives one column of the shape Jacobian.</small><code>Ĵ ≈ Δs / Δu</code></div>
+                <div class="loop-step"><span data-i18n="phaseOnline">Online · every cycle</span><strong data-i18n="loopCompareTitle">3. Measure the error</strong><small data-i18n="loopCompareDesc">Subtract the current feature vector from the target feature vector.</small><code>e = s* − s</code></div>
+                <div class="loop-step"><span data-i18n="phaseOnline">Online · every cycle</span><strong data-i18n="loopControlTitle">4. Correct and repeat</strong><small data-i18n="loopControlDesc">Map the error to a gripper velocity with the damped pseudoinverse of Ĵ, apply one small step and measure again.</small><code>u̇ = λ Ĵ† e</code></div>
             </div>
             <pre id="loopCode" class="pseudocode" aria-label="Pseudocode of the shape servoing loop" data-i18n-aria-label="loopCodeAria"></pre>
         </section>
@@ -1235,7 +1231,7 @@
             <article class="card">
                 <div class="card-heading">
                     <h2 data-i18n="sceneTitle">Robots, object and target</h2>
-                    <span id="sceneHint" class="card-note" data-i18n="sceneHint">Drag a gripper, its ring handle, or the object itself.</span>
+                    <span id="sceneHint" class="card-note" data-i18n="sceneHint">Drag a gripper, its ring handle to rotate it, or the rod itself.</span>
                 </div>
                 <div class="scene-wrap">
                     <canvas id="sceneCanvas" role="img" aria-label="Two planar robot arms holding a deformable linear object, with the target shape shown dashed"></canvas>
@@ -1248,7 +1244,7 @@
                 </div>
                 <div class="toolbar">
                     <button id="playBtn" class="button button-primary automatic-control" type="button" aria-pressed="false"><span class="glyph" aria-hidden="true">▶</span><span id="playLabel" data-i18n="playBtn">Estimate &amp; control</span></button>
-                    <button id="probeBtn" class="button automatic-control" type="button" data-i18n="probeBtn">Estimate model only</button>
+                    <button id="probeBtn" class="button automatic-control" type="button" data-i18n="probeBtn">Estimate only</button>
                     <button id="targetBtn" class="button target-control" type="button" data-i18n="targetBtn">New target</button>
                     <button id="resetBtn" class="button" type="button" data-i18n="resetBtn">Reset</button>
                     <span class="toolbar-divider disturbance-control" aria-hidden="true"></span>
@@ -1280,7 +1276,7 @@
                             <button class="manual-control-btn" type="button" data-manual-nudge="rotate-right" aria-label="Rotate clockwise">↷</button>
                         </div>
                     </div>
-                    <div class="manual-coach" role="status" aria-live="polite"><strong id="manualCoachTitle" data-i18n="manualCoachStartTitle">Move one gripper at a time</strong><span id="manualCoachText" data-i18n="manualCoachStartDesc">Drag a circular gripper point to translate it, or its small ring handle to rotate it.</span></div>
+                    <div class="manual-coach" role="status" aria-live="polite"><strong id="manualCoachTitle" data-i18n="manualCoachStartTitle">Move one gripper at a time</strong><span id="manualCoachText" data-i18n="manualCoachStartDesc">Drag a circular gripper point to translate it, or its ring handle to rotate it.</span></div>
                 </article>
 
                 <article class="card representation-card">
@@ -1290,29 +1286,29 @@
                     <div class="rep-group" role="group" aria-label="Shape representation">
                         <button class="rep-btn" type="button" data-representation="points" aria-pressed="true" style="color: var(--rep-points)">
                             <i class="rep-dot" aria-hidden="true"></i>
-                            <span class="rep-text"><strong data-i18n="pointCoordinates">Point coordinates</strong><span data-i18n="pointsNote">18-D · pose and shape</span></span>
+                            <span class="rep-text"><strong data-i18n="pointCoordinates">Point coordinates</strong><span data-i18n="pointsNote">18 components · changes under any motion</span></span>
                             <span class="rep-reading"><span data-i18n="currentError">Current error</span><output id="repErrorPoints">0.820</output></span>
                         </button>
                         <button class="rep-btn" type="button" data-representation="edges" aria-pressed="false" style="color: var(--rep-edges)">
                             <i class="rep-dot" aria-hidden="true"></i>
-                            <span class="rep-text"><strong data-i18n="edgeVectors">Edge vectors</strong><span data-i18n="edgesNote">16-D · translation-invariant</span></span>
+                            <span class="rep-text"><strong data-i18n="edgeVectors">Edge vectors</strong><span data-i18n="edgesNote">16 components · translation-invariant</span></span>
                             <span class="rep-reading"><span data-i18n="currentError">Current error</span><output id="repErrorEdges">0.198</output></span>
                         </button>
                         <button class="rep-btn" type="button" data-representation="curvature" aria-pressed="false" style="color: var(--rep-curvature)">
                             <i class="rep-dot" aria-hidden="true"></i>
-                            <span class="rep-text"><strong data-i18n="curvature">Curvature</strong><span data-i18n="curvatureNote">7-D · rigid-motion-invariant</span></span>
+                            <span class="rep-text"><strong data-i18n="curvature">Curvature</strong><span data-i18n="curvatureNote">7 components · invariant to rigid motion</span></span>
                             <span class="rep-reading"><span data-i18n="currentError">Current error</span><output id="repErrorCurvature">0.193</output></span>
                         </button>
                     </div>
-                    <p class="rep-comparison-note" data-i18n="repComparisonNote">Compare each signal with itself before and after a movement; the three rows use different units and scales.</p>
+                    <p class="rep-comparison-note" data-i18n="repComparisonNote">The three rows have different units and scales; compare each value only with itself before and after a motion.</p>
                     <div class="metrics">
-                        <div class="metric"><span data-i18n="errorNorm">‖e‖</span><strong id="errorNorm">0.000</strong></div>
+                        <div class="metric"><span data-i18n="errorNorm">Selected error</span><strong id="errorNorm">0.000</strong></div>
                         <div class="metric advanced-only"><span data-i18n="modelRank">Rank</span><strong id="modelRank">—</strong></div>
                         <div class="metric advanced-only"><span data-i18n="conditioning">Condition</span><strong id="conditionNumber">—</strong></div>
                     </div>
                     <div class="status-line">
                         <i id="statusDot" class="status-dot" aria-hidden="true"></i>
-                        <span id="statusText" aria-live="polite" data-i18n="statusIdle">Idle — press Play to probe and servo.</span>
+                        <span id="statusText" aria-live="polite" data-i18n="statusIdle">Idle. Select a feature vector, then estimate and control.</span>
                     </div>
                 </article>
 
@@ -1322,20 +1318,20 @@
                         <span id="jacobianNote" class="card-note">6 × 18</span>
                     </div>
                     <div id="jacobianContent" class="jacobian-content">
-                        <p class="empty-model" data-i18n="emptyModel">No model yet. Probing applies a small motion on each of the six commands and measures the feature response.</p>
+                        <p class="empty-model" data-i18n="emptyModel">No estimate yet. The estimation step applies a small motion to each of the six commands and measures the feature response.</p>
                     </div>
                 </article>
             </aside>
         </section>
 
         <div class="advanced-toggle-row">
-            <button id="advancedToggle" class="advanced-toggle" type="button" aria-expanded="false" data-i18n="showAdvanced">Show advanced model &amp; signals</button>
+            <button id="advancedToggle" class="advanced-toggle" type="button" aria-expanded="false" data-i18n="showAdvanced">Show model and signals</button>
         </div>
 
         <section class="plot-section advanced-only" id="advancedSignals">
             <header class="signals-heading">
-                <h2 id="signalsTitle" data-i18n="signalsTitle">Signals inside the feedback loop</h2>
-                <p id="signalsDesc" data-i18n="signalsDesc">Each feature component keeps one scale across the full time window; the error panel compares all three representations on the same normalised axis.</p>
+                <h2 id="signalsTitle" data-i18n="signalsTitle">Signals in the feedback loop</h2>
+                <p id="signalsDesc" data-i18n="signalsDesc">Each feature component keeps one scale over the whole time window; the error panel shows the three representations on the same normalised axis.</p>
             </header>
             <div class="plot-grid">
                 <article class="card feature-plot-card">
@@ -1361,7 +1357,7 @@
                 </article>
                 <article class="card action-plot-card">
                     <div class="card-heading">
-                        <h3 data-i18n="actionTitle">End-effector velocity u̇</h3>
+                        <h3 data-i18n="actionTitle">Robot command u̇</h3>
                         <span id="readoutAction" class="plot-readout"></span>
                     </div>
                     <canvas id="plotAction" class="plot-canvas short" data-plot="action" role="img" aria-label="Time evolution of the six end-effector velocity components"></canvas>
@@ -1369,7 +1365,7 @@
                 </article>
                 <article class="card error-plot-card">
                     <div class="card-heading">
-                        <h3 id="errorPlotTitle" data-i18n="errorTitle">Normalised error ‖e‖ / ‖e₀‖</h3>
+                        <h3 id="errorPlotTitle" data-i18n="errorTitle">Normalised error</h3>
                         <span id="readoutError" class="plot-readout"></span>
                     </div>
                     <canvas id="plotError" class="plot-canvas short" data-plot="error" role="img" aria-label="Time evolution of the normalised shape error for the three representations"></canvas>
@@ -1379,21 +1375,21 @@
         </section>
 
         <details class="learn-more representation-details" open>
-            <summary data-i18n="learnMore">What changes between representations?</summary>
+            <summary data-i18n="learnMore">Definitions of the three feature vectors</summary>
             <div class="representation-grid">
-                <article><h3 data-i18n="pointsHeading">Point coordinates</h3><p data-i18n="pointsDesc">Keep position, orientation and shape. Best for placement, but any rigid motion shows up as error.</p><code>eₚ = p* − p</code></article>
-                <article><h3 data-i18n="edgesHeading">Edge vectors</h3><p data-i18n="edgesDesc">Remove translation while keeping orientation and local direction changes. Translating the object leaves this error untouched.</p><code>e_d = d* − d</code></article>
-                <article><h3 data-i18n="curvatureHeading">Curvature</h3><p data-i18n="curvatureDesc">Remove translation and rotation, isolating intrinsic bending. Shape converges, but pose becomes unobservable and uncontrolled.</p><code>eκ = κ* − κ</code></article>
+                <article><h3 data-i18n="pointsHeading">Point coordinates</h3><p data-i18n="pointsDesc">The x and y coordinates of each measured point. The vector retains position, orientation and shape, so all three can be controlled, and any rigid motion of the object appears as error.</p><code>eₚ = p* − p</code></article>
+                <article><h3 data-i18n="edgesHeading">Edge vectors</h3><p data-i18n="edgesDesc">The vector from each point to the next. The difference between neighbouring points cancels absolute position, so edge vectors are invariant to translation but change under rotation and bending.</p><code>e_d = d* − d</code></article>
+                <article><h3 data-i18n="curvatureHeading">Curvature</h3><p data-i18n="curvatureDesc">The turning angle between consecutive edges. The angle difference cancels both position and orientation, so curvature is invariant to rigid motion and depends only on bending.</p><code>eκ = κ* − κ</code></article>
             </div>
         </details>
 
         <section class="lesson-takeaway">
             <div>
                 <span class="takeaway-label" data-i18n="takeawayLabel">Takeaway</span>
-                <strong id="takeawayTitle" data-i18n="takeawayTitle">The representation decides what the robot tries to correct.</strong>
-                <p id="takeawayDesc" data-i18n="takeawayDesc">Points preserve pose and shape, edges ignore translation, and curvature isolates bending. The “best” representation depends on the task.</p>
+                <strong id="takeawayTitle" data-i18n="takeawayTitle">The feature vector determines which errors the controller corrects.</strong>
+                <p id="takeawayDesc" data-i18n="takeawayDesc">Point coordinates retain pose and shape, edge vectors are invariant to translation, and curvature depends only on bending. The choice depends on whether the task specifies the pose of the object.</p>
             </div>
-            <a id="nextJourneyBtn" class="button button-primary button-link" href="index.html#research" target="_top" data-i18n="finishJourney">Finish: explore the research →</a>
+            <a id="nextJourneyBtn" class="button button-primary button-link" href="index.html#research" target="_top" data-i18n="finishJourney">Related research →</a>
         </section>
     </main>
 
@@ -1407,50 +1403,50 @@
         const translations = {
             en: {
                 languageAria: 'Language',
-                backToJourney: '← Back to the demonstrations',
-                demoKicker: 'Interactive research demo',
-                title: 'Data-Driven Shape Control',
-                intro: 'Estimate how robot motion changes shape, then use that local model to drive the object toward a target.',
+                backToJourney: '← Back to the demos',
+                demoKicker: 'Interactive demo',
+                title: 'Data-driven shape control',
+                intro: 'Estimate the relation between gripper motion and shape change, then use this local model to drive the object to a target shape.',
                 manipulateTitle: 'Manual shape servoing',
-                manipulateIntro: 'Two robot arms hold a flexible rod at its ends. The dashed line is the shape you have to reach. Move one gripper and the whole rod responds: that coupling is what makes shape control hard.',
+                manipulateIntro: 'Two robot arms hold a flexible rod by its ends; the dashed curve is the target shape. A motion of one gripper changes the shape of the entire rod, so every input affects all shape coordinates at once. This coupling is a central difficulty of shape control.',
                 representationsTitle: 'Shape representations and invariance',
-                representationsIntro: 'A controller never sees a shape. It sees a list of numbers extracted from it, the feature vector. The same rod is described three ways here, and the three disagree about what counts as a change.',
+                representationsIntro: 'A controller does not operate on the shape itself but on a feature vector computed from it. Here the same rod is described by three feature vectors, which differ in the motions to which they are invariant.',
                 dataDrivenTitle: 'Data-driven shape control',
-                dataDrivenIntro: 'The controller starts with no model of the rod. It first explores, moving each gripper a little to see how the object responds, and then uses what it measured to drive the shape error to zero.',
+                dataDrivenIntro: 'The controller has no prior model of the rod. It first applies a small motion to each gripper command and records the resulting feature change; from these measurements it estimates the shape Jacobian and uses it to drive the shape error to zero.',
                 experimentEyebrow: 'Try this',
-                experimentTitle: 'Which movements does each description notice?',
-                experimentDesc: 'Translate moves the rod without deforming it: only the point coordinates change. Rotate turns it: points and edges change, curvature does not. Bend really deforms it, so all three change.',
+                experimentTitle: 'Which motions change each feature vector?',
+                experimentDesc: 'Translate and Rotate move the rod as a rigid body; Bend deforms it. Apply each motion and compare which of the three traces change.',
                 manipulateExperimentEyebrow: 'Task',
-                manipulateExperimentTitle: 'Match the dashed target shape',
-                manipulateExperimentDesc: 'Drag a gripper to move it, or its small ring to rotate it. Change one thing at a time, and undo anything that makes the error grow.',
-                dataExperimentEyebrow: 'How it works',
-                dataExperimentTitle: 'Learn how the object responds, then correct',
-                dataExperimentDesc: 'Choose a feature vector on the right and press Explore & control. The grippers first make small test movements, then the loop takes over.',
+                manipulateExperimentTitle: 'Reach the dashed target shape',
+                manipulateExperimentDesc: 'Drag a gripper to translate it, or its ring handle to rotate it. Change one input at a time and reverse any change that increases the error.',
+                dataExperimentEyebrow: 'Procedure',
+                dataExperimentTitle: 'Estimate the Jacobian, then close the loop',
+                dataExperimentDesc: 'Select a feature vector on the right and press Estimate & control. The grippers first execute small test motions; the feedback loop starts once the Jacobian is estimated.',
                 predictionStartTitle: 'Start with Translate',
-                predictionStartDesc: 'Predict first: which of the three traces will move when the rod is carried sideways without being deformed?',
+                predictionStartDesc: 'Before pressing it: which of the three traces will change when the rod is displaced without deformation?',
                 predictionTranslateTitle: 'Translation: position only',
-                predictionTranslateDesc: 'Point coordinates move because every point has new coordinates. Edges and curvature are built from differences between neighbours, so a common translation cancels out.',
+                predictionTranslateDesc: 'Every point has new coordinates, so the point-coordinate trace changes. Edge vectors and curvature are computed from differences between neighbouring points, in which a common translation cancels.',
                 predictionRotateTitle: 'Rotation: position and orientation',
-                predictionRotateDesc: 'Points and edge vectors both turn with the rod. Curvature compares neighbouring directions, so a common rotation cancels and its trace stays flat.',
-                predictionWaveTitle: 'Bending: a real shape change',
-                predictionWaveDesc: 'No representation can ignore this one. The rod is genuinely deformed, so all three traces respond.',
-                dataPhaseStartTitle: 'Nothing is known about the object yet',
-                dataPhaseStartDesc: 'Pick a feature vector, then let the grippers explore before the loop starts correcting.',
-                dataPhaseEstimateTitle: 'Measuring the response to each command',
-                dataPhaseEstimateDesc: 'Each gripper moves a little on its own so the resulting shape change can be attributed to it.',
-                dataPhaseControlTitle: 'The loop is closed',
-                dataPhaseControlDesc: 'Every cycle measures the error, converts it into gripper motion and refines the model with what it observes.',
-                dataPhaseReadyTitle: 'The model is ready',
-                dataPhaseReadyDesc: 'The shape Jacobian now relates gripper motion to feature motion. Press Explore & control to use it.',
+                predictionRotateDesc: 'Point coordinates and edge vectors rotate with the rod. Curvature is the angle between consecutive edges, in which a common rotation cancels, so its trace remains constant.',
+                predictionWaveTitle: 'Bending: a change of shape',
+                predictionWaveDesc: 'Bending changes the intrinsic shape of the rod. None of the three feature vectors is invariant to it, so all three traces change.',
+                dataPhaseStartTitle: 'No model yet',
+                dataPhaseStartDesc: 'Select a feature vector. The grippers execute test motions before the feedback loop starts.',
+                dataPhaseEstimateTitle: 'Estimating the shape Jacobian',
+                dataPhaseEstimateDesc: 'One command is perturbed at a time, so each measured feature change is attributed to a single input and gives one column of Ĵ.',
+                dataPhaseControlTitle: 'Closed loop',
+                dataPhaseControlDesc: 'Each cycle measures the feature error, maps it to a gripper velocity through Ĵ and updates Ĵ with the measured response.',
+                dataPhaseReadyTitle: 'Jacobian estimated',
+                dataPhaseReadyDesc: 'Ĵ relates gripper motion to feature motion around the current configuration. Press Estimate & control to start the feedback loop.',
                 sceneTitle: 'Robots, object and target',
-                sceneHint: 'Drag a gripper, its ring to rotate, or the rod itself.',
+                sceneHint: 'Drag a gripper, its ring handle to rotate it, or the rod itself.',
                 legendObject: 'Object',
                 legendTarget: 'Target shape',
                 legendFeatures: 'Measured features',
                 rodModel: 'Discrete Kirchhoff rod · 24 segments',
-                playBtn: 'Explore & control',
+                playBtn: 'Estimate & control',
                 pauseBtn: 'Pause',
-                probeBtn: 'Explore only',
+                probeBtn: 'Estimate only',
                 targetBtn: 'New target',
                 resetBtn: 'Reset',
                 disturbLabel: 'Move the object:',
@@ -1459,32 +1455,32 @@
                 waveBtn: 'Bend',
                 repTitle: 'Controlled feature vector',
                 representationAria: 'Shape representation',
-                repComparisonNote: 'Compare each signal with itself before and after a movement; the three rows use different units and scales.',
+                repComparisonNote: 'The three rows have different units and scales; compare each value only with itself before and after a motion.',
                 pointCoordinates: 'Point coordinates',
-                pointsNote: '18 numbers · sees every movement',
+                pointsNote: '18 components · changes under any motion',
                 edgeVectors: 'Edge vectors',
-                edgesNote: '16 numbers · invariant to translation',
+                edgesNote: '16 components · translation-invariant',
                 curvature: 'Curvature',
-                curvatureNote: '7 numbers · invariant to any rigid motion',
+                curvatureNote: '7 components · invariant to rigid motion',
                 currentError: 'Current error',
                 errorNorm: 'Selected error',
                 modelRank: 'Rank',
                 conditioning: 'Condition',
                 jacobianTitle: 'Estimated shape Jacobian Ĵ',
-                emptyModel: 'No model yet. Probing applies a small motion on each of the six commands and measures the feature response.',
+                emptyModel: 'No estimate yet. The estimation step applies a small motion to each of the six commands and measures the feature response.',
                 featPointsTitle: 'Point coordinates',
                 featEdgesTitle: 'Edge vectors',
                 featCurvatureTitle: 'Curvature',
                 actionTitle: 'Robot command u̇',
                 errorTitle: 'Normalised error',
-                signalsTitle: 'Signals inside the feedback loop',
-                signalsDesc: 'Each feature component keeps one scale across the full time window; the error panel compares all three representations on the same normalised axis.',
+                signalsTitle: 'Signals in the feedback loop',
+                signalsDesc: 'Each feature component keeps one scale over the whole time window; the error panel shows the three representations on the same normalised axis.',
                 manipulateSignalsTitle: 'Shape error over time',
-                manipulateSignalsDesc: 'Each blue arrow points from a measured point to where it should end up. The plot adds those arrows into a single number: bring it down into the green band.',
-                representationsSignalsTitle: 'What each description ignores',
-                representationsSignalsDesc: 'A feature is invariant to a movement when that movement leaves its numbers untouched. A trace that stays flat while the object moves is invariance you can watch happen.',
-                dataSignalsTitle: 'Signals inside the feedback loop',
-                dataSignalsDesc: 'Feature components, gripper velocities and error share one rolling three-second window, so the exploration wiggles and the correction that follows can be read against each other.',
+                manipulateSignalsDesc: 'Each blue arrow joins a measured point to its target position. The plot converts the norm of these errors, relative to its initial value, into a percentage; bring it into the shaded band below the match threshold.',
+                representationsSignalsTitle: 'Invariance of each feature vector',
+                representationsSignalsDesc: 'A feature vector is invariant to a motion if the motion leaves its components unchanged. A trace that remains constant while the object moves indicates invariance to that motion.',
+                dataSignalsTitle: 'Signals in the feedback loop',
+                dataSignalsDesc: 'Feature components, gripper velocities and error are plotted over the same three-second window, so the test motions of the estimation step and the subsequent correction share one time axis.',
                 timeAxisLabel: 'Time (s)',
                 pointsAxisLabel: 'Position (m)',
                 edgesAxisLabel: 'Edge component (m)',
@@ -1495,41 +1491,41 @@
                 manualErrorTitle: 'Shape error',
                 manualErrorSeries: 'Shape error',
                 manualTargetBand: 'match threshold',
-                statusIdle: 'Idle — choose a representation, then estimate and control.',
-                statusProbing: 'Exploring command',
-                statusLearned: 'Model built from the exploration data.',
+                statusIdle: 'Idle. Select a feature vector, then estimate and control.',
+                statusProbing: 'Perturbing command',
+                statusLearned: 'Jacobian estimated from the test motions.',
                 statusRunning: 'Controller running',
                 statusConverged: 'Converged for the selected feature vector.',
                 statusPaused: 'Controller paused.',
-                statusStalled: 'Stalled — the target is not reachable in this feature space.',
-                statusManual: 'Manual motion — plots keep streaming.',
+                statusStalled: 'Stopped: the error does not converge in this feature space.',
+                statusManual: 'Manual motion; the plots continue to update.',
                 statusTarget: 'New target sampled from a feasible clamped pose.',
-                statusLimit: 'Stopped: the rod cannot stretch any further.',
+                statusLimit: 'Stopped: the commanded gripper distance exceeds the rod length.',
                 statusDisturb: 'Disturbance applied to the object.',
                 stepsLabel: 'steps',
-                learnMore: 'What changes between representations?',
+                learnMore: 'Definitions of the three feature vectors',
                 pointsHeading: 'Point coordinates',
-                pointsDesc: 'The x and y of every measured point. Nothing is thrown away, so position, orientation and shape are all controllable, and any rigid motion of the object shows up as error.',
+                pointsDesc: 'The x and y coordinates of each measured point. The vector retains position, orientation and shape, so all three can be controlled, and any rigid motion of the object appears as error.',
                 edgesHeading: 'Edge vectors',
-                edgesDesc: 'The vector from each point to the next. Subtracting neighbours cancels absolute position, so edge vectors are invariant to translation but still see rotation and bending.',
+                edgesDesc: 'The vector from each point to the next. The difference between neighbouring points cancels absolute position, so edge vectors are invariant to translation but change under rotation and bending.',
                 curvatureHeading: 'Curvature',
-                curvatureDesc: 'The turn angle between consecutive edges. Comparing neighbouring directions cancels position and orientation together, so curvature is invariant to any rigid motion and reports bending alone.',
-                showAdvanced: 'Show advanced model & signals',
-                hideAdvanced: 'Hide advanced model & signals',
+                curvatureDesc: 'The turning angle between consecutive edges. The angle difference cancels both position and orientation, so curvature is invariant to rigid motion and depends only on bending.',
+                showAdvanced: 'Show model and signals',
+                hideAdvanced: 'Hide model and signals',
                 controlLoopTitle: 'The shape servoing loop',
-                controlLoopDesc: 'Two stages: measure how robot motion moves the features, then use that relation as feedback.',
+                controlLoopDesc: 'The Jacobian is estimated once from test motions, then used and updated at every cycle of the feedback loop.',
                 phaseOffline: 'Offline · once',
                 phaseOnline: 'Online · every cycle',
-                loopProbeTitle: '1. Explore',
-                loopProbeDesc: 'Move each gripper a little, one command at a time, and record how the features respond.',
-                loopEstimateTitle: '2. Build the model',
-                loopEstimateDesc: 'Collect those responses into the shape Jacobian: how far each feature moves per unit of robot motion.',
+                loopProbeTitle: '1. Perturb',
+                loopProbeDesc: 'Apply a small motion to one command at a time and record the change in the features.',
+                loopEstimateTitle: '2. Estimate Ĵ',
+                loopEstimateDesc: 'Each feature change divided by its command increment gives one column of the shape Jacobian.',
                 loopCompareTitle: '3. Measure the error',
-                loopCompareDesc: 'Subtract the current feature vector from the target one.',
-                loopControlTitle: '4. Correct, then repeat',
-                loopPseudocode: '# ---- stage 1: learn how the object responds (once) ----\nfor each gripper command u_i:            # 6 of them: x, y and angle per gripper\n    move a small test amount  du_i       # one command at a time, so the cause is known\n    ds = features_now - features_before  # how the measured shape reacted\n    J[:, i] = ds / du_i                  # one column of the shape Jacobian\n\n# ---- stage 2: close the loop (every cycle) ----\nwhile shape error is too large:\n    s = measure_features(object)         # points, edge vectors or curvature\n    e = s_target - s                     # shape error, in feature space\n    u_dot = gain * pseudoinverse(J) @ e  # gripper motion that reduces e fastest\n    move_grippers(u_dot * dt)            # apply one small step, then look again\n    J = update(J, response just seen)    # keep the model valid as the shape changes',
+                loopCompareDesc: 'Subtract the current feature vector from the target feature vector.',
+                loopControlTitle: '4. Correct and repeat',
+                loopPseudocode: '# ---- stage 1: estimate the shape Jacobian (once) ----\nfor each gripper command u_i:            # 6 in total: x, y and angle per gripper\n    apply a small increment  du_i        # one command at a time, so the cause is known\n    ds = features_now - features_before  # measured feature change\n    J[:, i] = ds / du_i                  # one column of the shape Jacobian\n\n# ---- stage 2: close the loop (every cycle) ----\nwhile shape error is too large:\n    s = measure_features(object)         # points, edge vectors or curvature\n    e = s_target - s                     # shape error in feature space\n    u_dot = gain * damped_pinv(J) @ e    # least-squares gripper velocity\n    move_grippers(u_dot * dt)            # apply one small step, then measure again\n    J = broyden_update(J, du, ds)        # correct J with the measured response',
                 loopCodeAria: 'Pseudocode of the shape servoing loop',
-                loopControlDesc: 'Invert the model to turn that error into gripper motion, apply one small step, and measure again.',
+                loopControlDesc: 'Map the error to a gripper velocity with the damped pseudoinverse of Ĵ, apply one small step and measure again.',
                 manualScoreTitle: 'Manual challenge',
                 manualMatchLabel: 'Shape match',
                 manualMovesLabel: 'Moves',
@@ -1544,27 +1540,27 @@
                 rotateLeftAria: 'Rotate counter-clockwise',
                 rotateRightAria: 'Rotate clockwise',
                 manualCoachStartTitle: 'Move one gripper at a time',
-                manualCoachStartDesc: 'Drag a circular gripper point to translate it, or its small ring handle to rotate it.',
-                manualCoachImprovingTitle: 'Good move—the shape is closer',
+                manualCoachStartDesc: 'Drag a circular gripper point to translate it, or its ring handle to rotate it.',
+                manualCoachImprovingTitle: 'Error decreased',
                 manualCoachImprovingDesc: 'Continue with a small adjustment, or test the other gripper.',
-                manualCoachWrongTitle: 'That movement increased the error',
+                manualCoachWrongTitle: 'Error increased',
                 manualCoachWrongDesc: 'Reverse the change and try another direction or gripper.',
-                manualCoachCloseTitle: 'Close—make smaller corrections',
-                manualCoachCloseDesc: 'The remaining difference is small, so fine gripper motions will help most.',
+                manualCoachCloseTitle: 'Close to the target',
+                manualCoachCloseDesc: 'Use small gripper motions to reduce the remaining error.',
                 manualCoachSuccessTitle: 'Target matched',
-                manualCoachSuccessDesc: 'You closed the loop manually by observing, comparing and correcting.',
+                manualCoachSuccessDesc: 'You closed the loop manually: measure, compare, correct.',
                 takeawayLabel: 'Takeaway',
-                takeawayTitle: 'The representation decides what the robot tries to correct.',
-                takeawayDesc: 'Points preserve pose and shape, edges ignore translation, and curvature isolates bending. The “best” representation depends on the task.',
-                manipulateTakeawayTitle: 'You just closed a shape-control loop by hand.',
-                manipulateTakeawayDesc: 'Measure the error, choose a correction, apply it, measure again. The remaining steps replace your judgement with a feature vector and a model learned from data.',
-                representationsTakeawayTitle: 'Invariance is a deliberate trade.',
-                representationsTakeawayDesc: 'Every invariance rejects a disturbance you do not care about and, in the same move, hides a direction the controller can no longer correct. Curvature ignores a shove, but it also cannot tell the robot where to put the rod.',
-                dataTakeawayTitle: 'The model is measured, not derived.',
-                dataTakeawayDesc: 'Nothing in the loop knows the object is an elastic rod. A handful of small test movements gives the local relation between gripper motion and feature motion, and that is enough to close the loop.',
-                nextCompare: 'Next: measuring shape similarity →',
+                takeawayTitle: 'The feature vector determines which errors the controller corrects.',
+                takeawayDesc: 'Point coordinates retain pose and shape, edge vectors are invariant to translation, and curvature depends only on bending. The choice depends on whether the task specifies the pose of the object.',
+                manipulateTakeawayTitle: 'You closed a shape-control loop by hand.',
+                manipulateTakeawayDesc: 'Measure the error, choose a correction, apply it and measure again. Steps 3 and 4 replace the operator with a feature vector and a Jacobian estimated from data.',
+                representationsTakeawayTitle: 'Invariance removes disturbances and controllable directions together.',
+                representationsTakeawayDesc: 'A feature vector that is invariant to a motion is insensitive to disturbances along that motion, and errors along it cannot be corrected. Curvature is unaffected when the rod is pushed sideways, but it cannot specify where the rod should be placed.',
+                dataTakeawayTitle: 'The Jacobian is estimated from data, not derived from a model.',
+                dataTakeawayDesc: 'The controller uses no model of the rod mechanics. Six small test motions determine the local relation between gripper motion and feature motion, and the Broyden update adjusts this estimate as the configuration changes.',
+                nextCompare: 'Next: shape similarity →',
                 nextDataDriven: 'Next: data-driven shape control →',
-                finishJourney: 'Read the related research →',
+                finishJourney: 'Related research →',
                 sceneCanvasLabel: 'Two planar robot arms holding a deformable object, with the target shape shown as a dashed curve',
                 pointsPlotLabel: 'Time evolution of the point-coordinate feature components',
                 edgesPlotLabel: 'Time evolution of the edge-vector feature components',
@@ -1582,50 +1578,50 @@
             },
             es: {
                 languageAria: 'Idioma',
-                backToJourney: '← Volver a las demostraciones',
+                backToJourney: '← Volver a las demos',
                 demoKicker: 'Demostración interactiva',
-                title: 'Control de Forma Basado en Datos',
-                intro: 'Estima cómo el movimiento del robot cambia la forma y utiliza después ese modelo local para llevar el objeto hacia un objetivo.',
-                manipulateTitle: 'Servoing de forma manual',
-                manipulateIntro: 'Dos brazos robóticos sujetan una varilla flexible por sus extremos. La línea discontinua es la forma que debes alcanzar. Al mover una pinza responde toda la varilla: ese acoplamiento es lo que hace difícil el control de forma.',
+                title: 'Control de forma basado en datos',
+                intro: 'Estima la relación entre el movimiento de las pinzas y el cambio de forma y usa después este modelo local para llevar el objeto a una forma objetivo.',
+                manipulateTitle: 'Control de forma manual',
+                manipulateIntro: 'Dos brazos robóticos sujetan una varilla flexible por sus extremos; la curva discontinua es la forma objetivo. Un movimiento de una pinza cambia la forma de toda la varilla, de modo que cada entrada afecta a la vez a todas las coordenadas de forma. Este acoplamiento es una dificultad central del control de forma.',
                 representationsTitle: 'Representaciones de forma e invariancia',
-                representationsIntro: 'Un controlador nunca ve una forma: ve una lista de números extraídos de ella, el vector de características. Aquí la misma varilla se describe de tres maneras, y las tres discrepan sobre qué cuenta como un cambio.',
+                representationsIntro: 'Un controlador no opera sobre la forma en sí, sino sobre un vector de características calculado a partir de ella. Aquí la misma varilla se describe con tres vectores de características, que difieren en los movimientos a los que son invariantes.',
                 dataDrivenTitle: 'Control de forma basado en datos',
-                dataDrivenIntro: 'El controlador parte sin modelo de la varilla. Primero explora, moviendo un poco cada pinza para ver cómo responde el objeto, y después usa lo medido para llevar a cero el error de forma.',
+                dataDrivenIntro: 'El controlador no dispone de un modelo previo de la varilla. Primero aplica un pequeño movimiento a cada comando de las pinzas y registra el cambio resultante en las características; con estas medidas estima el jacobiano de forma y lo usa para llevar a cero el error de forma.',
                 experimentEyebrow: 'Prueba esto',
-                experimentTitle: '¿Qué movimientos detecta cada descripción?',
-                experimentDesc: 'Trasladar mueve la varilla sin deformarla: solo cambian las coordenadas de puntos. Rotar la gira: cambian puntos y aristas, no la curvatura. Flexionar la deforma de verdad, así que cambian las tres.',
+                experimentTitle: '¿Qué movimientos cambian cada vector de características?',
+                experimentDesc: 'Trasladar y Rotar mueven la varilla como un sólido rígido; Flexionar la deforma. Aplica cada movimiento y compara qué trazas cambian.',
                 manipulateExperimentEyebrow: 'Tarea',
                 manipulateExperimentTitle: 'Alcanza la forma objetivo discontinua',
-                manipulateExperimentDesc: 'Arrastra una pinza para desplazarla, o su anillo pequeño para girarla. Cambia una cosa cada vez y deshaz lo que aumente el error.',
-                dataExperimentEyebrow: 'Cómo funciona',
-                dataExperimentTitle: 'Aprende cómo responde el objeto y después corrige',
-                dataExperimentDesc: 'Elige un vector de características a la derecha y pulsa Explorar y controlar. Las pinzas hacen primero pequeños movimientos de prueba y después el lazo toma el control.',
+                manipulateExperimentDesc: 'Arrastra una pinza para trasladarla, o su anillo para girarla. Cambia una entrada cada vez e invierte cualquier cambio que aumente el error.',
+                dataExperimentEyebrow: 'Procedimiento',
+                dataExperimentTitle: 'Estima el jacobiano y cierra el lazo',
+                dataExperimentDesc: 'Elige un vector de características a la derecha y pulsa Estimar y controlar. Las pinzas ejecutan primero pequeños movimientos de prueba; el lazo de realimentación empieza cuando el jacobiano está estimado.',
                 predictionStartTitle: 'Empieza con Trasladar',
-                predictionStartDesc: 'Predice primero: ¿cuál de las tres trazas se moverá si la varilla se desplaza de lado sin deformarse?',
+                predictionStartDesc: 'Antes de pulsarlo: ¿cuál de las tres trazas cambiará si la varilla se desplaza sin deformarse?',
                 predictionTranslateTitle: 'Traslación: solo la posición',
-                predictionTranslateDesc: 'Las coordenadas de puntos se mueven porque cada punto tiene coordenadas nuevas. Aristas y curvatura se construyen con diferencias entre vecinos, así que una traslación común se cancela.',
+                predictionTranslateDesc: 'Cada punto tiene coordenadas nuevas, así que la traza de coordenadas de puntos cambia. Los vectores de arista y la curvatura se calculan con diferencias entre puntos vecinos, en las que una traslación común se cancela.',
                 predictionRotateTitle: 'Rotación: posición y orientación',
-                predictionRotateDesc: 'Puntos y vectores de arista giran con la varilla. La curvatura compara direcciones vecinas, así que una rotación común se cancela y su traza sigue plana.',
-                predictionWaveTitle: 'Flexión: un cambio de forma real',
-                predictionWaveDesc: 'Ninguna representación puede ignorar esto. La varilla se deforma de verdad, así que responden las tres trazas.',
-                dataPhaseStartTitle: 'Aún no se sabe nada del objeto',
-                dataPhaseStartDesc: 'Elige un vector de características y deja que las pinzas exploren antes de que el lazo empiece a corregir.',
-                dataPhaseEstimateTitle: 'Midiendo la respuesta a cada comando',
-                dataPhaseEstimateDesc: 'Cada pinza se mueve un poco por separado para poder atribuirle el cambio de forma resultante.',
-                dataPhaseControlTitle: 'El lazo está cerrado',
-                dataPhaseControlDesc: 'En cada ciclo se mide el error, se convierte en movimiento de las pinzas y se refina el modelo con lo observado.',
-                dataPhaseReadyTitle: 'El modelo está listo',
-                dataPhaseReadyDesc: 'El jacobiano de forma ya relaciona el movimiento de las pinzas con el de las características. Pulsa Explorar y controlar para usarlo.',
+                predictionRotateDesc: 'Las coordenadas de puntos y los vectores de arista giran con la varilla. La curvatura es el ángulo entre aristas consecutivas, en el que una rotación común se cancela, así que su traza no cambia.',
+                predictionWaveTitle: 'Flexión: un cambio de forma',
+                predictionWaveDesc: 'La flexión cambia la forma intrínseca de la varilla. Ninguno de los tres vectores de características es invariante a ella, así que cambian las tres trazas.',
+                dataPhaseStartTitle: 'Aún no hay modelo',
+                dataPhaseStartDesc: 'Elige un vector de características. Las pinzas ejecutan movimientos de prueba antes de que empiece el lazo de realimentación.',
+                dataPhaseEstimateTitle: 'Estimando el jacobiano de forma',
+                dataPhaseEstimateDesc: 'Se perturba un comando cada vez, de modo que cada cambio medido de las características se atribuye a una sola entrada y da una columna de Ĵ.',
+                dataPhaseControlTitle: 'Lazo cerrado',
+                dataPhaseControlDesc: 'En cada ciclo se mide el error de características, se transforma en una velocidad de las pinzas mediante Ĵ y se actualiza Ĵ con la respuesta medida.',
+                dataPhaseReadyTitle: 'Jacobiano estimado',
+                dataPhaseReadyDesc: 'Ĵ relaciona el movimiento de las pinzas con el de las características en torno a la configuración actual. Pulsa Estimar y controlar para iniciar el lazo de realimentación.',
                 sceneTitle: 'Robots, objeto y objetivo',
-                sceneHint: 'Arrastra una pinza, su anillo para girar, o la propia varilla.',
+                sceneHint: 'Arrastra una pinza, su anillo para girarla, o la propia varilla.',
                 legendObject: 'Objeto',
                 legendTarget: 'Forma objetivo',
                 legendFeatures: 'Características medidas',
                 rodModel: 'Varilla discreta de Kirchhoff · 24 segmentos',
-                playBtn: 'Explorar y controlar',
+                playBtn: 'Estimar y controlar',
                 pauseBtn: 'Pausar',
-                probeBtn: 'Solo explorar',
+                probeBtn: 'Solo estimar',
                 targetBtn: 'Nuevo objetivo',
                 resetBtn: 'Reiniciar',
                 disturbLabel: 'Mueve el objeto:',
@@ -1634,32 +1630,32 @@
                 waveBtn: 'Flexionar',
                 repTitle: 'Vector de características controlado',
                 representationAria: 'Representación de la forma',
-                repComparisonNote: 'Compara cada señal consigo misma antes y después de un movimiento; las tres filas utilizan unidades y escalas distintas.',
+                repComparisonNote: 'Las tres filas tienen unidades y escalas distintas; compara cada valor solo consigo mismo antes y después de un movimiento.',
                 pointCoordinates: 'Coordenadas de puntos',
-                pointsNote: '18 números · detecta todo movimiento',
+                pointsNote: '18 componentes · cambia con cualquier movimiento',
                 edgeVectors: 'Vectores de arista',
-                edgesNote: '16 números · invariante a la traslación',
+                edgesNote: '16 componentes · invariante a la traslación',
                 curvature: 'Curvatura',
-                curvatureNote: '7 números · invariante a todo movimiento rígido',
+                curvatureNote: '7 componentes · invariante al movimiento rígido',
                 currentError: 'Error actual',
                 errorNorm: 'Error seleccionado',
                 modelRank: 'Rango',
                 conditioning: 'Condición',
                 jacobianTitle: 'Jacobiano de forma estimado Ĵ',
-                emptyModel: 'Aún no hay modelo. La exploración aplica un pequeño movimiento en cada uno de los seis comandos y mide la respuesta de las características.',
+                emptyModel: 'Aún no hay estimación. El paso de estimación aplica un pequeño movimiento a cada uno de los seis comandos y mide la respuesta de las características.',
                 featPointsTitle: 'Coordenadas de puntos',
                 featEdgesTitle: 'Vectores de arista',
                 featCurvatureTitle: 'Curvatura',
                 actionTitle: 'Comando del robot u̇',
                 errorTitle: 'Error normalizado',
-                signalsTitle: 'Señales dentro del bucle de control',
-                signalsDesc: 'Cada componente mantiene una escala durante toda la ventana temporal; el panel de error compara las tres representaciones en el mismo eje normalizado.',
+                signalsTitle: 'Señales del lazo de realimentación',
+                signalsDesc: 'Cada componente mantiene una escala durante toda la ventana temporal; el panel de error muestra las tres representaciones en el mismo eje normalizado.',
                 manipulateSignalsTitle: 'Error de forma en el tiempo',
-                manipulateSignalsDesc: 'Cada flecha azul va de un punto medido hasta donde debería acabar. La gráfica suma esas flechas en un único número: haz que baje hasta la banda verde.',
-                representationsSignalsTitle: 'Qué ignora cada descripción',
-                representationsSignalsDesc: 'Una característica es invariante a un movimiento cuando ese movimiento no altera sus números. Una traza que permanece plana mientras el objeto se mueve es invariancia que puedes ver.',
-                dataSignalsTitle: 'Señales dentro del lazo de realimentación',
-                dataSignalsDesc: 'Las componentes de características, las velocidades de las pinzas y el error comparten una ventana móvil de tres segundos, de modo que las oscilaciones de exploración y la corrección posterior pueden leerse juntas.',
+                manipulateSignalsDesc: 'Cada flecha azul une un punto medido con su posición objetivo. La gráfica convierte la norma de estos errores, relativa a su valor inicial, en un porcentaje; llévalo a la banda sombreada bajo el umbral de coincidencia.',
+                representationsSignalsTitle: 'Invariancia de cada vector de características',
+                representationsSignalsDesc: 'Un vector de características es invariante a un movimiento si este no modifica sus componentes. Una traza que no cambia mientras el objeto se mueve indica invariancia a ese movimiento.',
+                dataSignalsTitle: 'Señales del lazo de realimentación',
+                dataSignalsDesc: 'Las componentes de las características, las velocidades de las pinzas y el error se representan en la misma ventana de tres segundos, de modo que los movimientos de prueba de la estimación y la corrección posterior comparten un eje temporal.',
                 timeAxisLabel: 'Tiempo (s)',
                 pointsAxisLabel: 'Posición (m)',
                 edgesAxisLabel: 'Componente de arista (m)',
@@ -1670,41 +1666,41 @@
                 manualErrorTitle: 'Error de forma',
                 manualErrorSeries: 'Error de forma',
                 manualTargetBand: 'umbral de coincidencia',
-                statusIdle: 'En espera — elige una representación y activa la estimación y el control.',
-                statusProbing: 'Explorando el comando',
-                statusLearned: 'Modelo construido con los datos de exploración.',
+                statusIdle: 'En espera. Elige un vector de características y después estima y controla.',
+                statusProbing: 'Perturbando el comando',
+                statusLearned: 'Jacobiano estimado a partir de los movimientos de prueba.',
                 statusRunning: 'Controlador en marcha',
-                statusConverged: 'Convergido para el vector de características elegido.',
+                statusConverged: 'Convergencia alcanzada para el vector de características elegido.',
                 statusPaused: 'Controlador en pausa.',
-                statusStalled: 'Estancado — el objetivo no es alcanzable en este espacio de características.',
-                statusManual: 'Movimiento manual — las gráficas siguen actualizándose.',
-                statusTarget: 'Nuevo objetivo generado con una pose de sujeción factible.',
-                statusLimit: 'Detenido: la varilla no puede estirarse más.',
+                statusStalled: 'Detenido: el error no converge en este espacio de características.',
+                statusManual: 'Movimiento manual; las gráficas siguen actualizándose.',
+                statusTarget: 'Nuevo objetivo generado a partir de una pose de sujeción factible.',
+                statusLimit: 'Detenido: la distancia entre pinzas pedida supera la longitud de la varilla.',
                 statusDisturb: 'Perturbación aplicada al objeto.',
                 stepsLabel: 'pasos',
-                learnMore: '¿Qué cambia entre representaciones?',
+                learnMore: 'Definición de los tres vectores de características',
                 pointsHeading: 'Coordenadas de puntos',
-                pointsDesc: 'La x y la y de cada punto medido. No se descarta nada, así que posición, orientación y forma son controlables, y cualquier movimiento rígido del objeto aparece como error.',
+                pointsDesc: 'Las coordenadas x e y de cada punto medido. El vector conserva posición, orientación y forma, así que las tres pueden controlarse, y cualquier movimiento rígido del objeto aparece como error.',
                 edgesHeading: 'Vectores de arista',
-                edgesDesc: 'El vector de cada punto al siguiente. Restar vecinos cancela la posición absoluta, así que los vectores de arista son invariantes a la traslación pero siguen detectando rotación y flexión.',
+                edgesDesc: 'El vector de cada punto al siguiente. La diferencia entre puntos vecinos cancela la posición absoluta, así que los vectores de arista son invariantes a la traslación pero cambian con la rotación y la flexión.',
                 curvatureHeading: 'Curvatura',
-                curvatureDesc: 'El ángulo de giro entre aristas consecutivas. Comparar direcciones vecinas cancela a la vez posición y orientación, así que la curvatura es invariante a cualquier movimiento rígido e informa solo de la flexión.',
-                showAdvanced: 'Mostrar modelo y señales avanzadas',
-                hideAdvanced: 'Ocultar modelo y señales avanzadas',
-                controlLoopTitle: 'El lazo de servoing de forma',
-                controlLoopDesc: 'Dos etapas: medir cómo el movimiento del robot mueve las características y usar después esa relación como realimentación.',
+                curvatureDesc: 'El ángulo de giro entre aristas consecutivas. La diferencia de ángulos cancela a la vez la posición y la orientación, así que la curvatura es invariante al movimiento rígido y depende solo de la flexión.',
+                showAdvanced: 'Mostrar modelo y señales',
+                hideAdvanced: 'Ocultar modelo y señales',
+                controlLoopTitle: 'El lazo de control de forma',
+                controlLoopDesc: 'El jacobiano se estima una vez con movimientos de prueba y después se usa y se actualiza en cada ciclo del lazo de realimentación.',
                 phaseOffline: 'Fuera de línea · una vez',
                 phaseOnline: 'En línea · cada ciclo',
-                loopProbeTitle: '1. Explorar',
-                loopProbeDesc: 'Mueve un poco cada pinza, un comando cada vez, y registra cómo responden las características.',
-                loopEstimateTitle: '2. Construir el modelo',
-                loopEstimateDesc: 'Reúne esas respuestas en el jacobiano de forma: cuánto se mueve cada característica por unidad de movimiento del robot.',
+                loopProbeTitle: '1. Perturbar',
+                loopProbeDesc: 'Aplica un pequeño movimiento a un comando cada vez y registra el cambio en las características.',
+                loopEstimateTitle: '2. Estimar Ĵ',
+                loopEstimateDesc: 'Cada cambio de las características dividido por el incremento de su comando da una columna del jacobiano de forma.',
                 loopCompareTitle: '3. Medir el error',
-                loopCompareDesc: 'Resta el vector de características actual del objetivo.',
+                loopCompareDesc: 'Resta el vector de características actual del vector objetivo.',
                 loopControlTitle: '4. Corregir y repetir',
-                loopPseudocode: '# ---- etapa 1: aprender como responde el objeto (una vez) ----\npara cada comando de pinza u_i:          # 6 en total: x, y y angulo por pinza\n    mueve una cantidad pequena  du_i     # un comando cada vez, para saber la causa\n    ds = caracteristicas_ahora - antes   # como reacciono la forma medida\n    J[:, i] = ds / du_i                  # una columna del jacobiano de forma\n\n# ---- etapa 2: cerrar el lazo (en cada ciclo) ----\nmientras el error de forma sea grande:\n    s = medir_caracteristicas(objeto)    # puntos, vectores de arista o curvatura\n    e = s_objetivo - s                   # error de forma, en el espacio de caracteristicas\n    u_dot = ganancia * pseudoinversa(J) @ e  # movimiento que reduce e mas rapido\n    mover_pinzas(u_dot * dt)             # aplica un paso pequeno y vuelve a medir\n    J = actualizar(J, respuesta medida)  # manten el modelo valido al cambiar la forma',
-                loopCodeAria: 'Pseudocodigo del lazo de servoing de forma',
-                loopControlDesc: 'Invierte el modelo para convertir ese error en movimiento de las pinzas, aplica un paso pequeño y vuelve a medir.',
+                loopPseudocode: '# ---- etapa 1: estimar el jacobiano de forma (una vez) ----\npara cada comando de pinza u_i:          # 6 en total: x, y y angulo por pinza\n    aplica un incremento pequeno du_i    # un comando cada vez, para conocer la causa\n    ds = caracteristicas_ahora - antes   # cambio medido de las caracteristicas\n    J[:, i] = ds / du_i                  # una columna del jacobiano de forma\n\n# ---- etapa 2: cerrar el lazo (en cada ciclo) ----\nmientras el error de forma sea grande:\n    s = medir_caracteristicas(objeto)    # puntos, vectores de arista o curvatura\n    e = s_objetivo - s                   # error de forma en el espacio de caracteristicas\n    u_dot = ganancia * pinv_amortiguada(J) @ e  # velocidad de pinzas por minimos cuadrados\n    mover_pinzas(u_dot * dt)             # aplica un paso pequeno y vuelve a medir\n    J = actualizacion_broyden(J, du, ds) # corrige J con la respuesta medida',
+                loopCodeAria: 'Pseudocódigo del lazo de control de forma',
+                loopControlDesc: 'Transforma el error en una velocidad de las pinzas con la pseudoinversa amortiguada de Ĵ, aplica un paso pequeño y vuelve a medir.',
                 manualScoreTitle: 'Reto manual',
                 manualMatchLabel: 'Coincidencia de forma',
                 manualMovesLabel: 'Movimientos',
@@ -1719,27 +1715,27 @@
                 rotateLeftAria: 'Girar en sentido antihorario',
                 rotateRightAria: 'Girar en sentido horario',
                 manualCoachStartTitle: 'Mueve una pinza cada vez',
-                manualCoachStartDesc: 'Arrastra el punto circular de una pinza para trasladarla o su pequeño anillo para girarla.',
-                manualCoachImprovingTitle: 'Buen movimiento: la forma está más cerca',
+                manualCoachStartDesc: 'Arrastra el punto circular de una pinza para trasladarla o su anillo para girarla.',
+                manualCoachImprovingTitle: 'El error ha disminuido',
                 manualCoachImprovingDesc: 'Continúa con un ajuste pequeño o prueba la otra pinza.',
-                manualCoachWrongTitle: 'Ese movimiento ha aumentado el error',
+                manualCoachWrongTitle: 'El error ha aumentado',
                 manualCoachWrongDesc: 'Invierte el cambio y prueba otra dirección o pinza.',
-                manualCoachCloseTitle: 'Estás cerca: haz correcciones pequeñas',
-                manualCoachCloseDesc: 'La diferencia restante es pequeña; ahora ayudan más los movimientos finos.',
+                manualCoachCloseTitle: 'Cerca del objetivo',
+                manualCoachCloseDesc: 'Usa movimientos pequeños de las pinzas para reducir el error restante.',
                 manualCoachSuccessTitle: 'Objetivo alcanzado',
-                manualCoachSuccessDesc: 'Has cerrado el bucle manualmente: observar, comparar y corregir.',
+                manualCoachSuccessDesc: 'Has cerrado el lazo manualmente: medir, comparar, corregir.',
                 takeawayLabel: 'Idea clave',
-                takeawayTitle: 'La representación decide qué intenta corregir el robot.',
-                takeawayDesc: 'Los puntos conservan pose y forma, las aristas ignoran la traslación y la curvatura aísla la flexión. La «mejor» representación depende de la tarea.',
-                manipulateTakeawayTitle: 'Acabas de cerrar a mano un lazo de control de forma.',
-                manipulateTakeawayDesc: 'Medir el error, elegir una corrección, aplicarla y volver a medir. Los pasos siguientes sustituyen tu criterio por un vector de características y un modelo aprendido de datos.',
-                representationsTakeawayTitle: 'La invariancia es una decisión con contrapartida.',
-                representationsTakeawayDesc: 'Cada invariancia rechaza una perturbación que no te interesa y, con el mismo gesto, oculta una dirección que el controlador ya no puede corregir. La curvatura ignora un empujón, pero tampoco puede decirle al robot dónde colocar la varilla.',
-                dataTakeawayTitle: 'El modelo se mide, no se deduce.',
-                dataTakeawayDesc: 'Nada en el lazo sabe que el objeto es una varilla elástica. Un puñado de pequeños movimientos de prueba da la relación local entre el movimiento de las pinzas y el de las características, y eso basta para cerrar el lazo.',
-                nextCompare: 'Siguiente: medida de similitud de forma →',
+                takeawayTitle: 'El vector de características determina qué errores corrige el controlador.',
+                takeawayDesc: 'Las coordenadas de puntos conservan pose y forma, los vectores de arista son invariantes a la traslación y la curvatura depende solo de la flexión. La elección depende de si la tarea especifica la pose del objeto.',
+                manipulateTakeawayTitle: 'Has cerrado a mano un lazo de control de forma.',
+                manipulateTakeawayDesc: 'Medir el error, elegir una corrección, aplicarla y volver a medir. Los pasos 3 y 4 sustituyen al operador por un vector de características y un jacobiano estimado a partir de datos.',
+                representationsTakeawayTitle: 'La invariancia elimina a la vez perturbaciones y direcciones controlables.',
+                representationsTakeawayDesc: 'Un vector de características invariante a un movimiento es insensible a las perturbaciones a lo largo de ese movimiento, y los errores a lo largo de él no pueden corregirse. La curvatura no cambia si la varilla se empuja de lado, pero tampoco puede especificar dónde colocarla.',
+                dataTakeawayTitle: 'El jacobiano se estima a partir de datos, no se deduce de un modelo.',
+                dataTakeawayDesc: 'El controlador no usa ningún modelo de la mecánica de la varilla. Seis pequeños movimientos de prueba determinan la relación local entre el movimiento de las pinzas y el de las características, y la actualización de Broyden ajusta esta estimación a medida que cambia la configuración.',
+                nextCompare: 'Siguiente: similitud de forma →',
                 nextDataDriven: 'Siguiente: control de forma basado en datos →',
-                finishJourney: 'Lee la investigación relacionada →',
+                finishJourney: 'Investigación relacionada →',
                 sceneCanvasLabel: 'Dos brazos robóticos planos sujetan un objeto deformable, con la forma objetivo mostrada como una curva discontinua',
                 pointsPlotLabel: 'Evolución temporal de las componentes de coordenadas de puntos',
                 edgesPlotLabel: 'Evolución temporal de las componentes de vectores de arista',
@@ -2285,6 +2281,7 @@
             const rep = dark
                 ? { points: '#3987e5', edges: '#d95926', curvature: '#199e70' }
                 : { points: '#2a78d6', edges: '#eb6834', curvature: '#1baf7a' };
+            // neutral chrome so the three feature colours carry the data
             const ramp = {};
             for (const key of REPS) {
                 ramp[key] = dark
@@ -2298,17 +2295,17 @@
                 action: dark
                     ? ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300']
                     : ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300'],
-                surface: dark ? '#1c221f' : '#fbfcfb',
-                grid: dark ? '#2a322d' : '#e8ece9',
-                gridStrong: dark ? '#3a443d' : '#d5dcd8',
-                text: dark ? '#8f9c95' : '#727d78',
-                textStrong: dark ? '#dfe6e2' : '#2b3531',
-                object: dark ? '#e6ece9' : '#2b3531',
+                surface: dark ? '#1a1d20' : '#fafbfb',
+                grid: dark ? '#2a2f34' : '#e9ecee',
+                gridStrong: dark ? '#3a4046' : '#d6dade',
+                text: dark ? '#949da6' : '#697179',
+                textStrong: dark ? '#e1e5e9' : '#23282d',
+                object: dark ? '#e6e9ec' : '#23282d',
                 target: dark ? '#c0a18e' : '#9b8171',
-                robot: dark ? '#6f7d77' : '#9aa6a1',
-                robotDeep: dark ? '#586661' : '#7b8983',
-                joint: dark ? '#aab6b0' : '#5d6a64',
-                accent: dark ? '#91b19f' : '#527563',
+                robot: dark ? '#6f7881' : '#9ba3ab',
+                robotDeep: dark ? '#59626b' : '#7d868f',
+                joint: dark ? '#aab2ba' : '#5c656e',
+                accent: dark ? '#b8c0c8' : '#3d4650',
                 divPos: dark ? '#3987e5' : '#2a78d6',
                 divNeg: dark ? '#e66767' : '#e34948',
                 divMid: dark ? '#383835' : '#f0efec'

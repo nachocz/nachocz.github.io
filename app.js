@@ -3,9 +3,14 @@
 
     const VALID_LANGUAGES = ['en', 'es'];
     const VALID_THEMES = ['light', 'dark'];
-    const sectionTabs = [...document.querySelectorAll('.section-tabs [role="tab"]')];
-    const sectionPanels = [...document.querySelectorAll('.section-panel')];
-    const demoTabs = [...document.querySelectorAll('.demo-tab-btn')];
+    const DEFAULT_PANEL = 'panel-news';
+    // Hashes used by earlier versions of the site keep working.
+    const PANEL_ALIASES = { dissemination: 'demos', home: 'news' };
+    const THEME_COLORS = { light: '#23282d', dark: '#0e1012' };
+
+    const navLinks = [...document.querySelectorAll('.site-nav a[data-panel]')];
+    const panels = [...document.querySelectorAll('.panel')];
+    const demoTabs = [...document.querySelectorAll('.demo-tab')];
     const demoPanels = [...document.querySelectorAll('.demo-panel')];
     const demoFrameIds = ['manipulate-iframe', 'shape-iframe', 'representations-iframe', 'data-driven-iframe'];
     const themeToggle = document.getElementById('theme-toggle');
@@ -34,35 +39,37 @@
         return translations[currentLanguage] || translations.en;
     }
 
+    // ------------------------------------------------------------------
+    // language and theme
+    // ------------------------------------------------------------------
+
     function applyTranslations() {
         const dictionary = currentTranslations();
+        const attributes = [
+            ['data-i18n-aria-label', 'aria-label'],
+            ['data-i18n-title', 'title'],
+            ['data-i18n-alt', 'alt']
+        ];
 
         document.querySelectorAll('[data-i18n]').forEach((element) => {
             const value = dictionary[element.dataset.i18n];
             if (typeof value === 'string') element.textContent = value;
         });
 
-        document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
-            const value = dictionary[element.getAttribute('data-i18n-aria-label')];
-            if (typeof value === 'string') element.setAttribute('aria-label', value);
-        });
-
-        document.querySelectorAll('[data-i18n-title]').forEach((element) => {
-            const value = dictionary[element.getAttribute('data-i18n-title')];
-            if (typeof value === 'string') element.setAttribute('title', value);
+        attributes.forEach(([source, target]) => {
+            document.querySelectorAll(`[${source}]`).forEach((element) => {
+                const value = dictionary[element.getAttribute(source)];
+                if (typeof value === 'string') element.setAttribute(target, value);
+            });
         });
 
         document.documentElement.lang = currentLanguage;
-        updateLanguageButtons();
-        updateThemeButton();
-    }
-
-    function updateLanguageButtons() {
         document.querySelectorAll('.lang-btn').forEach((button) => {
             const isActive = button.dataset.lang === currentLanguage;
             button.classList.toggle('active', isActive);
             button.setAttribute('aria-pressed', String(isActive));
         });
+        updateThemeButton();
     }
 
     function demoTargetOrigin() {
@@ -72,8 +79,7 @@
     function notifyDemoFrames() {
         const theme = document.documentElement.dataset.theme || 'light';
         demoFrameIds.forEach((id) => {
-            const frame = document.getElementById(id);
-            frame?.contentWindow?.postMessage(
+            document.getElementById(id)?.contentWindow?.postMessage(
                 { type: 'setPreferences', language: currentLanguage, theme },
                 demoTargetOrigin()
             );
@@ -96,15 +102,14 @@
     }
 
     function updateThemeButton() {
+        const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+        if (themeColor) themeColor.content = THEME_COLORS[theme];
         if (!themeToggle) return;
 
-        const theme = document.documentElement.dataset.theme;
-        const darkModeActive = theme === 'dark';
-        const label = currentTranslations()[darkModeActive ? 'themeToLight' : 'themeToDark'];
+        const label = currentTranslations()[theme === 'dark' ? 'themeToLight' : 'themeToDark'];
         themeToggle.setAttribute('aria-label', label);
         themeToggle.setAttribute('title', label);
-        themeToggle.setAttribute('aria-pressed', String(darkModeActive));
-        if (themeColor) themeColor.content = darkModeActive ? '#101715' : '#f3f7f4';
+        themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
     }
 
     function setTheme(theme, persist = true) {
@@ -115,65 +120,47 @@
         notifyDemoFrames();
     }
 
-    function sectionSlug(panelId) {
-        return panelId.replace(/^panel-/, '');
-    }
+    // ------------------------------------------------------------------
+    // pages: one panel is shown at a time, addressed by the URL hash
+    // ------------------------------------------------------------------
 
     function panelIdFromHash() {
-        const hash = decodeURIComponent(window.location.hash.slice(1));
-        if (!hash) return null;
-
-        const candidate = hash.startsWith('panel-') ? hash : `panel-${hash}`;
-        return sectionPanels.some((panel) => panel.id === candidate) ? candidate : null;
+        const slug = decodeURIComponent(window.location.hash.slice(1)).replace(/^panel-/, '');
+        if (!slug) return null;
+        const id = `panel-${PANEL_ALIASES[slug] || slug}`;
+        return panels.some((panel) => panel.id === id) ? id : null;
     }
 
-    function activateSection(targetId, options = {}) {
-        const { updateHistory = true, scroll = false } = options;
-        const targetPanel = document.getElementById(targetId);
-        const targetTab = sectionTabs.find((tab) => tab.dataset.target === targetId);
-        if (!targetPanel || !targetTab) return;
-
-        sectionTabs.forEach((tab) => {
-            const isActive = tab === targetTab;
-            tab.classList.toggle('active', isActive);
-            tab.setAttribute('aria-selected', String(isActive));
-            tab.tabIndex = isActive ? 0 : -1;
+    function showPanel(targetId) {
+        panels.forEach((panel) => {
+            panel.hidden = panel.id !== targetId;
         });
-
-        sectionPanels.forEach((panel) => {
-            const isActive = panel === targetPanel;
-            panel.classList.toggle('active', isActive);
-            panel.hidden = !isActive;
-            panel.setAttribute('aria-hidden', String(!isActive));
+        navLinks.forEach((link) => {
+            if (link.dataset.panel === targetId) link.setAttribute('aria-current', 'page');
+            else link.removeAttribute('aria-current');
         });
-
-        if (updateHistory) {
-            const nextHash = `#${sectionSlug(targetId)}`;
-            if (window.location.hash !== nextHash) history.pushState({ panel: targetId }, '', nextHash);
-        }
-
-        if (scroll) targetPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function handleSectionKeydown(event) {
-        const currentIndex = sectionTabs.indexOf(event.currentTarget);
-        let nextIndex = currentIndex;
+    function initializeNavigation() {
+        showPanel(panelIdFromHash() || DEFAULT_PANEL);
 
-        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % sectionTabs.length;
-        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + sectionTabs.length) % sectionTabs.length;
-        if (event.key === 'Home') nextIndex = 0;
-        if (event.key === 'End') nextIndex = sectionTabs.length - 1;
-        if (nextIndex === currentIndex) return;
-
-        event.preventDefault();
-        sectionTabs[nextIndex].focus();
-        activateSection(sectionTabs[nextIndex].dataset.target, { scroll: false });
+        // Hashes that name no page (for example #content from the skip link)
+        // leave the current page in place.
+        window.addEventListener('hashchange', () => {
+            const targetId = panelIdFromHash();
+            if (!targetId) return;
+            showPanel(targetId);
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        });
     }
+
+    // ------------------------------------------------------------------
+    // demo tabs
+    // ------------------------------------------------------------------
 
     function activateDemo(targetId) {
-        const targetPanel = document.getElementById(targetId);
         const targetTab = demoTabs.find((tab) => tab.dataset.target === targetId);
-        if (!targetPanel || !targetTab) return;
+        if (!targetTab) return;
 
         demoTabs.forEach((tab) => {
             const isActive = tab === targetTab;
@@ -183,7 +170,7 @@
         });
 
         demoPanels.forEach((panel) => {
-            const isActive = panel === targetPanel;
+            const isActive = panel.id === targetId;
             panel.classList.toggle('active', isActive);
             panel.hidden = !isActive;
         });
@@ -204,95 +191,28 @@
         activateDemo(demoTabs[nextIndex].dataset.target);
     }
 
-    function openDemoJourney() {
-        const firstItem = document.querySelector('#panel-dissemination .dissemination-item');
-        if (firstItem) setAccordionState(firstItem, true);
-    }
-
-    function setAccordionState(item, expanded) {
-        const button = item.querySelector('.dissemination-header');
-        const content = item.querySelector('.dissemination-content');
-        item.classList.toggle('expanded', expanded);
-        button?.setAttribute('aria-expanded', String(expanded));
-        if (content) content.hidden = !expanded;
-    }
-
-    function initializeNavigation() {
-        sectionTabs.forEach((tab) => {
-            tab.addEventListener('click', () => {
-                activateSection(tab.dataset.target, { scroll: true });
-                if (tab.dataset.target === 'panel-dissemination') openDemoJourney();
-            });
-            tab.addEventListener('keydown', handleSectionKeydown);
-        });
-
-        activateSection(panelIdFromHash() || 'panel-news', { updateHistory: false, scroll: false });
-
-        window.addEventListener('popstate', () => {
-            activateSection(panelIdFromHash() || 'panel-news', { updateHistory: false, scroll: false });
-        });
-
-        document.querySelector('.inline-tab-link')?.addEventListener('click', () => {
-            activateSection('panel-dissemination', { scroll: true });
-            openDemoJourney();
-        });
-    }
-
     function initializeDemoTabs() {
         demoTabs.forEach((tab, index) => {
-            const targetId = tab.dataset.target;
             tab.id = `demo-tab-${index + 1}`;
             tab.setAttribute('role', 'tab');
-            tab.setAttribute('aria-controls', targetId);
-            tab.setAttribute('aria-selected', String(index === 0));
-            tab.tabIndex = index === 0 ? 0 : -1;
-            tab.addEventListener('click', () => activateDemo(targetId));
+            tab.setAttribute('aria-controls', tab.dataset.target);
+            tab.addEventListener('click', () => activateDemo(tab.dataset.target));
             tab.addEventListener('keydown', handleDemoKeydown);
-        });
-
-        document.querySelectorAll('.demo-tabs').forEach((tabList) => {
-            tabList.setAttribute('aria-label', currentTranslations().interactiveDemosAria);
         });
 
         demoPanels.forEach((panel, index) => {
             panel.setAttribute('role', 'tabpanel');
             panel.setAttribute('aria-labelledby', demoTabs[index]?.id || '');
-            panel.tabIndex = 0;
-            panel.hidden = index !== 0;
         });
+
+        activateDemo(demoTabs[0]?.dataset.target);
     }
 
-    function initializeAccordions() {
-        document.querySelectorAll('.dissemination-item').forEach((item, index) => {
-            const button = item.querySelector('.dissemination-header');
-            const content = item.querySelector('.dissemination-content');
-            if (!button || !content) return;
+    // ------------------------------------------------------------------
+    // embedded demos: height and step-to-step navigation
+    // ------------------------------------------------------------------
 
-            const contentId = `dissemination-content-${index + 1}`;
-            content.id = contentId;
-            button.setAttribute('aria-controls', contentId);
-            setAccordionState(item, false);
-            button.addEventListener('click', () => setAccordionState(item, !item.classList.contains('expanded')));
-        });
-    }
-
-    function initializePreferences() {
-        document.querySelectorAll('.lang-btn').forEach((button) => {
-            button.addEventListener('click', () => setLanguage(button.dataset.lang));
-        });
-
-        themeToggle?.addEventListener('click', () => {
-            const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-            setTheme(nextTheme);
-        });
-
-        const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        colorScheme.addEventListener?.('change', (event) => {
-            if (!readPreference('theme', '')) setTheme(event.matches ? 'dark' : 'light', false);
-        });
-    }
-
-    function initializeMedia() {
+    function initializeDemoFrames() {
         demoFrameIds.forEach((id) => {
             document.getElementById(id)?.addEventListener('load', notifyDemoFrames);
         });
@@ -305,19 +225,31 @@
 
             if (event.data?.type === 'demoHeight' && Number.isFinite(event.data.height)) {
                 const contentHeight = Math.min(Math.max(Math.ceil(event.data.height), 560), 6000);
-                const frameChrome = Math.max(frame.offsetHeight - frame.clientHeight, 0);
-                frame.style.height = `${contentHeight + frameChrome}px`;
+                frame.style.height = `${contentHeight}px`;
             }
 
             if (event.data?.type === 'demoNavigate') {
                 const targetId = event.data.target;
                 if (!demoPanels.some((panel) => panel.id === targetId)) return;
-                activateSection('panel-dissemination', { updateHistory: false, scroll: false });
-                openDemoJourney();
                 activateDemo(targetId);
-                demoTabs.find((tab) => tab.dataset.target === targetId)?.focus({ preventScroll: true });
+                const tab = demoTabs.find((candidate) => candidate.dataset.target === targetId);
+                tab?.focus({ preventScroll: true });
                 document.querySelector('.demo-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+        });
+    }
+
+    function initializePreferences() {
+        document.querySelectorAll('.lang-btn').forEach((button) => {
+            button.addEventListener('click', () => setLanguage(button.dataset.lang));
+        });
+
+        themeToggle?.addEventListener('click', () => {
+            setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+        });
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', (event) => {
+            if (!readPreference('theme', '')) setTheme(event.matches ? 'dark' : 'light', false);
         });
     }
 
@@ -325,8 +257,7 @@
         const year = document.getElementById('current-year');
         if (year) year.textContent = new Date().getFullYear();
 
-        document.querySelector('.back-to-top')?.addEventListener('click', (event) => {
-            event.preventDefault();
+        document.querySelector('.back-to-top')?.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
@@ -335,11 +266,10 @@
         initializePreferences();
         initializeNavigation();
         initializeDemoTabs();
-        initializeAccordions();
-        if (panelIdFromHash() === 'panel-dissemination') openDemoJourney();
-        initializeMedia();
+        initializeDemoFrames();
         initializeFooter();
         applyTranslations();
+        if (currentLanguage !== 'en') setLanguage(currentLanguage);
     }
 
     if (document.readyState === 'loading') {

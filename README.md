@@ -18,11 +18,12 @@ Then open `http://localhost:8000`.
 
 - English and Spanish content with a saved language preference
 - System-aware light and dark themes with a manual override
-- Keyboard-accessible, URL-addressable portfolio sections
-- Interactive research demos embedded from local pages
-- Accessible outreach accordions and demo tabs
+- One page per section (News, CV, Research, Publications, Demos, Outreach), addressed by the URL hash (`#cv`, `#demos`, …); the old `#dissemination` hash opens Demos
+- Interactive research demos embedded from local pages, one tab per step
 - Responsive and print-friendly layouts
 - Publication links, downloadable BibTeX, posters, and thesis flyers
+
+Translations live in `i18n.js` (main page) and in each demo page's own `translations` object. Run `node integration-test.js` after editing text to check that every `data-i18n` key has English and Spanish entries.
 
 The production site is published from the repository through GitHub Pages.
 

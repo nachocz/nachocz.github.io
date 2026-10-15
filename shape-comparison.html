@@ -35,46 +35,44 @@
     <style>
         :root {
             color-scheme: light;
-            --bg: #f7f8f7;
+            --bg: #ffffff;
             --surface: #ffffff;
-            --surface-soft: #f0f3f1;
-            --ink: #1d2522;
-            --ink-soft: #46504b;
-            --muted: #6d7773;
-            --line: #dce1de;
-            --line-strong: #c2cac6;
-            --accent: #527563;
-            --accent-strong: #3e624f;
-            --accent-soft: #eaf1ed;
+            --surface-soft: #f4f5f6;
+            --ink: #1f2328;
+            --ink-soft: #3d444d;
+            --muted: #697179;
+            --line: #e3e6e9;
+            --line-strong: #c9ced3;
+            --accent: #1d5b94;
+            --accent-strong: #23282d;
+            --accent-soft: #f1f3f5;
             --target: #a65f5b;
             --current: #60866e;
             --clay: #9a7653;
-            --canvas: #fbfcfb;
-            --canvas-grid: #e8ece9;
-            --shadow: 0 12px 36px rgba(28, 39, 34, 0.07);
-            --radius: 14px;
-            font-family: "Aptos", "Segoe UI Variable", "Segoe UI", Helvetica, Arial, sans-serif;
+            --canvas: #fafbfb;
+            --canvas-grid: #e9ecee;
+            --radius: 6px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         [data-theme="dark"] {
             color-scheme: dark;
-            --bg: #111513;
-            --surface: #171c19;
-            --surface-soft: #202723;
-            --ink: #eef1ef;
-            --ink-soft: #c3cbc7;
-            --muted: #929d97;
-            --line: #303833;
-            --line-strong: #48524c;
-            --accent: #91b19f;
-            --accent-strong: #b2cdbf;
-            --accent-soft: #26372f;
+            --bg: #15181b;
+            --surface: #15181b;
+            --surface-soft: #1e2226;
+            --ink: #e3e6e9;
+            --ink-soft: #c3c9cf;
+            --muted: #949da6;
+            --line: #2c3136;
+            --line-strong: #434a51;
+            --accent: #8dbbe8;
+            --accent-strong: #e3e6e9;
+            --accent-soft: #23282d;
             --target: #d28b86;
             --current: #8eb29a;
             --clay: #c09670;
-            --canvas: #1c221f;
-            --canvas-grid: #2a322d;
-            --shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+            --canvas: #1a1d20;
+            --canvas-grid: #2c3136;
         }
 
         *,
@@ -113,11 +111,7 @@
         .demo-shell {
             width: min(100%, 980px);
             margin: 0 auto;
-            padding: 24px;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: var(--surface);
-            box-shadow: var(--shadow);
+            padding: 24px 0;
         }
 
         .is-embedded body {
@@ -130,10 +124,7 @@
         .is-embedded .demo-shell {
             width: 100%;
             max-width: none;
-            padding: 22px;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
+            padding: 4px 0 8px;
         }
 
         .standalone-back {
@@ -432,7 +423,7 @@
         }
 
         [data-theme="dark"] .button-primary {
-            color: #152019;
+            color: #15181b;
         }
 
         .button-primary:hover {
@@ -442,7 +433,7 @@
         }
 
         [data-theme="dark"] .button-primary:hover {
-            color: #152019;
+            color: #15181b;
         }
 
         .status {
@@ -500,7 +491,7 @@
             align-items: center;
             margin-top: 14px;
             padding: 13px 0 13px 16px;
-            border-left: 3px solid var(--accent);
+            border-left: 2px solid var(--line-strong);
         }
 
         .takeaway-label {
@@ -618,16 +609,16 @@
 <body>
     <main class="demo-shell">
         <header class="demo-heading">
-            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the interactive journey</a>
+            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the demos</a>
             <div class="demo-topline">
-                <p class="demo-kicker" data-i18n="demoKicker">Interactive research demo</p>
+                <p class="demo-kicker" data-i18n="demoKicker">Interactive demo</p>
                 <div class="language-switcher" aria-label="Language">
                     <button id="lang-en" class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
                     <button id="lang-es" class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
                 </div>
             </div>
-            <h1 data-i18n="title">Measuring shape similarity</h1>
-            <p class="demo-intro" data-i18n="gameInstructions">Sculpting and shape control share one loop: measure the difference from a target, apply a correction, measure again.</p>
+            <h1 data-i18n="title">Shape similarity measure</h1>
+            <p class="demo-intro" data-i18n="gameInstructions">Sculpting by hand follows the same loop as shape control: measure the difference to a target, apply a correction and measure again.</p>
         </header>
 
         <section class="workspace" aria-label="Shape comparison workspace">
@@ -644,7 +635,7 @@
                 </div>
                 <div class="plot-block">
                     <canvas id="errorCanvas" width="400" height="150" role="img" aria-label="Shape mismatch history"></canvas>
-                    <p class="plot-note" data-i18n="shapeResidualNote">Shape match after every edit. The dashed line marks the best score reached on this target.</p>
+                    <p class="plot-note" data-i18n="shapeResidualNote">Shape match after every edit. The dashed line marks the best score reached for this target.</p>
                 </div>
             </article>
 
@@ -682,7 +673,7 @@
 
         <div class="status" id="feedbackCard" data-state="start" role="status" aria-live="polite">
             <span class="status-mark" aria-hidden="true">↗</span>
-            <span class="status-copy"><strong id="feedbackTitle" data-i18n="feedbackStartTitle">Begin with the largest differences</strong><span id="statusText" data-i18n="feedbackStartDesc">Compare the two contours on the left, then remove material from the corresponding area on the right.</span></span>
+            <span class="status-copy"><strong id="feedbackTitle" data-i18n="feedbackStartTitle">Start with the largest differences</strong><span id="statusText" data-i18n="feedbackStartDesc">Compare the two contours on the left, then remove material from the corresponding region on the right.</span></span>
             <span class="feedback-trend" id="feedbackTrend"></span>
         </div>
 
@@ -690,15 +681,15 @@
             <summary data-i18n="howToPlay">How it works</summary>
             <div class="learn-content">
                 <section>
-                    <h3 data-i18n="interactionGuide">Interaction guide</h3>
+                    <h3 data-i18n="interactionGuide">Interaction</h3>
                     <p><strong data-i18n="goal">Objective:</strong> <span data-i18n="goalDesc">Remove material from the block on the right until its contour matches the target on the left.</span></p>
-                    <p><strong data-i18n="sculpting">Sculpting:</strong> <span data-i18n="sculptingDesc">Drag over the block to remove or restore particles.</span></p>
-                    <p><strong data-i18n="feedback">Feedback:</strong> <span data-i18n="feedbackDesc">The green contour is the current shape. The score is the area overlap with the target, and the history records it after every edit.</span></p>
+                    <p><strong data-i18n="sculpting">Sculpting:</strong> <span data-i18n="sculptingDesc">Remove cuts particles away and Restore adds them back. A smaller tool gives finer control near the boundary.</span></p>
+                    <p><strong data-i18n="feedback">Feedback:</strong> <span data-i18n="feedbackDesc">The green contour is the current shape. The score is the area overlap with the target and is recorded after every edit.</span></p>
                 </section>
                 <section>
                     <h3 data-i18n="whyMatters">Research context</h3>
-                    <p data-i18n="matterText1">People compare and refine shapes naturally; robots need an explicit, robust measure of the same difference.</p>
-                    <p data-i18n="matterText2">Shape comparison gives a robot feedback about whether a manipulation is moving an object toward or away from its target.</p>
+                    <p data-i18n="matterText1">A person compares shapes by eye; a robot requires an explicit, computable measure of the difference.</p>
+                    <p data-i18n="matterText2">This measure is the feedback signal that indicates whether a manipulation brings the object closer to the target or further from it.</p>
                 </section>
             </div>
         </details>
@@ -706,10 +697,10 @@
         <section class="lesson-takeaway">
             <div>
                 <span class="takeaway-label" data-i18n="takeawayLabel">Takeaway</span>
-                <strong data-i18n="takeawayTitle">A similarity measure is what makes a correction loop possible.</strong>
-                <p data-i18n="takeawayDesc">Measure the difference from the target, apply a correction, measure again. This is the loop the manipulators run in the other demonstrations, with the score replaced by a shape error.</p>
+                <strong data-i18n="takeawayTitle">A correction loop requires a similarity measure.</strong>
+                <p data-i18n="takeawayDesc">The manipulators in the other demos execute the same loop of measuring, correcting and measuring again, with the area score replaced by a shape error in feature space.</p>
             </div>
-            <button id="nextDemoBtn" class="button button-primary" type="button" data-i18n="nextDemoBtn">Next: represent shape →</button>
+            <button id="nextDemoBtn" class="button button-primary" type="button" data-i18n="nextDemoBtn">Next: shape representations →</button>
         </section>
     </main>
 
@@ -718,51 +709,51 @@
         const translations = {
             en: {
                 languageAria: 'Language',
-                demoKicker: 'Interactive research demo',
+                demoKicker: 'Interactive demo',
                 mismatchLabel: 'Mismatch',
                 matchLabel: 'Shape match',
                 brushSize: 'Tool size',
                 newShapeBtn: 'New target',
-                interactionGuide: 'Interaction guide',
-                backToJourney: '← Back to the interactive journey',
-                title: 'Measuring shape similarity',
-                gameInstructions: 'Sculpting and shape control share one loop: measure the difference from a target, apply a correction, measure again.',
+                interactionGuide: 'Interaction',
+                backToJourney: '← Back to the demos',
+                title: 'Shape similarity measure',
+                gameInstructions: 'Sculpting by hand follows the same loop as shape control: measure the difference to a target, apply a correction and measure again.',
                 howToPlay: 'How it works',
-                goal: 'Goal:',
+                goal: 'Objective:',
                 goalDesc: 'Remove material from the block on the right until its contour matches the target on the left.',
                 sculpting: 'Sculpting:',
-                sculptingDesc: 'Use Remove to cut particles away and Restore to add them back. A smaller tool helps near the boundary.',
-                feedback: 'Comments:',
-                feedbackDesc: 'The green contour is the current shape. The score is the area overlap with the target, and the history records it after every edit.',
+                sculptingDesc: 'Remove cuts particles away and Restore adds them back. A smaller tool gives finer control near the boundary.',
+                feedback: 'Feedback:',
+                feedbackDesc: 'The green contour is the current shape. The score is the area overlap with the target and is recorded after every edit.',
                 whyMatters: 'Research context',
-                matterText1: 'People compare and refine shapes naturally; robots need an explicit, robust measure of the same difference.',
-                matterText2: 'Shape comparison gives a robot feedback about whether a manipulation is moving an object toward or away from its target.',
+                matterText1: 'A person compares shapes by eye; a robot requires an explicit, computable measure of the difference.',
+                matterText2: 'This measure is the feedback signal that indicates whether a manipulation brings the object closer to the target or further from it.',
                 targetShapeLabel: 'Target and comparison',
-                shapeResidualNote: 'Shape match after every edit. The dashed line marks the best score reached on this target.',
+                shapeResidualNote: 'Shape match after every edit. The dashed line marks the best score reached for this target.',
                 sculptingCanvasLabel: 'Sculpting workspace',
                 chiselBtn: 'Remove material',
                 clayBtn: 'Restore material',
                 resetBlockBtn: 'Reset block',
                 keyboardHelp: 'Keyboard: use the arrow keys to move the tool and press Space or Enter to apply it.',
                 initialStatusText: 'Remove material to match the target contour. The score is recorded after each edit.',
-                statusText: 'Sculpt the shape to match the target.',
-                feedbackStartTitle: 'Begin with the largest differences',
-                feedbackStartDesc: 'Compare the two contours on the left, then remove material from the corresponding area on the right.',
-                feedbackImprovingTitle: 'Score improved',
-                feedbackImprovingDesc: 'Use the comparison view to locate the largest remaining mismatch and make smaller edits near that part of the boundary.',
-                feedbackWrongTitle: 'That edit moved away from the target',
-                feedbackWrongDesc: 'Switch to Restore if you removed too much, or try a different part of the contour.',
+                statusText: 'Sculpt the block to match the target.',
+                feedbackStartTitle: 'Start with the largest differences',
+                feedbackStartDesc: 'Compare the two contours on the left, then remove material from the corresponding region on the right.',
+                feedbackImprovingTitle: 'Score increased',
+                feedbackImprovingDesc: 'Locate the largest remaining mismatch in the comparison view and make smaller edits near that part of the boundary.',
+                feedbackWrongTitle: 'Score decreased',
+                feedbackWrongDesc: 'Switch to Restore if too much material was removed, or edit a different part of the contour.',
                 feedbackCloseTitle: 'Close to the target',
-                feedbackCloseDesc: 'Reduce the tool size and work on the largest remaining gaps in the comparison view.',
+                feedbackCloseDesc: 'Reduce the tool size and correct the largest remaining gaps in the comparison view.',
                 feedbackMatchedTitle: 'Shape matched',
                 feedbackMatchedDesc: 'The area-overlap score is above the match threshold.',
                 improvedBy: 'Improved by',
                 changedBy: 'Changed by',
                 bestLabel: 'Best',
                 takeawayLabel: 'Takeaway',
-                takeawayTitle: 'A similarity measure is what makes a correction loop possible.',
-                takeawayDesc: 'Measure the difference from the target, apply a correction, measure again. This is the loop the manipulators run in the other demonstrations, with the score replaced by a shape error.',
-                nextDemoBtn: 'Next: represent shape →',
+                takeawayTitle: 'A correction loop requires a similarity measure.',
+                takeawayDesc: 'The manipulators in the other demos execute the same loop of measuring, correcting and measuring again, with the area score replaced by a shape error in feature space.',
+                nextDemoBtn: 'Next: shape representations →',
                 legendTargetShape: 'Target shape',
                 legendCurrentShape: 'Current shape',
                 targetCanvasAria: 'Target shape overlaid with the current contour',
@@ -778,46 +769,46 @@
                 matchLabel: 'Coincidencia',
                 brushSize: 'Tamaño',
                 newShapeBtn: 'Nuevo objetivo',
-                interactionGuide: 'Guía de interacción',
-                backToJourney: '← Volver al recorrido interactivo',
+                interactionGuide: 'Interacción',
+                backToJourney: '← Volver a las demos',
                 title: 'Medida de similitud de forma',
-                gameInstructions: 'Esculpir y controlar la forma comparten un mismo lazo: medir la diferencia respecto a un objetivo, aplicar una corrección y volver a medir.',
+                gameInstructions: 'Esculpir a mano sigue el mismo lazo que el control de forma: medir la diferencia respecto a un objetivo, aplicar una corrección y volver a medir.',
                 howToPlay: 'Cómo funciona',
                 goal: 'Objetivo:',
                 goalDesc: 'Retira material del bloque de la derecha hasta que su contorno coincida con el objetivo de la izquierda.',
                 sculpting: 'Esculpir:',
-                sculptingDesc: 'Usa Eliminar para retirar partículas y Restaurar para añadirlas de nuevo. Una herramienta pequeña ayuda cerca del borde.',
-                feedback: 'Comentarios:',
-                feedbackDesc: 'El contorno verde es la forma actual. La puntuación es el solape de área con el objetivo y el historial la registra tras cada edición.',
+                sculptingDesc: 'Eliminar retira partículas y Restaurar las añade de nuevo. Una herramienta más pequeña permite un control más fino cerca del borde.',
+                feedback: 'Realimentación:',
+                feedbackDesc: 'El contorno verde es la forma actual. La puntuación es el solape de áreas con el objetivo y se registra tras cada edición.',
                 whyMatters: 'Contexto de investigación',
-                matterText1: 'Las personas comparan y refinan formas de manera natural; los robots necesitan una medida explícita y robusta de esa diferencia.',
-                matterText2: 'La comparación de formas indica al robot si una manipulación acerca o aleja el objeto de su objetivo.',
+                matterText1: 'Una persona compara formas a simple vista; un robot necesita una medida explícita y calculable de la diferencia.',
+                matterText2: 'Esta medida es la señal de realimentación que indica si una manipulación acerca el objeto al objetivo o lo aleja de él.',
                 targetShapeLabel: 'Objetivo y comparación',
-                shapeResidualNote: 'Coincidencia de forma tras cada edición. La línea discontinua marca la mejor puntuación alcanzada en este objetivo.',
+                shapeResidualNote: 'Coincidencia de forma tras cada edición. La línea discontinua marca la mejor puntuación alcanzada para este objetivo.',
                 sculptingCanvasLabel: 'Espacio de escultura',
                 chiselBtn: 'Eliminar material',
                 clayBtn: 'Restaurar material',
                 resetBlockBtn: 'Reiniciar bloque',
                 keyboardHelp: 'Teclado: usa las flechas para mover la herramienta y pulsa Espacio o Intro para aplicarla.',
                 initialStatusText: 'Retira material para igualar el contorno objetivo. La puntuación se registra tras cada edición.',
-                statusText: 'Esculpe la forma para que coincida con el objetivo.',
+                statusText: 'Esculpe el bloque para que coincida con el objetivo.',
                 feedbackStartTitle: 'Empieza por las diferencias más grandes',
                 feedbackStartDesc: 'Compara los dos contornos de la izquierda y retira material de la zona correspondiente a la derecha.',
-                feedbackImprovingTitle: 'La puntuación ha mejorado',
-                feedbackImprovingDesc: 'Usa la vista de comparación para localizar el mayor desajuste restante y haz ediciones más pequeñas cerca de esa parte del contorno.',
-                feedbackWrongTitle: 'Esta edición se ha alejado del objetivo',
-                feedbackWrongDesc: 'Usa Restaurar si has eliminado demasiado o prueba en otra zona del contorno.',
+                feedbackImprovingTitle: 'La puntuación ha aumentado',
+                feedbackImprovingDesc: 'Localiza el mayor desajuste restante en la vista de comparación y haz ediciones más pequeñas cerca de esa parte del contorno.',
+                feedbackWrongTitle: 'La puntuación ha disminuido',
+                feedbackWrongDesc: 'Usa Restaurar si se ha retirado demasiado material o edita otra zona del contorno.',
                 feedbackCloseTitle: 'Cerca del objetivo',
-                feedbackCloseDesc: 'Reduce el tamaño de la herramienta y trabaja sobre los mayores huecos que queden en la vista de comparación.',
+                feedbackCloseDesc: 'Reduce el tamaño de la herramienta y corrige los mayores huecos restantes en la vista de comparación.',
                 feedbackMatchedTitle: 'Forma conseguida',
-                feedbackMatchedDesc: 'La puntuación de solape de área supera el umbral de coincidencia.',
+                feedbackMatchedDesc: 'La puntuación de solape de áreas supera el umbral de coincidencia.',
                 improvedBy: 'Mejora',
                 changedBy: 'Cambio',
                 bestLabel: 'Mejor',
                 takeawayLabel: 'Idea clave',
-                takeawayTitle: 'Una medida de similitud es lo que hace posible un lazo de corrección.',
-                takeawayDesc: 'Mide la diferencia respecto al objetivo, aplica una corrección y vuelve a medir. Es el lazo que ejecutan los manipuladores en las otras demostraciones, con la puntuación sustituida por un error de forma.',
-                nextDemoBtn: 'Siguiente: representar la forma →',
+                takeawayTitle: 'Un lazo de corrección requiere una medida de similitud.',
+                takeawayDesc: 'Los manipuladores de las otras demos ejecutan el mismo lazo de medir, corregir y volver a medir, con la puntuación de áreas sustituida por un error de forma en el espacio de características.',
+                nextDemoBtn: 'Siguiente: representaciones de forma →',
                 legendTargetShape: 'Forma objetivo',
                 legendCurrentShape: 'Forma actual',
                 targetCanvasAria: 'Forma objetivo superpuesta al contorno actual',
@@ -1382,21 +1373,21 @@
         function canvasPalette() {
             const dark = document.documentElement.dataset.theme === 'dark';
             return dark ? {
-                background: '#1c221f',
-                grid: '#303833',
-                text: '#b9c3bd',
+                background: '#1a1d20',
+                grid: '#2c3136',
+                text: '#b2bac2',
                 target: '#d28b86',
                 current: '#8eb29a',
-                curve: '#91b19f',
-                contour: '#66726b'
+                curve: '#b8c0c8',
+                contour: '#646c74'
             } : {
-                background: '#fbfcfb',
-                grid: '#e8ece9',
-                text: '#53605a',
+                background: '#fafbfb',
+                grid: '#e9ecee',
+                text: '#555e67',
                 target: '#a65f5b',
                 current: '#60866e',
-                curve: '#527563',
-                contour: '#b6bfba'
+                curve: '#3d4650',
+                contour: '#b7bec5'
             };
         }
 

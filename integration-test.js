@@ -27,7 +27,7 @@ for (const [htmlFile, dictionaryFile] of checks) {
     const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
     const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
     const keys = [...new Set(
-        [...html.matchAll(/data-i18n(?:-aria-label|-title)?="([^"]+)"/g)].map(match => match[1])
+        [...html.matchAll(/data-i18n(?:-aria-label|-title|-alt)?="([^"]+)"/g)].map(match => match[1])
     )];
     const missing = keys.filter(key =>
         !new RegExp(`(?:^|[,\\s{])${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:`, 'm')

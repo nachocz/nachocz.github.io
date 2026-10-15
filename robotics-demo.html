@@ -35,48 +35,46 @@
     <style>
         :root {
             color-scheme: light;
-            --bg: #f7f8f7;
+            --bg: #ffffff;
             --surface: #ffffff;
-            --surface-soft: #f0f3f1;
-            --ink: #1d2522;
-            --ink-soft: #46504b;
-            --muted: #6d7773;
-            --line: #dce1de;
-            --line-strong: #c2cac6;
-            --accent: #527563;
-            --accent-strong: #3e624f;
-            --accent-soft: #eaf1ed;
+            --surface-soft: #f4f5f6;
+            --ink: #1f2328;
+            --ink-soft: #3d444d;
+            --muted: #697179;
+            --line: #e3e6e9;
+            --line-strong: #c9ced3;
+            --accent: #1d5b94;
+            --accent-strong: #23282d;
+            --accent-soft: #f1f3f5;
             --blue: #4e789d;
             --brown: #9a6c4a;
             --target: #638b72;
             --danger: #b5635e;
-            --canvas: #fbfcfb;
-            --canvas-grid: #e8ece9;
-            --shadow: 0 12px 36px rgba(28, 39, 34, 0.07);
-            --radius: 14px;
-            font-family: "Aptos", "Segoe UI Variable", "Segoe UI", Helvetica, Arial, sans-serif;
+            --canvas: #fafbfb;
+            --canvas-grid: #e9ecee;
+            --radius: 6px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
         [data-theme="dark"] {
             color-scheme: dark;
-            --bg: #111513;
-            --surface: #171c19;
-            --surface-soft: #202723;
-            --ink: #eef1ef;
-            --ink-soft: #c3cbc7;
-            --muted: #929d97;
-            --line: #303833;
-            --line-strong: #48524c;
-            --accent: #91b19f;
-            --accent-strong: #b2cdbf;
-            --accent-soft: #26372f;
+            --bg: #15181b;
+            --surface: #15181b;
+            --surface-soft: #1e2226;
+            --ink: #e3e6e9;
+            --ink-soft: #c3c9cf;
+            --muted: #949da6;
+            --line: #2c3136;
+            --line-strong: #434a51;
+            --accent: #8dbbe8;
+            --accent-strong: #e3e6e9;
+            --accent-soft: #23282d;
             --blue: #7da4c3;
             --brown: #c0926f;
             --target: #8eb29a;
             --danger: #d28b86;
-            --canvas: #1c221f;
-            --canvas-grid: #2a322d;
-            --shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+            --canvas: #1a1d20;
+            --canvas-grid: #2c3136;
         }
 
         *,
@@ -115,11 +113,7 @@
         .demo-shell {
             width: min(100%, 980px);
             margin: 0 auto;
-            padding: 24px;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: var(--surface);
-            box-shadow: var(--shadow);
+            padding: 24px 0;
         }
 
         .is-embedded body {
@@ -132,10 +126,7 @@
         .is-embedded .demo-shell {
             width: 100%;
             max-width: none;
-            padding: 22px;
-            border: 0;
-            border-radius: 0;
-            box-shadow: none;
+            padding: 4px 0 8px;
         }
 
         .standalone-back {
@@ -482,7 +473,7 @@
         }
 
         [data-theme="dark"] .button-primary {
-            color: #152019;
+            color: #15181b;
         }
 
         .button-primary:hover {
@@ -492,7 +483,7 @@
         }
 
         [data-theme="dark"] .button-primary:hover {
-            color: #152019;
+            color: #15181b;
         }
 
         .robot-controls {
@@ -716,16 +707,16 @@
 <body>
     <main class="demo-shell">
         <header class="demo-heading">
-            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the interactive journey</a>
+            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the demos</a>
             <div class="demo-topline">
-                <p class="demo-kicker" data-i18n="demoKicker">Interactive research demo</p>
+                <p class="demo-kicker" data-i18n="demoKicker">Interactive demo</p>
                 <div class="language-switcher" aria-label="Language">
                     <button id="lang-en" class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
                     <button id="lang-es" class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
                 </div>
             </div>
-            <h1 data-i18n="title">Two-Robot Cable Challenge</h1>
-            <p class="demo-intro" data-i18n="controllerTitle">Shape one flexible cable with four robot joints. Small local movements can change the whole object.</p>
+            <h1 data-i18n="title">Two-robot cable task</h1>
+            <p class="demo-intro" data-i18n="controllerTitle">Shape a flexible cable with the four joints of two robots. A small motion of one joint changes the shape of the entire cable.</p>
         </header>
 
         <section class="workspace" aria-label="Cable manipulation workspace">
@@ -741,7 +732,7 @@
 
             <aside class="metrics-column" aria-label="Performance feedback">
                 <div class="card metric-card" aria-live="polite">
-                    <span class="metric-label" data-i18n="cableAlignmentError">Current cable alignment error</span>
+                    <span class="metric-label" data-i18n="cableAlignmentError">Current alignment error</span>
                     <div class="metric-value">
                         <span id="errorDisplay">0.00</span>
                         <span class="metric-unit">px</span>
@@ -757,7 +748,7 @@
                 </div>
                 <article class="card plot-card">
                     <div class="card-heading">
-                        <h3 data-i18n="errorPlotLabel">Alignment error over time</h3>
+                        <h3 data-i18n="errorPlotLabel">Alignment error after each move</h3>
                     </div>
                     <div class="plot-wrap">
                         <canvas id="errorPlot" width="300" height="250" role="img" aria-label="Cable alignment error history"></canvas>
@@ -768,7 +759,7 @@
 
         <section class="card controls-panel" aria-labelledby="robot-controls-title">
             <div class="card-heading">
-                <h2 id="robot-controls-title" data-i18n="controlPanelTitle">Control the robot joints</h2>
+                <h2 id="robot-controls-title" data-i18n="controlPanelTitle">Robot joints</h2>
                 <div class="control-actions">
                     <button id="resetPoseBtn" class="button" type="button" data-i18n="resetPoseBtn">Reset pose</button>
                     <button id="hintBtn" class="button" type="button" data-i18n="hintBtn">Hint</button>
@@ -784,7 +775,7 @@
 
             <div class="robot-controls">
                 <div class="robot-group">
-                    <h3 class="robot-label" data-i18n="leftRobot">Left robot</h3>
+                    <h3 class="robot-label" data-i18n="leftRobot">Left robot (blue)</h3>
                     <div class="slider-row">
                         <div class="slider-meta">
                             <label for="theta1Slider" data-i18n="joint1">Joint 1</label>
@@ -802,7 +793,7 @@
                 </div>
 
                 <div class="robot-group robot-group-right">
-                    <h3 class="robot-label" data-i18n="rightRobot">Right robot</h3>
+                    <h3 class="robot-label" data-i18n="rightRobot">Right robot (brown)</h3>
                     <div class="slider-row">
                         <div class="slider-meta">
                             <label for="theta3Slider" data-i18n="joint1">Joint 1</label>
@@ -825,15 +816,15 @@
             <summary data-i18n="howToPlay">How it works</summary>
             <div class="learn-content">
                 <section>
-                    <h3 data-i18n="interactionGuide">Interaction guide</h3>
+                    <h3 data-i18n="interactionGuide">Interaction</h3>
                     <p><strong data-i18n="goal">Objective:</strong> <span data-i18n="goalDesc">Adjust the joints until the cable follows the dashed target.</span></p>
-                    <p><strong data-i18n="controls">Controls:</strong> <span data-i18n="controlsDesc">Each slider rotates one robot joint; both robots shape the same cable.</span></p>
-                    <p><strong data-i18n="feedback">Feedback:</strong> <span data-i18n="feedbackDesc">The current error and history show whether your change helped. Lower is better.</span></p>
+                    <p><strong data-i18n="controls">Controls:</strong> <span data-i18n="controlsDesc">Each slider rotates one joint. Both robots hold the same cable, so every joint motion changes the whole shape.</span></p>
+                    <p><strong data-i18n="feedback">Feedback:</strong> <span data-i18n="feedbackDesc">The current error and its history indicate whether a change reduced the error.</span></p>
                 </section>
                 <section>
                     <h3 data-i18n="whyMatters">Research context</h3>
-                    <p data-i18n="matterText1">Manipulating flexible objects is a central robotics challenge with uses in homes, agriculture and manufacturing.</p>
-                    <p><strong data-i18n="note">Limit:</strong> <span data-i18n="matterText2">Some target shapes are unreachable because of material and robot constraints—characterizing that reachable set remains an open problem.</span></p>
+                    <p data-i18n="matterText1">Manipulation of cables, cloth and other flexible objects is required in domestic, agricultural and manufacturing applications.</p>
+                    <p><strong data-i18n="note">Limit:</strong> <span data-i18n="matterText2">Some targets are unreachable because of material, grasp and robot constraints. Characterising the set of reachable shapes is an open problem.</span></p>
                 </section>
             </div>
         </details>
@@ -841,10 +832,10 @@
         <section class="lesson-takeaway">
             <div>
                 <span class="takeaway-label" data-i18n="takeawayLabel">Takeaway</span>
-                <strong data-i18n="takeawayTitle">Flexible-object control couples every action to the whole shape.</strong>
-                <p data-i18n="takeawayDesc">You used visual feedback and trial-and-error. An autonomous controller must discover the same action-to-shape relationship and update it as the object changes.</p>
+                <strong data-i18n="takeawayTitle">In a flexible object, each joint motion affects the whole shape.</strong>
+                <p data-i18n="takeawayDesc">You used visual feedback and trial and error. An autonomous controller has to estimate the same relation between joint motion and shape change, and update it as the object deforms.</p>
             </div>
-            <button id="nextDemoBtn" class="button button-primary" type="button" data-i18n="nextDemoBtn">Next: understand comparison →</button>
+            <button id="nextDemoBtn" class="button button-primary" type="button" data-i18n="nextDemoBtn">Next: shape similarity →</button>
         </section>
     </main>
 
@@ -853,33 +844,33 @@
         const translations = {
             en: {
                 languageAria: 'Language',
-                demoKicker: 'Interactive research demo',
-                backToJourney: '← Back to the interactive journey',
+                demoKicker: 'Interactive demo',
+                backToJourney: '← Back to the demos',
                 workspaceTitle: 'Manipulation workspace',
                 liveSimulation: 'Quasi-static equilibrium',
-                controlPanelTitle: 'Control the robot joints',
+                controlPanelTitle: 'Robot joints',
                 resetPoseBtn: 'Reset pose',
                 hintBtn: 'Hint',
                 autopilotBtn: 'Show solution',
-                interactionGuide: 'Interaction guide',
+                interactionGuide: 'Interaction',
                 rodModelLabel: 'Discrete Kirchhoff rod',
                 flexibleState: 'Equilibrium',
                 straightLimitState: 'Straight limit',
-                title: 'Two-Robot Cable Challenge',
-                controllerTitle: 'Shape one flexible cable with four robot joints. Small local movements can change the whole object.',
+                title: 'Two-robot cable task',
+                controllerTitle: 'Shape a flexible cable with the four joints of two robots. A small motion of one joint changes the shape of the entire cable.',
                 howToPlay: 'How it works',
                 goal: 'Objective:',
                 goalDesc: 'Adjust the joints until the cable follows the dashed target.',
                 controls: 'Controls:',
-                controlsDesc: 'Each slider rotates one joint. Both robots act on the same cable, so every change is coupled.',
+                controlsDesc: 'Each slider rotates one joint. Both robots hold the same cable, so every joint motion changes the whole shape.',
                 feedback: 'Feedback:',
-                feedbackDesc: 'The current error and its history show whether your change helped. Lower is better.',
+                feedbackDesc: 'The current error and its history indicate whether a change reduced the error.',
                 whyMatters: 'Research context',
-                matterText1: 'Manipulating cables, cloth and other flexible objects is a central robotics challenge in homes, agriculture and manufacturing.',
+                matterText1: 'Manipulation of cables, cloth and other flexible objects is required in domestic, agricultural and manufacturing applications.',
                 note: 'Limit:',
-                matterText2: 'Some targets are unreachable because of material, grasp and robot constraints. Characterising that reachable set remains an open problem.',
-                leftRobot: 'Left Robot (Blue)',
-                rightRobot: 'Right Robot (Brown)',
+                matterText2: 'Some targets are unreachable because of material, grasp and robot constraints. Characterising the set of reachable shapes is an open problem.',
+                leftRobot: 'Left robot (blue)',
+                rightRobot: 'Right robot (brown)',
                 joint1: 'Joint 1',
                 joint2: 'Joint 2',
                 newTargetBtn: 'New target',
@@ -889,22 +880,22 @@
                 progressLabel: 'Improvement',
                 coachStartTitle: 'Change one joint at a time',
                 coachStartDesc: 'Make a small move and use the error to decide whether to continue or reverse it.',
-                coachImprovingTitle: 'Good move — the cable is closer',
-                coachImprovingDesc: 'Continue carefully in this direction or test another joint with a small change.',
-                coachWrongTitle: 'The error increased',
+                coachImprovingTitle: 'Error decreased',
+                coachImprovingDesc: 'Continue in this direction with small steps, or test another joint.',
+                coachWrongTitle: 'Error increased',
                 coachWrongDesc: 'Reverse this movement, then test a different joint or direction.',
-                coachCloseTitle: 'Close — use smaller movements',
-                coachCloseDesc: 'Fine adjustments now matter more than large changes.',
+                coachCloseTitle: 'Close to the target',
+                coachCloseDesc: 'Use small joint movements to reduce the remaining error.',
                 coachSuccessTitle: 'Target reached',
-                coachSuccessDesc: 'You found a robot pose whose cable closely follows the target.',
+                coachSuccessDesc: 'You found a robot pose for which the cable follows the target.',
                 coachHintTitle: 'Strategy: run a controlled experiment',
-                coachHintDesc: 'Move one slider by only one or two steps. Keep the change only if the error falls.',
+                coachHintDesc: 'Move one slider by one or two steps and keep the change only if the error decreases.',
                 coachSolutionTitle: 'A feasible solution pose',
-                coachSolutionDesc: 'The simulator knew this pose when it generated the target. A real controller must discover it from feedback.',
+                coachSolutionDesc: 'The target was generated from this pose. A real controller has no access to it and must reach the target through feedback.',
                 takeawayLabel: 'Takeaway',
-                takeawayTitle: 'Flexible-object control couples every action to the whole shape.',
-                takeawayDesc: 'You used visual feedback and trial-and-error. An autonomous controller must discover the same action-to-shape relationship and update it as the object changes.',
-                nextDemoBtn: 'Next: understand comparison →',
+                takeawayTitle: 'In a flexible object, each joint motion affects the whole shape.',
+                takeawayDesc: 'You used visual feedback and trial and error. An autonomous controller has to estimate the same relation between joint motion and shape change, and update it as the object deforms.',
+                nextDemoBtn: 'Next: shape similarity →',
                 legendTargetShape: 'Target shape',
                 legendCurrentShape: 'Current shape',
                 workspaceAria: 'Cable manipulation workspace',
@@ -917,32 +908,32 @@
             es: {
                 languageAria: 'Idioma',
                 demoKicker: 'Demostración interactiva',
-                backToJourney: '← Volver al recorrido interactivo',
+                backToJourney: '← Volver a las demos',
                 workspaceTitle: 'Espacio de manipulación',
                 liveSimulation: 'Equilibrio cuasiestático',
-                controlPanelTitle: 'Controla las articulaciones',
+                controlPanelTitle: 'Articulaciones de los robots',
                 resetPoseBtn: 'Restablecer postura',
                 hintBtn: 'Pista',
                 autopilotBtn: 'Mostrar solución',
-                interactionGuide: 'Guía de interacción',
+                interactionGuide: 'Interacción',
                 rodModelLabel: 'Varilla discreta de Kirchhoff',
                 flexibleState: 'Equilibrio',
                 straightLimitState: 'Límite recto',
-                title: 'Reto del Cable con Dos Robots',
-                controllerTitle: 'Da forma a un cable flexible con cuatro articulaciones. Un pequeño movimiento local puede cambiar todo el objeto.',
+                title: 'Tarea del cable con dos robots',
+                controllerTitle: 'Da forma a un cable flexible con las cuatro articulaciones de dos robots. Un pequeño movimiento de una articulación cambia la forma de todo el cable.',
                 howToPlay: 'Cómo funciona',
                 goal: 'Objetivo:',
                 goalDesc: 'Ajusta las articulaciones hasta que el cable siga el objetivo discontinuo.',
                 controls: 'Controles:',
-                controlsDesc: 'Cada deslizador gira una articulación. Ambos robots actúan sobre el mismo cable, por lo que todos los cambios están acoplados.',
-                feedback: 'Retroalimentación:',
-                feedbackDesc: 'El error actual y su historial muestran si el cambio ha ayudado. Cuanto más bajo, mejor.',
+                controlsDesc: 'Cada deslizador gira una articulación. Ambos robots sujetan el mismo cable, así que cada movimiento de una articulación cambia toda la forma.',
+                feedback: 'Realimentación:',
+                feedbackDesc: 'El error actual y su historial indican si un cambio ha reducido el error.',
                 whyMatters: 'Contexto de investigación',
-                matterText1: 'Manipular cables, tejidos y otros objetos flexibles es un reto central de la robótica en hogares, agricultura y fabricación.',
+                matterText1: 'La manipulación de cables, tejidos y otros objetos flexibles es necesaria en aplicaciones domésticas, agrícolas y de fabricación.',
                 note: 'Límite:',
-                matterText2: 'Algunos objetivos son inalcanzables por las restricciones del material, el agarre y los robots. Caracterizar ese conjunto alcanzable sigue siendo un problema abierto.',
-                leftRobot: 'Robot Izquierdo (Azul)',
-                rightRobot: 'Robot Derecho (Marrón)',
+                matterText2: 'Algunos objetivos son inalcanzables por las restricciones del material, el agarre y los robots. Caracterizar el conjunto de formas alcanzables es un problema abierto.',
+                leftRobot: 'Robot izquierdo (azul)',
+                rightRobot: 'Robot derecho (marrón)',
                 joint1: 'Articulación 1',
                 joint2: 'Articulación 2',
                 newTargetBtn: 'Nuevo objetivo',
@@ -952,22 +943,22 @@
                 progressLabel: 'Mejora',
                 coachStartTitle: 'Cambia una articulación cada vez',
                 coachStartDesc: 'Haz un movimiento pequeño y utiliza el error para decidir si debes continuar o invertirlo.',
-                coachImprovingTitle: 'Buen movimiento: el cable está más cerca',
-                coachImprovingDesc: 'Continúa con cuidado en esta dirección o prueba otra articulación con un cambio pequeño.',
+                coachImprovingTitle: 'El error ha disminuido',
+                coachImprovingDesc: 'Continúa en esta dirección con pasos pequeños o prueba otra articulación.',
                 coachWrongTitle: 'El error ha aumentado',
                 coachWrongDesc: 'Invierte este movimiento y prueba otra articulación o dirección.',
-                coachCloseTitle: 'Estás cerca: utiliza movimientos pequeños',
-                coachCloseDesc: 'Los ajustes finos son ahora más útiles que los cambios grandes.',
+                coachCloseTitle: 'Cerca del objetivo',
+                coachCloseDesc: 'Usa movimientos pequeños de las articulaciones para reducir el error restante.',
                 coachSuccessTitle: 'Objetivo alcanzado',
-                coachSuccessDesc: 'Has encontrado una postura cuyo cable sigue de cerca la forma objetivo.',
+                coachSuccessDesc: 'Has encontrado una postura con la que el cable sigue el objetivo.',
                 coachHintTitle: 'Estrategia: realiza un experimento controlado',
-                coachHintDesc: 'Mueve un deslizador solo uno o dos pasos. Conserva el cambio únicamente si el error disminuye.',
+                coachHintDesc: 'Mueve un deslizador uno o dos pasos y conserva el cambio solo si el error disminuye.',
                 coachSolutionTitle: 'Una postura solución factible',
-                coachSolutionDesc: 'El simulador conocía esta postura al generar el objetivo. Un controlador real debe descubrirla a partir de la realimentación.',
+                coachSolutionDesc: 'El objetivo se generó a partir de esta postura. Un controlador real no tiene acceso a ella y debe alcanzar el objetivo mediante realimentación.',
                 takeawayLabel: 'Idea clave',
-                takeawayTitle: 'En un objeto flexible, cada acción afecta a la forma completa.',
-                takeawayDesc: 'Has utilizado realimentación visual y ensayo y error. Un controlador autónomo debe descubrir la misma relación entre acción y forma y actualizarla cuando cambia el objeto.',
-                nextDemoBtn: 'Siguiente: comprender la comparación →',
+                takeawayTitle: 'En un objeto flexible, cada movimiento de una articulación afecta a toda la forma.',
+                takeawayDesc: 'Has usado realimentación visual y ensayo y error. Un controlador autónomo tiene que estimar la misma relación entre el movimiento de las articulaciones y el cambio de forma, y actualizarla a medida que el objeto se deforma.',
+                nextDemoBtn: 'Siguiente: similitud de forma →',
                 legendTargetShape: 'Forma objetivo',
                 legendCurrentShape: 'Forma actual',
                 workspaceAria: 'Espacio de manipulación del cable',
@@ -1607,16 +1598,16 @@
         function canvasPalette() {
             const dark = document.documentElement.dataset.theme === 'dark';
             return dark ? {
-                background: '#1c221f',
-                grid: '#303833',
-                text: '#b9c3bd',
+                background: '#1a1d20',
+                grid: '#2c3136',
+                text: '#b2bac2',
                 cable: '#7da4c3',
                 target: '#8eb29a',
                 error: '#d28b86'
             } : {
-                background: '#fbfcfb',
-                grid: '#e8ece9',
-                text: '#53605a',
+                background: '#fafbfb',
+                grid: '#e9ecee',
+                text: '#555e67',
                 cable: '#4e789d',
                 target: '#638b72',
                 error: '#b5635e'
