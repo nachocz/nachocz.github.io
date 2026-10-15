@@ -1,8 +1,8 @@
 # Site settings
 title: "Ignacio Cuiral-Zueco | Robotics Researcher"
 description: "Ignacio Cuiral-Zueco (Ignacio Cuiral Zueco), Assistant Professor at the University of Zaragoza: robotics, deformable-object manipulation and shape control."
-url: "https://nachocz.github.io"
-baseurl: "/ignacio-cuiral-zueco.github.io"
+url: "https://ignaciocuiral.com"
+baseurl: ""
 
 # Author information
 author:

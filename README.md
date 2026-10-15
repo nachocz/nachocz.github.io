@@ -2,7 +2,9 @@
 
 A bilingual research portfolio focused on robotics, deformable-object manipulation, and shape control. The site is built with semantic HTML, modern CSS, and dependency-free JavaScript so it can be served directly by GitHub Pages.
 
-[View the published website](https://nachocz.github.io)
+[View the published website](https://ignaciocuiral.com/)
+
+The site is served from the custom domain in `CNAME`. Old `nachocz.github.io/ignacio-cuiral-zueco.github.io/` links redirect there, and all canonical URLs, the sitemap and `robots.txt` use `https://ignaciocuiral.com/`.
 
 ## Local preview
 
@@ -29,4 +31,4 @@ The production site is published from the repository through GitHub Pages.
 
 ## Search indexing after deployment
 
-Add the URL-prefix property `https://nachocz.github.io/ignacio-cuiral-zueco.github.io/` in Google Search Console, submit `sitemap.xml`, and request indexing for the home page after substantial updates. Keep the same website URL on ORCID, Google Scholar, DBLP, LinkedIn, GitHub, and university profile pages so search engines can connect those profiles to this site.
+Add the domain property `ignaciocuiral.com` in Google Search Console, submit `https://ignaciocuiral.com/sitemap.xml`, and request indexing for the home page after substantial updates. Keep the same website URL on ORCID, Google Scholar, DBLP, LinkedIn, GitHub, and university profile pages so search engines can connect those profiles to this site.

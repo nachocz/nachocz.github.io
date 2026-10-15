@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://nachocz.github.io/ignacio-cuiral-zueco.github.io/</loc>
+    <loc>https://ignaciocuiral.com/</loc>
     <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://nachocz.github.io/ignacio-cuiral-zueco.github.io/robotics-demo.html</loc>
+    <loc>https://ignaciocuiral.com/robotics-demo.html</loc>
     <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://nachocz.github.io/ignacio-cuiral-zueco.github.io/shape-comparison.html</loc>
+    <loc>https://ignaciocuiral.com/shape-comparison.html</loc>
     <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://nachocz.github.io/ignacio-cuiral-zueco.github.io/shape-features-demo.html</loc>
+    <loc>https://ignaciocuiral.com/shape-features-demo.html</loc>
     <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

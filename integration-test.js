@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const SITE_URL = 'https://nachocz.github.io/ignacio-cuiral-zueco.github.io/';
+const SITE_URL = 'https://ignaciocuiral.com/';
 
 function parseTranslations(file) {
     const source = fs.readFileSync(file, 'utf8');
