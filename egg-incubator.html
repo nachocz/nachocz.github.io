@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Dino Egg Incubator | Ignacio Cuiral-Zueco</title>
+    <meta name="title" content="Dino Egg Incubator | Ignacio Cuiral-Zueco">
+    <meta name="description" content="A browser mini-game on robotic heat regulation: keep a dinosaur egg uniformly warm with a moving heat source in easy or hard weather modes until it hatches.">
+    <meta name="author" content="Ignacio Cuiral-Zueco">
+    <meta name="keywords" content="temperature regulation game, heat coverage control, robotic heating, robotics mini-game">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ignaciocuiral.com/egg-incubator.html">
+    <meta property="og:title" content="Dino Egg Incubator | Ignacio Cuiral-Zueco">
+    <meta property="og:description" content="Keep a dinosaur egg uniformly warm with a moving heat source until it hatches.">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Dino Egg Incubator | Ignacio Cuiral-Zueco">
+    <meta name="twitter:description" content="Keep a dinosaur egg uniformly warm with a moving heat source until it hatches.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ignaciocuiral.com/egg-incubator.html">
+    <script>
+        (() => {
+            let savedTheme = null;
+            try { savedTheme = localStorage.getItem('theme'); } catch (error) { /* storage blocked */ }
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.dataset.theme = savedTheme || systemTheme;
+            document.documentElement.classList.toggle('is-embedded', window.self !== window.top);
+        })();
+    </script>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --surface-soft: #f4f5f6;
+            --ink: #1f2328;
+            --ink-soft: #3d444d;
+            --muted: #697179;
+            --line: #e3e6e9;
+            --line-strong: #c9ced3;
+            --accent: #1d5b94;
+            --accent-strong: #23282d;
+            --accent-soft: #f1f3f5;
+            --canvas: #fafbfb;
+            --heat: #e8772e;
+            --band: #1b9e6f;
+            --cold: #3b7dd8;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #15181b;
+            --surface: #15181b;
+            --surface-soft: #1e2226;
+            --ink: #e3e6e9;
+            --ink-soft: #c3c9cf;
+            --muted: #949da6;
+            --line: #2c3136;
+            --line-strong: #434a51;
+            --accent: #8dbbe8;
+            --accent-strong: #e3e6e9;
+            --accent-soft: #23282d;
+            --canvas: #1a1d20;
+            --heat: #f08a45;
+            --band: #3cc28f;
+            --cold: #7fb0f0;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 300px;
+            min-height: 100vh;
+            margin: 0;
+            padding: 18px;
+            color: var(--ink);
+            background: var(--bg);
+            font-size: 15px;
+            line-height: 1.5;
+            text-rendering: optimizeLegibility;
+        }
+
+        button,
+        input {
+            font: inherit;
+            color: inherit;
+        }
+
+        :focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+            outline-offset: 2px;
+        }
+
+        .demo-shell {
+            width: min(100%, 980px);
+            margin: 0 auto;
+            padding: 24px 0;
+        }
+
+        .standalone-back {
+            display: inline-flex;
+            margin-bottom: 13px;
+            color: var(--accent-strong);
+            font-size: 0.72rem;
+            font-weight: 750;
+            text-decoration: none;
+        }
+
+        .standalone-back:hover {
+            text-decoration: underline;
+        }
+
+        .is-embedded .standalone-back {
+            display: none;
+        }
+
+        .demo-heading {
+            margin-bottom: 16px;
+        }
+
+        .demo-topline {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .demo-kicker {
+            margin: 0;
+            color: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 750;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface-soft);
+        }
+
+        .lang-btn {
+            min-width: 36px;
+            min-height: 30px;
+            padding: 4px 9px;
+            border: 0;
+            border-radius: 999px;
+            color: var(--muted);
+            background: transparent;
+            font-size: 0.72rem;
+            font-weight: 750;
+            cursor: pointer;
+        }
+
+        .lang-btn:hover {
+            color: var(--ink);
+        }
+
+        .lang-btn.active {
+            color: var(--ink);
+            background: var(--surface);
+            box-shadow: inset 0 0 0 1px var(--line);
+        }
+
+        h1,
+        h2,
+        p {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-bottom: 7px;
+            color: var(--ink);
+            font-size: clamp(1.65rem, 4vw, 2.25rem);
+            font-weight: 680;
+            letter-spacing: -0.045em;
+            line-height: 1.05;
+        }
+
+        .demo-intro {
+            max-width: 760px;
+            margin-bottom: 0;
+            color: var(--muted);
+            font-size: 0.94rem;
+        }
+
+        /* Heads-up display */
+
+        .hud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 22px;
+            align-items: baseline;
+            padding: 8px 2px 10px;
+        }
+
+        .hud-item {
+            display: flex;
+            gap: 6px;
+            align-items: baseline;
+            color: var(--muted);
+            font-size: 0.7rem;
+        }
+
+        .hud-item output {
+            color: var(--accent-strong);
+            font-size: 0.9rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 750;
+        }
+
+        .hud-item.primary output {
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hud-item.band output {
+            color: var(--band);
+        }
+
+        .hud-item.outside output[data-cold="true"] {
+            color: var(--cold);
+        }
+
+        /* Stage */
+
+        .stage {
+            position: relative;
+            min-width: 0;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--canvas);
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            border-radius: 9px;
+            background: color-mix(in srgb, var(--canvas) 38%, transparent);
+        }
+
+        .overlay[hidden] {
+            display: none;
+        }
+
+        .overlay.corner {
+            place-items: end;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .overlay.corner .overlay-card {
+            width: min(100%, 300px);
+            pointer-events: auto;
+        }
+
+        .overlay-card {
+            width: min(100%, 360px);
+            padding: 20px 22px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--surface) 92%, transparent);
+            box-shadow: 0 12px 36px rgba(20, 26, 32, 0.12);
+            text-align: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay-card h2 {
+            margin-bottom: 6px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .overlay-card p {
+            margin-bottom: 14px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .overlay-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+
+        .overlay-stats[hidden],
+        .overlay-badge[hidden] {
+            display: none;
+        }
+
+        .overlay-stats div {
+            padding: 7px 6px;
+            border-radius: 8px;
+            background: var(--surface-soft);
+        }
+
+        .overlay-stats dt {
+            color: var(--muted);
+            font-size: 0.66rem;
+        }
+
+        .overlay-stats dd {
+            margin: 0;
+            color: var(--ink);
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 750;
+        }
+
+        .overlay-badge {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            color: var(--band);
+            background: color-mix(in srgb, var(--band) 14%, transparent);
+            font-size: 0.7rem;
+            font-weight: 750;
+        }
+
+        .button {
+            min-height: 36px;
+            padding: 7px 14px;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            color: var(--ink);
+            background: var(--surface);
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color 150ms ease, background-color 150ms ease;
+        }
+
+        .button:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .button-primary {
+            min-width: 140px;
+            color: #ffffff;
+            border-color: var(--accent-strong);
+            background: var(--accent-strong);
+        }
+
+        [data-theme="dark"] .button-primary {
+            color: #15181b;
+        }
+
+        .button-primary:hover {
+            color: #ffffff;
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        [data-theme="dark"] .button-primary:hover {
+            color: #15181b;
+        }
+
+        /* Source controls */
+
+        .source-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px 24px;
+            align-items: center;
+            margin-top: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface-soft);
+        }
+
+        .source-panel,
+        .source-options,
+        .power-control,
+        .controls-row {
+            min-width: 0;
+        }
+
+        .power-control {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) 3.4rem;
+            gap: 12px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.74rem;
+        }
+
+        .power-control strong {
+            color: var(--ink);
+            font-weight: 720;
+        }
+
+        .power-control input {
+            min-width: 0;
+            width: 100%;
+            margin: 0;
+            accent-color: var(--heat);
+            cursor: ew-resize;
+        }
+
+        .power-control output {
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .source-options {
+            display: flex;
+            flex-wrap: wrap;
+            grid-column: 1 / -1;
+            gap: 10px 18px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mode-control {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 9px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.72rem;
+        }
+
+        .mode-control strong {
+            color: var(--ink);
+            font-weight: 720;
+        }
+
+        .mode-control output {
+            min-width: 6.5rem;
+        }
+
+        .check {
+            display: inline-flex;
+            gap: 7px;
+            align-items: center;
+            color: var(--ink-soft);
+            font-size: 0.74rem;
+            cursor: pointer;
+        }
+
+        .check input {
+            margin: 0;
+            accent-color: var(--heat);
+        }
+
+        .segment {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface);
+        }
+
+        .segment button {
+            min-height: 28px;
+            padding: 3px 11px;
+            border: 0;
+            border-radius: 7px;
+            color: var(--muted);
+            background: transparent;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .segment button:hover {
+            color: var(--ink);
+        }
+
+        .segment button.active {
+            color: var(--ink);
+            background: var(--surface-soft);
+            box-shadow: inset 0 0 0 1px var(--line);
+        }
+
+        .controls-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: start;
+            margin-top: 12px;
+        }
+
+        .hint {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.75rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px 18px;
+            margin: 16px 0 0;
+            padding: 14px 0 0;
+            border-top: 1px solid var(--line);
+            list-style: none;
+            font-size: 0.75rem;
+        }
+
+        .legend li {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 2px 9px;
+            color: var(--muted);
+        }
+
+        .legend strong {
+            color: var(--ink);
+            font-size: 0.78rem;
+        }
+
+        .legend-dot {
+            grid-row: span 2;
+            width: 9px;
+            height: 9px;
+            margin-top: 5px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.band {
+            background: var(--band);
+        }
+
+        .legend-dot.front {
+            background: var(--cold);
+        }
+
+        .legend-dot.snow {
+            border: 2px solid var(--cold);
+            background: var(--surface);
+        }
+
+        .note {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 0.72rem;
+        }
+
+        .references {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .references h2 {
+            margin: 0 0 8px;
+            color: var(--ink);
+            font-size: 0.82rem;
+            font-weight: 720;
+        }
+
+        .reference-list {
+            margin: 0;
+            padding-left: 1.3rem;
+            color: var(--muted);
+            font-size: 0.72rem;
+            line-height: 1.5;
+        }
+
+        .reference-list em {
+            color: var(--ink-soft);
+        }
+
+        .reference-list a {
+            color: var(--accent);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 10px;
+            }
+
+            .demo-shell {
+                padding: 16px 6px;
+            }
+
+            canvas {
+                aspect-ratio: 1 / 1;
+            }
+
+            .controls-row,
+            .legend,
+            .source-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .source-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .mode-control {
+                width: 100%;
+            }
+
+            .mode-control output {
+                min-width: 0;
+            }
+
+            .actions {
+                justify-content: flex-start;
+            }
+
+            .overlay.corner {
+                place-items: end center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="demo-shell">
+        <header class="demo-heading">
+            <a class="standalone-back" href="index.html#demos" data-i18n="backToDemos">← Back to the demos</a>
+            <div class="demo-topline">
+                <p class="demo-kicker" data-i18n="kicker">Mini-game</p>
+                <div class="language-switcher" aria-label="Language" data-i18n-aria-label="languageAria">
+                    <button class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
+                    <button class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
+                </div>
+            </div>
+            <h1 data-i18n="title">Dino egg incubator</h1>
+            <p class="demo-intro" data-i18n="intro">A robot-mounted heat source has to keep a dinosaur egg at a uniform target temperature. Keep the average signed error and its spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
+        </header>
+
+        <section aria-labelledby="game-title">
+            <h2 id="game-title" class="sr-only" data-i18n="title">Dino egg incubator</h2>
+            <div class="hud">
+                <div class="hud-item primary band"><span data-i18n="hudInBand">In band</span><output id="inBand">0.0 / 30 s</output></div>
+                <div class="hud-item"><span data-i18n="hudAverageError">Average error</span><output id="meanErrorValue">–</output></div>
+                <div class="hud-item"><span data-i18n="hudErrorSpread">Error spread</span><output id="stdErrorValue">–</output></div>
+                <div class="hud-item outside"><span data-i18n="hudOutside">Outside</span><output id="outsideValue">18 °C</output></div>
+                <div class="hud-item"><span data-i18n="hudTime">Time</span><output id="timeValue">0:00</output></div>
+                <div class="hud-item"><span data-i18n="hudBest">Best</span><output id="bestValue">–</output></div>
+            </div>
+
+            <div class="stage">
+                <canvas id="game" tabindex="0" aria-label="A dinosaur egg on a nest, shown as a temperature map, with the focal point of the heat source" data-i18n-aria-label="canvasAria"></canvas>
+                <div class="overlay" id="overlay">
+                    <div class="overlay-card">
+                        <p class="demo-kicker" id="overlayKicker">Mini-game</p>
+                        <h2 id="overlayTitle">Dino egg incubator</h2>
+                        <span class="overlay-badge" id="overlayBadge" hidden>New best time</span>
+                        <p id="overlayText">Press and drag on the egg to heat it. Keep the error bar inside the signed ±2 °C band for 30 seconds.</p>
+                        <dl class="overlay-stats" id="overlayStats" hidden>
+                            <div><dt data-i18n="hudTime">Time</dt><dd id="statTime">0:00</dd></div>
+                            <div><dt data-i18n="hudBest">Best</dt><dd id="statBest">0:00</dd></div>
+                            <div><dt data-i18n="statSnow">Snowflakes</dt><dd id="statSnow">0</dd></div>
+                            <div><dt data-i18n="statFronts">Cold fronts</dt><dd id="statFronts">0</dd></div>
+                        </dl>
+                        <button class="button button-primary" type="button" id="overlayButton">Start</button>
+                    </div>
+                </div>
+            </div>
+            <p class="sr-only" aria-live="polite" id="announcer"></p>
+
+            <div class="source-panel">
+                <label class="power-control">
+                    <strong data-i18n="powerLabel">Power</strong>
+                    <input type="range" id="power" min="0" max="100" step="1" value="50">
+                    <output id="powerValue">50%</output>
+                </label>
+                <div class="source-options">
+                    <label class="check"><input type="checkbox" id="heatToggle"> <span data-i18n="heatWithoutPressing">Heat without pressing</span></label>
+                    <div class="mode-control">
+                        <strong data-i18n="difficultyLabel">Difficulty</strong>
+                        <div class="segment" id="difficulty" role="group" aria-label="Difficulty" data-i18n-aria-label="difficultyAria">
+                            <button type="button" class="active" data-difficulty="easy" aria-pressed="true" data-i18n="easyMode">Easy</button>
+                            <button type="button" data-difficulty="hard" aria-pressed="false" data-i18n="hardMode">Hard</button>
+                        </div>
+                        <output id="modeDescription">No cold fronts</output>
+                    </div>
+                    <div class="segment" id="mapMode" role="group" aria-label="Map" data-i18n-aria-label="mapAria">
+                        <button type="button" class="active" data-view="T" aria-pressed="true" data-i18n="viewTemperature">Temperature T</button>
+                        <button type="button" data-view="e" aria-pressed="false" data-i18n="viewError">Error e = T* − T</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-row">
+                <p class="hint" data-i18n="hint">Move the pointer over the egg to aim the source and press to heat. Use the Power slider or scroll on the egg: right means more power, left means less. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.</p>
+                <div class="actions">
+                    <button class="button" type="button" id="pauseButton" data-i18n="pause">Pause</button>
+                    <button class="button" type="button" id="restartButton" data-i18n="restart">Restart</button>
+                </div>
+            </div>
+
+            <ul class="legend">
+                <li><span class="legend-dot band" aria-hidden="true"></span><strong data-i18n="legendBand">Signed band</strong><span data-i18n="legendBandDesc">Both the average error and its spread must stay between −2 °C and +2 °C. Leaving the band resets the count.</span></li>
+                <li><span class="legend-dot front" aria-hidden="true"></span><strong data-i18n="legendFront">Cold front</strong><span data-i18n="legendFrontDesc">In Hard mode, the outside temperature drops for a few seconds and the egg loses heat faster.</span></li>
+                <li><span class="legend-dot snow" aria-hidden="true"></span><strong data-i18n="legendSnow">Snowflake</strong><span data-i18n="legendSnowDesc">A ring marks where it will land; on impact it cools that part of the shell.</span></li>
+            </ul>
+            <p class="note" data-i18n="note">The temperature field follows the heat equation of the EHCC problem setup, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher Power concentrates more heat into a smaller area; lower Power spreads gentler heat over a wider area. The source cannot cool: only diffusion and losses to the air lower the temperature.</p>
+
+            <section class="references" aria-labelledby="references-title">
+                <h2 id="references-title" data-i18n="referencesTitle">Related work</h2>
+                <ol class="reference-list">
+                    <li>“Ergodic Heat Coverage Control: Model-Free Robotic Regulation of Temperature Distributions,” <em data-i18n="companionNote">interactive companion with simulations and code</em>. <a href="https://ignaciocuiral.com/Ergodic_Heat_Coverage_Control/player.html?p=index.html" target="_blank" rel="noopener noreferrer">ignaciocuiral.com/Ergodic_Heat_Coverage_Control</a></li>
+                </ol>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const translations = {
+            en: {
+                backToDemos: '← Back to the demos',
+                kicker: 'Mini-game',
+                languageAria: 'Language',
+                title: 'Dino egg incubator',
+                intro: 'A robot-mounted heat source has to keep a dinosaur egg at a uniform target temperature. Keep the average signed error and its spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
+                hudInBand: 'In band',
+                hudAverageError: 'Average error',
+                hudErrorSpread: 'Error spread',
+                hudOutside: 'Outside',
+                hudTime: 'Time',
+                hudBest: 'Best',
+                canvasAria: 'A dinosaur egg on a nest, shown as a temperature map, with the focal point of the heat source',
+                powerLabel: 'Power',
+                heatWithoutPressing: 'Heat without pressing',
+                difficultyLabel: 'Difficulty',
+                difficultyAria: 'Difficulty',
+                easyMode: 'Easy',
+                hardMode: 'Hard',
+                easyModeDesc: 'No cold fronts',
+                hardModeDesc: 'Cold fronts on',
+                mapAria: 'Map',
+                viewTemperature: 'Temperature T',
+                viewError: 'Error e = T* − T',
+                hint: 'Move the pointer over the egg to aim the source and press to heat. Use the Power slider or scroll on the egg: right means more power, left means less. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.',
+                pause: 'Pause',
+                resume: 'Resume',
+                restart: 'Restart',
+                legendBand: 'Signed band',
+                legendBandDesc: 'Both the average error and its spread must stay between −2 °C and +2 °C. Leaving the band resets the count.',
+                legendFront: 'Cold front',
+                legendFrontDesc: 'In Hard mode, the outside temperature drops for a few seconds and the egg loses heat faster.',
+                legendSnow: 'Snowflake',
+                legendSnowDesc: 'A ring marks where it will land; on impact it cools that part of the shell.',
+                note: 'The temperature field follows the heat equation of the EHCC problem setup, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher Power concentrates more heat into a smaller area; lower Power spreads gentler heat over a wider area. The source cannot cool: only diffusion and losses to the air lower the temperature.',
+                referencesTitle: 'Related work',
+                companionNote: 'interactive companion with simulations and code',
+                startText: 'Press and drag on the egg to heat it. Keep the error bar inside the signed ±2 °C band for {seconds} seconds.',
+                start: 'Start',
+                pausedTitle: 'Paused',
+                pausedText: 'The simulation stops until you resume.',
+                hatchedTitle: 'It hatched!',
+                hatchedText: 'The egg stayed uniformly warm for {seconds} seconds.',
+                statSnow: 'Snowflakes',
+                statFronts: 'Cold fronts',
+                newBest: 'New best time',
+                playAgain: 'Play again',
+                bandLabel: 'limit',
+                errorGaugeLabel: 'Signed error (°C)',
+                coldFront: 'Cold front',
+                frontWarning: 'Cold front approaching',
+                targetLabel: 'T*',
+                deficitLabel: 'deficit',
+                overLabel: 'over-heated',
+                announceFront: 'A cold front is approaching.',
+                announceLeft: 'The error left the band; the count restarts.',
+                announceHatched: 'The egg hatched.'
+            },
+            es: {
+                backToDemos: '← Volver a las demos',
+                kicker: 'Minijuego',
+                languageAria: 'Idioma',
+                title: 'Incubadora de dinosaurios',
+                intro: 'Una fuente de calor montada en un robot debe mantener un huevo de dinosaurio a una temperatura objetivo uniforme. Mantén el promedio del error con signo y su dispersión dentro de la banda durante 30 segundos en Fácil o 40 segundos en Difícil.',
+                hudInBand: 'En banda',
+                hudAverageError: 'Error promedio',
+                hudErrorSpread: 'Dispersión del error',
+                hudOutside: 'Exterior',
+                hudTime: 'Tiempo',
+                hudBest: 'Récord',
+                canvasAria: 'Un huevo de dinosaurio en un nido, representado como un mapa de temperatura, con el punto focal de la fuente de calor',
+                powerLabel: 'Potencia',
+                heatWithoutPressing: 'Calentar sin pulsar',
+                difficultyLabel: 'Dificultad',
+                difficultyAria: 'Dificultad',
+                easyMode: 'Fácil',
+                hardMode: 'Difícil',
+                easyModeDesc: 'Sin frentes fríos',
+                hardModeDesc: 'Frentes fríos activos',
+                mapAria: 'Mapa',
+                viewTemperature: 'Temperatura T',
+                viewError: 'Error e = T* − T',
+                hint: 'Mueve el puntero sobre el huevo para apuntar la fuente y pulsa para calentar. Usa el deslizador de Potencia o la rueda sobre el huevo: a la derecha hay más potencia y a la izquierda, menos. Teclado: las flechas apuntan, Espacio calienta, W aumenta la potencia, S la reduce y P pausa el juego.',
+                pause: 'Pausa',
+                resume: 'Continuar',
+                restart: 'Reiniciar',
+                legendBand: 'Banda con signo',
+                legendBandDesc: 'Tanto el error promedio como su dispersión deben permanecer entre −2 °C y +2 °C. Salir de la banda reinicia la cuenta.',
+                legendFront: 'Frente frío',
+                legendFrontDesc: 'En el modo Difícil, la temperatura exterior baja durante unos segundos y el huevo pierde calor más rápido.',
+                legendSnow: 'Copo de nieve',
+                legendSnowDesc: 'Un anillo marca dónde caerá; al impactar enfría esa zona de la cáscara.',
+                note: 'El campo de temperatura sigue la ecuación del calor del planteamiento de EHCC, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), sobre el huevo con bordes aislados. Una Potencia alta concentra más calor en una zona pequeña; una Potencia baja reparte un calor más suave en un área mayor. La fuente no puede enfriar: solo la difusión y las pérdidas hacia el aire bajan la temperatura.',
+                referencesTitle: 'Trabajo relacionado',
+                companionNote: 'página interactiva con simulaciones y código',
+                startText: 'Pulsa y arrastra sobre el huevo para calentarlo. Mantén la barra de error dentro de la banda con signo de ±2 °C durante {seconds} segundos.',
+                start: 'Empezar',
+                pausedTitle: 'En pausa',
+                pausedText: 'La simulación se detiene hasta que continúes.',
+                hatchedTitle: '¡Ha eclosionado!',
+                hatchedText: 'El huevo se ha mantenido a temperatura uniforme durante {seconds} segundos.',
+                statSnow: 'Copos de nieve',
+                statFronts: 'Frentes fríos',
+                newBest: 'Nuevo récord',
+                playAgain: 'Jugar de nuevo',
+                bandLabel: 'límite',
+                errorGaugeLabel: 'Error con signo (°C)',
+                coldFront: 'Frente frío',
+                frontWarning: 'Se acerca un frente frío',
+                targetLabel: 'T*',
+                deficitLabel: 'déficit',
+                overLabel: 'sobrecalentado',
+                announceFront: 'Se acerca un frente frío.',
+                announceLeft: 'El error ha salido de la banda; la cuenta se reinicia.',
+                announceHatched: 'El huevo ha eclosionado.'
+            }
+        };
+
+        const isEmbedded = window.self !== window.top;
+        // embedded copies keep their preferences out of the parent's storage
+        const storage = {
+            get(key) {
+                if (isEmbedded) return null;
+                try { return localStorage.getItem(key); } catch (error) { return null; }
+            },
+            set(key, value) {
+                if (isEmbedded) return;
+                try { localStorage.setItem(key, value); } catch (error) { /* storage blocked */ }
+            }
+        };
+
+        // ------------------------------------------------------------------
+        // thermal model: the heat equation of the EHCC problem setup on an
+        // egg-shaped region with insulated (Neumann) edges
+        // ------------------------------------------------------------------
+        const TAU = Math.PI * 2;
+        const N = 64;
+        const MODEL = {
+            alpha: 0.0024,      // diffusivity, domain units^2 / s
+            loss: 0.05,         // h * lambda, 1 / s
+            power: 0.9,         // lambda * P, degC * area / s
+            target: 30,
+            ambient: 18,
+            start: 22,
+            snowDrop: 6,
+            snowSigma: 0.04,
+            step: 0.02
+        };
+        const STANDOFF = { min: 4, max: 36, cutoff: 40 };
+        const POWER = { min: 0, max: 100 };
+        const BAND = 2;
+
+        const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+        // efficiency vanishes at the cutoff standoff; the kernel widens with d
+        const eta = (d) => 1 - d / STANDOFF.cutoff;
+        const sigma = (d) => 0.02 + 0.0035 * d;
+        const distanceForPower = (power) => STANDOFF.max -
+            (clamp(power, POWER.min, POWER.max) / POWER.max) * (STANDOFF.max - STANDOFF.min);
+
+        // egg outline in domain coordinates (y grows downwards, narrow end up)
+        const EGG = { cx: 0.5, cy: 0.5, a: 0.26, b: 0.36 };
+        const halfWidth = (v) => (Math.abs(v) >= 1 ? 0 : EGG.a * Math.sqrt(1 - v * v) * (1 + 0.16 * v));
+        const insideEgg = (x, y) => Math.abs(x - EGG.cx) <= halfWidth((y - EGG.cy) / EGG.b);
+
+        function eggOutline(grow = 0, samples = 120) {
+            const right = [];
+            for (let i = 0; i <= samples; i++) {
+                const v = -1 + 2 * i / samples;
+                const w = halfWidth(v);
+                right.push([EGG.cx + w + grow * (w / EGG.a), EGG.cy + v * (EGG.b + grow)]);
+            }
+            const left = right.slice(1, -1).reverse().map(([x, y]) => [2 * EGG.cx - x, y]);
+            return [...right, ...left];
+        }
+
+        const mask = new Uint8Array(N * N);
+        const cells = [];
+        for (let j = 0; j < N; j++) {
+            for (let i = 0; i < N; i++) {
+                if (insideEgg((i + 0.5) / N, (j + 0.5) / N)) {
+                    mask[j * N + i] = 1;
+                    cells.push(j * N + i);
+                }
+            }
+        }
+        // display only: cells just outside the egg copy their nearest inside
+        // cell, so the smoothed image has no dark rim at the clipped edge
+        const displayIndex = new Int32Array(N * N).fill(-1);
+        for (let k = 0; k < N * N; k++) {
+            if (mask[k]) { displayIndex[k] = k; continue; }
+            const i = k % N;
+            const j = (k / N) | 0;
+            let best = -1;
+            let bestD = Infinity;
+            for (let dj = -3; dj <= 3; dj++) {
+                for (let di = -3; di <= 3; di++) {
+                    const ii = i + di;
+                    const jj = j + dj;
+                    if (ii < 0 || jj < 0 || ii >= N || jj >= N || !mask[jj * N + ii]) continue;
+                    const dd = di * di + dj * dj;
+                    if (dd < bestD) { bestD = dd; best = jj * N + ii; }
+                }
+            }
+            displayIndex[k] = best;
+        }
+
+        const field = new Float32Array(N * N);
+        const nextField = new Float32Array(N * N);
+        const heatRate = new Float32Array(N * N);
+        let ambient = MODEL.ambient;
+
+        function resetField() {
+            field.fill(MODEL.start);
+            ambient = MODEL.ambient;
+        }
+
+        function simulate(dt, source) {
+            heatRate.fill(0);
+            if (source.heat) {
+                const s = sigma(source.d);
+                const amp = MODEL.power * eta(source.d) / (TAU * s * s);
+                const reach = Math.ceil(3 * s * N);
+                const ci = Math.floor(source.x * N);
+                const cj = Math.floor(source.y * N);
+                for (let j = Math.max(0, cj - reach); j <= Math.min(N - 1, cj + reach); j++) {
+                    for (let i = Math.max(0, ci - reach); i <= Math.min(N - 1, ci + reach); i++) {
+                        const dx = (i + 0.5) / N - source.x;
+                        const dy = (j + 0.5) / N - source.y;
+                        heatRate[j * N + i] = amp * Math.exp(-(dx * dx + dy * dy) / (2 * s * s));
+                    }
+                }
+            }
+            const inv = N * N;
+            for (const k of cells) {
+                const t = field[k];
+                let lap = 0;
+                if (mask[k - 1]) lap += field[k - 1] - t;
+                if (mask[k + 1]) lap += field[k + 1] - t;
+                if (mask[k - N]) lap += field[k - N] - t;
+                if (mask[k + N]) lap += field[k + N] - t;
+                nextField[k] = t + dt * (MODEL.alpha * lap * inv + heatRate[k] - MODEL.loss * (t - ambient));
+            }
+            for (const k of cells) field[k] = nextField[k];
+        }
+
+        function coolSpot(x, y) {
+            const s2 = 2 * MODEL.snowSigma * MODEL.snowSigma;
+            for (const k of cells) {
+                const dx = (k % N + 0.5) / N - x;
+                const dy = (((k / N) | 0) + 0.5) / N - y;
+                field[k] -= MODEL.snowDrop * Math.exp(-(dx * dx + dy * dy) / s2);
+            }
+        }
+
+        function errorStats() {
+            let sum = 0;
+            let sq = 0;
+            for (const k of cells) {
+                const e = MODEL.target - field[k];
+                sum += e;
+                sq += e * e;
+            }
+            const mean = sum / cells.length;
+            const variance = Math.max(0, sq / cells.length - mean * mean);
+            return { mean, std: Math.sqrt(variance) };
+        }
+
+        // ------------------------------------------------------------------
+        // game state
+        // ------------------------------------------------------------------
+        let state = 'ready';
+        let difficulty = storage.get('eggIncubatorDifficulty') === 'hard' ? 'hard' : 'easy';
+        const hatchTime = () => difficulty === 'easy' ? 30 : 40;
+        let elapsed = 0;
+        let inBand = 0;
+        let stats = { mean: MODEL.target - MODEL.start, std: 0 };
+        let snowCount = 0;
+        let frontCount = 0;
+        let snowflakes = [];
+        let frosts = [];
+        let flakes = [];
+        let weather = null;
+        let nextSnow = 0;
+        let hatchT = 0;
+        let leftFlash = 0;
+        let viewMode = 'T';
+        const source = { x: EGG.cx, y: EGG.cy, power: 50, d: distanceForPower(50), heat: false };
+        let pressing = false;
+        let keyHeat = false;
+        const keysDown = new Set();
+
+        function resetWeather() {
+            weather = {
+                phase: 'calm',
+                target: MODEL.ambient,
+                nextFront: difficulty === 'hard' ? 20 + 6 * Math.random() : Infinity,
+                frontEnd: 0
+            };
+            nextSnow = 7 + 3 * Math.random();
+        }
+
+        const bestKey = () => `eggIncubatorBest:${difficulty}`;
+        const readBest = () => Number(storage.get(bestKey())) || 0;
+        const saveBest = (value) => storage.set(bestKey(), String(value));
+        const statInBand = (value) => value >= -BAND && value <= BAND;
+
+        function resetGame() {
+            resetField();
+            resetWeather();
+            elapsed = 0;
+            inBand = 0;
+            snowCount = 0;
+            frontCount = 0;
+            snowflakes = [];
+            frosts = [];
+            hatchT = 0;
+            leftFlash = 0;
+            stats = errorStats();
+            updateHud();
+        }
+
+        function startGame() {
+            resetGame();
+            state = 'playing';
+            showOverlay(null);
+            canvas.focus({ preventScroll: true });
+        }
+
+        function pauseGame() {
+            if (state !== 'playing') return;
+            state = 'paused';
+            pressing = false;
+            keysDown.clear();
+            showOverlay('paused');
+        }
+
+        function resumeGame() {
+            if (state !== 'paused') return;
+            state = 'playing';
+            showOverlay(null);
+            canvas.focus({ preventScroll: true });
+        }
+
+        let newBest = false;
+        function hatch() {
+            state = 'hatched';
+            hatchT = 0;
+            pressing = false;
+            snowflakes = [];
+            weather.phase = 'calm';
+            weather.target = MODEL.ambient;
+            const best = readBest();
+            newBest = !best || elapsed < best;
+            if (newBest) saveBest(elapsed);
+            announce(dict().announceHatched);
+            updateHud();
+        }
+
+        function landingPoint() {
+            for (let tries = 0; tries < 60; tries++) {
+                const x = EGG.cx + (Math.random() * 2 - 1) * EGG.a * 0.9;
+                const y = EGG.cy + (Math.random() * 2 - 1) * EGG.b * 0.9;
+                if (insideEgg(x, y)) return [x, y];
+            }
+            return [EGG.cx, EGG.cy];
+        }
+
+        function updateWeather(dt) {
+            if (difficulty === 'hard' && weather.phase === 'calm' && elapsed >= weather.nextFront - 3) {
+                weather.phase = 'warning';
+                announce(dict().announceFront);
+            }
+            if (difficulty === 'hard' && weather.phase === 'warning' && elapsed >= weather.nextFront) {
+                weather.phase = 'front';
+                frontCount += 1;
+                // later fronts are colder and last longer
+                weather.target = Math.max(5, 10 - 0.015 * elapsed - 3 * Math.random());
+                weather.frontEnd = elapsed + 10 + 4 * Math.random() + Math.min(3, elapsed / 30);
+            }
+            if (difficulty === 'hard' && weather.phase === 'front' && elapsed >= weather.frontEnd) {
+                weather.phase = 'calm';
+                weather.target = MODEL.ambient;
+                weather.nextFront = elapsed + 16 + 10 * Math.random();
+            }
+            ambient += (weather.target - ambient) * Math.min(1, dt / 2.5);
+
+            if (elapsed >= nextSnow) {
+                const [x, y] = landingPoint();
+                snowflakes.push({ x, y, drift: (Math.random() - 0.5) * 0.25, t: 0, fall: 1.7 });
+                const front = difficulty === 'hard' && weather.phase === 'front';
+                nextSnow = elapsed + (front ? 1.8 + 2 * Math.random() : 5 + 4 * Math.random());
+            }
+            for (const flake of snowflakes) {
+                flake.t += dt;
+                if (flake.t >= flake.fall && !flake.landed) {
+                    flake.landed = true;
+                    coolSpot(flake.x, flake.y);
+                    snowCount += 1;
+                    frosts.push({ x: flake.x, y: flake.y, t: 0 });
+                }
+            }
+            snowflakes = snowflakes.filter(flake => !flake.landed);
+        }
+
+        function update(dt) {
+            if (state === 'playing') applyKeys(dt);
+            source.heat = state === 'playing' && (pressing || keyHeat || heatToggle.checked);
+            if (state === 'playing') {
+                elapsed += dt;
+                updateWeather(dt);
+                const steps = Math.max(1, Math.ceil(dt / MODEL.step));
+                for (let s = 0; s < steps; s++) simulate(dt / steps, source);
+                stats = errorStats();
+                if (statInBand(stats.mean) && statInBand(stats.std)) {
+                    inBand += dt;
+                    if (inBand >= hatchTime()) hatch();
+                } else {
+                    if (inBand > 3) {
+                        leftFlash = 1;
+                        announce(dict().announceLeft);
+                    }
+                    inBand = 0;
+                }
+            }
+            if (state === 'hatched') {
+                hatchT += dt;
+                ambient += (weather.target - ambient) * Math.min(1, dt / 2.5);
+            }
+            if (state !== 'paused') {
+                frosts.forEach(f => { f.t += dt; });
+                frosts = frosts.filter(f => f.t < 0.8);
+                leftFlash = Math.max(0, leftFlash - dt * 1.8);
+                updateFlakes(dt);
+            }
+            updateLiveHud();
+            if (state === 'hatched' && hatchT > 1.6 && overlay.hidden) showOverlay('hatched');
+        }
+
+        // decorative snowfall while a cold front is on
+        function updateFlakes(dt) {
+            const intensity = frontIntensity();
+            const wanted = Math.round(60 * intensity);
+            while (flakes.length < wanted) {
+                flakes.push({ x: Math.random(), y: Math.random() * -0.2, v: 0.05 + 0.05 * Math.random(), r: 0.8 + 1.4 * Math.random(), sway: Math.random() * TAU });
+            }
+            for (const f of flakes) {
+                f.y += f.v * dt;
+                f.sway += dt;
+                f.x += Math.sin(f.sway) * 0.01 * dt;
+            }
+            flakes = flakes.filter(f => f.y < 1.05);
+            if (flakes.length > wanted) flakes.splice(0, flakes.length - wanted);
+        }
+
+        const frontIntensity = () => clamp((MODEL.ambient - ambient) / 10, 0, 1);
+
+        // ------------------------------------------------------------------
+        // rendering
+        // ------------------------------------------------------------------
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const fieldCanvas = document.createElement('canvas');
+        fieldCanvas.width = N;
+        fieldCanvas.height = N;
+        const fieldCtx = fieldCanvas.getContext('2d');
+        const fieldImage = fieldCtx.createImageData(N, N);
+        let layout = { S: 100, x0: 0, y0: 0, w: 0, h: 0, gx: 0 };
+
+        const toScreen = (x, y) => [layout.x0 + x * layout.S, layout.y0 + y * layout.S];
+        const toDomain = (px, py) => [(px - layout.x0) / layout.S, (py - layout.y0) / layout.S];
+
+        function hexToRgb(hex) {
+            const h = hex.replace('#', '');
+            return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+        }
+
+        const alpha = (hex, a) => {
+            const [r, g, b] = hexToRgb(hex);
+            return `rgba(${r}, ${g}, ${b}, ${a})`;
+        };
+
+        function lut(stops) {
+            const table = new Uint8ClampedArray(256 * 3);
+            const rgb = stops.map(([t, hex]) => [t, hexToRgb(hex)]);
+            for (let i = 0; i < 256; i++) {
+                const t = i / 255;
+                let k = 0;
+                while (k < rgb.length - 2 && t > rgb[k + 1][0]) k++;
+                const [t0, c0] = rgb[k];
+                const [t1, c1] = rgb[k + 1];
+                const u = clamp((t - t0) / (t1 - t0), 0, 1);
+                for (let c = 0; c < 3; c++) table[3 * i + c] = c0[c] + (c1[c] - c0[c]) * u;
+            }
+            return table;
+        }
+
+        // temperature: dark violet (cold) through orange (target) to pale yellow (hot)
+        const T_RANGE = [12, 42];
+        const TEMP_LUT = lut([[0, '#1d1140'], [0.22, '#4b1569'], [0.42, '#a32f62'], [0.6, '#e7652f'], [0.74, '#f6a23a'], [0.88, '#f8d566'], [1, '#fdf8d0']]);
+        // error: red heat deficit, white zero, blue over-heated (as in EHCC)
+        const E_RANGE = 8;
+        const ERROR_LUT = lut([[0, '#2166ac'], [0.25, '#67a9cf'], [0.5, '#f7f7f7'], [0.75, '#ef8a62'], [1, '#b2182b']]);
+
+        function paintField() {
+            const data = fieldImage.data;
+            for (let k = 0; k < N * N; k++) {
+                const src = displayIndex[k];
+                if (src < 0) { data[4 * k + 3] = 0; continue; }
+                let t;
+                if (viewMode === 'T') t = (field[src] - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]);
+                else t = ((MODEL.target - field[src]) / E_RANGE + 1) / 2;
+                const i = Math.round(clamp(t, 0, 1) * 255) * 3;
+                const table = viewMode === 'T' ? TEMP_LUT : ERROR_LUT;
+                data[4 * k] = table[i];
+                data[4 * k + 1] = table[i + 1];
+                data[4 * k + 2] = table[i + 2];
+                data[4 * k + 3] = 255;
+            }
+            fieldCtx.putImageData(fieldImage, 0, 0);
+        }
+
+        function palette() {
+            const dark = document.documentElement.dataset.theme === 'dark';
+            return dark ? {
+                surface: '#1a1d20', grid: '#23272b', ink: '#e6e9ec', text: '#949da6', line: '#3a4046',
+                heat: '#f08a45', band: '#3cc28f', cold: '#7fb0f0', alert: '#e66767',
+                twig: '#8a6c45', twigDark: '#6b5233', shadow: 'rgba(0, 0, 0, 0.35)',
+                shell: '#d8caa6', speck: '#5a4630',
+                dino: '#58b98b', dinoLine: '#2e6f52', belly: '#b9e3c9', spike: '#f2a541'
+            } : {
+                surface: '#fafbfb', grid: '#eef0f2', ink: '#23282d', text: '#697179', line: '#c9ced3',
+                heat: '#e8772e', band: '#1b9e6f', cold: '#3b7dd8', alert: '#d64545',
+                twig: '#c49a62', twigDark: '#9c7646', shadow: 'rgba(40, 30, 20, 0.14)',
+                shell: '#f3e8cc', speck: '#7a5c3c',
+                dino: '#5cbf8e', dinoLine: '#2f7656', belly: '#c7ecd6', spike: '#f2a541'
+            };
+        }
+
+        function seeded(n) {
+            let s = 9;
+            const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+            return Array.from({ length: n }, r);
+        }
+
+        const SPECKLES = (() => {
+            const r = seeded(240);
+            const out = [];
+            for (let i = 0; out.length < 46 && i < 230; i += 5) {
+                const x = EGG.cx + (r[i] * 2 - 1) * EGG.a;
+                const y = EGG.cy + (r[i + 1] * 2 - 1) * EGG.b;
+                if (insideEgg(x, y)) out.push({ x, y, rx: 0.006 + 0.012 * r[i + 2], ry: 0.004 + 0.008 * r[i + 3], rot: r[i + 4] * Math.PI });
+            }
+            return out;
+        })();
+
+        const TWIGS = (() => {
+            const r = seeded(120);
+            return Array.from({ length: 18 }, (_, i) => ({
+                x0: EGG.cx - 0.34 + 0.08 * r[i * 5], y0: EGG.cy + EGG.b * (0.55 + 0.35 * r[i * 5 + 1]),
+                x1: EGG.cx + 0.26 + 0.08 * r[i * 5 + 2], y1: EGG.cy + EGG.b * (0.55 + 0.35 * r[i * 5 + 3]),
+                sag: 0.04 + 0.08 * r[i * 5 + 4], dark: i % 3 === 0
+            }));
+        })();
+
+        // zigzag crack across the egg, left to right, a little above the equator
+        const CRACK = (() => {
+            const y = EGG.cy - 0.05;
+            const w = halfWidth(-0.05 / EGG.b);
+            const pts = [];
+            const steps = 9;
+            for (let i = 0; i <= steps; i++) {
+                const x = EGG.cx - w + 2 * w * i / steps;
+                const off = i === 0 || i === steps ? 0 : (i % 2 ? -0.022 : 0.018);
+                pts.push([x, y + off]);
+            }
+            return pts;
+        })();
+
+        function pathFrom(points, close = true) {
+            points.forEach(([x, y], i) => {
+                const [px, py] = toScreen(x, y);
+                if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+            });
+            if (close) ctx.closePath();
+        }
+
+        const OUTLINE = eggOutline(0);
+
+        function drawNest(p, front) {
+            const S = layout.S;
+            ctx.save();
+            const [sx, sy] = toScreen(EGG.cx, EGG.cy + EGG.b * 0.98);
+            ctx.fillStyle = p.shadow;
+            ctx.beginPath();
+            ctx.ellipse(sx, sy, 0.33 * S, 0.045 * S, 0, 0, TAU);
+            ctx.fill();
+            ctx.lineCap = 'round';
+            for (const twig of TWIGS.filter(t => t.dark === !front)) {
+                const [ax, ay] = toScreen(twig.x0, twig.y0);
+                const [bx, by] = toScreen(twig.x1, twig.y1);
+                const [cx, cy] = toScreen((twig.x0 + twig.x1) / 2, Math.max(twig.y0, twig.y1) + twig.sag);
+                ctx.strokeStyle = alpha(twig.dark ? p.twigDark : p.twig, front ? 0.9 : 0.75);
+                ctx.lineWidth = Math.max(1.5, 0.006 * S);
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                ctx.quadraticCurveTo(cx, cy, bx, by);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawSpeckles(p, strength) {
+            const S = layout.S;
+            ctx.fillStyle = alpha(p.speck, strength);
+            for (const s of SPECKLES) {
+                const [x, y] = toScreen(s.x, s.y);
+                ctx.beginPath();
+                ctx.ellipse(x, y, s.rx * S, s.ry * S, s.rot, 0, TAU);
+                ctx.fill();
+            }
+        }
+
+        function drawShellShading() {
+            const S = layout.S;
+            const [hx, hy] = toScreen(EGG.cx - 0.09, EGG.cy - 0.17);
+            const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, 0.32 * S);
+            g.addColorStop(0, 'rgba(255, 255, 255, 0.28)');
+            g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = g;
+            ctx.fillRect(layout.x0, layout.y0, S, S);
+            const [lx, ly] = toScreen(EGG.cx + 0.12, EGG.cy + 0.22);
+            const s = ctx.createRadialGradient(lx, ly, 0.05 * S, lx, ly, 0.42 * S);
+            s.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            s.addColorStop(1, 'rgba(0, 0, 0, 0.16)');
+            ctx.fillStyle = s;
+            ctx.fillRect(layout.x0, layout.y0, S, S);
+        }
+
+        function drawEgg(p) {
+            const S = layout.S;
+            const progress = inBand / hatchTime();
+            // a slight wobble in the last part of the incubation
+            const wobble = progress > 0.8 && state === 'playing' ? 0.025 * Math.sin(elapsed * 14) * (progress - 0.8) / 0.2 : 0;
+            const [px, py] = toScreen(EGG.cx, EGG.cy + EGG.b);
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(wobble);
+            ctx.translate(-px, -py);
+            ctx.save();
+            ctx.beginPath();
+            pathFrom(OUTLINE);
+            ctx.clip();
+            paintField();
+            ctx.imageSmoothingEnabled = true;
+            ctx.drawImage(fieldCanvas, layout.x0, layout.y0, S, S);
+            drawSpeckles(p, viewMode === 'T' ? 0.16 : 0.07);
+            drawShellShading();
+            ctx.restore();
+            ctx.beginPath();
+            pathFrom(OUTLINE);
+            ctx.strokeStyle = alpha(p.ink, 0.35);
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+            // cracks grow over the last 40% of the incubation
+            if (progress > 0.6) {
+                const share = clamp((progress - 0.6) / 0.4, 0, 1);
+                const count = Math.max(2, Math.ceil(CRACK.length * share));
+                ctx.beginPath();
+                pathFrom(CRACK.slice(0, count), false);
+                ctx.strokeStyle = alpha(p.ink, 0.75);
+                ctx.lineWidth = 1.6;
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawRing(p) {
+            const ring = eggOutline(0.03);
+            const progress = clamp(inBand / hatchTime(), 0, 1);
+            const S = layout.S;
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            pathFrom(ring);
+            ctx.strokeStyle = alpha(p.line, 0.55);
+            ctx.lineWidth = Math.max(3, 0.01 * S);
+            ctx.stroke();
+            if (leftFlash > 0) {
+                ctx.strokeStyle = alpha(p.alert, 0.7 * leftFlash);
+                ctx.stroke();
+            }
+            if (progress > 0) {
+                let length = 0;
+                for (let i = 1; i < ring.length; i++) {
+                    length += Math.hypot(ring[i][0] - ring[i - 1][0], ring[i][1] - ring[i - 1][1]);
+                }
+                length *= S;
+                // the path starts at the top of the egg and runs clockwise
+                ctx.setLineDash([length * progress, length]);
+                ctx.strokeStyle = p.band;
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        // drawn in white over a dark halo so it stays visible on both maps
+        function drawSource(p) {
+            if (state === 'hatched') return;
+            const S = layout.S;
+            const [x, y] = toScreen(source.x, source.y);
+            const r = 1.5 * sigma(source.d) * S;
+            ctx.save();
+            if (source.heat) {
+                const g = ctx.createRadialGradient(x, y, 0, x, y, 1.6 * r);
+                g.addColorStop(0, `rgba(255, 244, 214, ${0.35 + 0.35 * eta(source.d)})`);
+                g.addColorStop(1, 'rgba(255, 244, 214, 0)');
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(x, y, 1.6 * r, 0, TAU);
+                ctx.fill();
+            }
+            ctx.setLineDash([5, 4]);
+            ctx.lineDashOffset = source.heat ? -performance.now() / 40 : 0;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, TAU);
+            ctx.strokeStyle = 'rgba(20, 22, 26, 0.35)';
+            ctx.lineWidth = 3.2;
+            ctx.stroke();
+            ctx.strokeStyle = source.heat ? '#ffffff' : 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, TAU);
+            ctx.fillStyle = p.heat;
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x, y, 7.5, 0, TAU);
+            ctx.strokeStyle = 'rgba(20, 22, 26, 0.45)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function snowflakeShape(x, y, r, colour, width) {
+            ctx.strokeStyle = colour;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            for (let k = 0; k < 3; k++) {
+                const a = k * Math.PI / 3 + Math.PI / 2;
+                const dx = Math.cos(a) * r;
+                const dy = Math.sin(a) * r;
+                ctx.beginPath();
+                ctx.moveTo(x - dx, y - dy);
+                ctx.lineTo(x + dx, y + dy);
+                ctx.stroke();
+                for (const sgn of [1, -1]) {
+                    const bx = x + sgn * dx * 0.55;
+                    const by = y + sgn * dy * 0.55;
+                    for (const side of [0.6, -0.6]) {
+                        const ba = a + side + (sgn < 0 ? Math.PI : 0);
+                        ctx.beginPath();
+                        ctx.moveTo(bx, by);
+                        ctx.lineTo(bx + Math.cos(ba) * r * 0.35, by + Math.sin(ba) * r * 0.35);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function drawSnow(p) {
+            const S = layout.S;
+            ctx.save();
+            for (const flake of snowflakes) {
+                const u = clamp(flake.t / flake.fall, 0, 1);
+                const [lx, ly] = toScreen(flake.x, flake.y);
+                // landing marker
+                ctx.setLineDash([3, 3]);
+                ctx.strokeStyle = alpha(p.cold, 0.35 + 0.5 * u);
+                ctx.lineWidth = 1.3;
+                ctx.beginPath();
+                ctx.arc(lx, ly, (0.07 - 0.03 * u) * S, 0, TAU);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                const startY = -0.08;
+                const y = startY + (flake.y - startY) * u * u;
+                const x = flake.x + flake.drift * (1 - u);
+                const [fx, fy] = toScreen(x, y);
+                snowflakeShape(fx, fy, 0.03 * S, alpha(p.surface, 0.95), 4);
+                snowflakeShape(fx, fy, 0.03 * S, p.cold, 1.6);
+            }
+            for (const frost of frosts) {
+                const [x, y] = toScreen(frost.x, frost.y);
+                const u = frost.t / 0.8;
+                ctx.strokeStyle = alpha(p.cold, 0.8 * (1 - u));
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(x, y, (0.03 + 0.09 * u) * S, 0, TAU);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawWeather(p) {
+            const intensity = frontIntensity();
+            const { w, h } = layout;
+            if (intensity > 0) {
+                const g = ctx.createLinearGradient(0, 0, 0, h);
+                g.addColorStop(0, alpha(p.cold, 0.16 * intensity));
+                g.addColorStop(1, alpha(p.cold, 0));
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, w, h);
+            }
+            ctx.save();
+            ctx.fillStyle = alpha(p.cold, 0.55);
+            for (const f of flakes) {
+                ctx.beginPath();
+                ctx.arc(f.x * w, f.y * h, f.r, 0, TAU);
+                ctx.fill();
+            }
+            ctx.restore();
+            // outside temperature with a sun or a snowflake
+            ctx.save();
+            const x = 22;
+            const y = 24;
+            if (weather && weather.phase === 'front') {
+                snowflakeShape(x, y, 9, p.cold, 1.6);
+            } else {
+                ctx.strokeStyle = '#e8a33a';
+                ctx.fillStyle = '#f4c04e';
+                ctx.lineWidth = 1.6;
+                ctx.beginPath();
+                ctx.arc(x, y, 5.5, 0, TAU);
+                ctx.fill();
+                for (let k = 0; k < 8; k++) {
+                    const a = k * Math.PI / 4;
+                    ctx.beginPath();
+                    ctx.moveTo(x + Math.cos(a) * 8, y + Math.sin(a) * 8);
+                    ctx.lineTo(x + Math.cos(a) * 11, y + Math.sin(a) * 11);
+                    ctx.stroke();
+                }
+            }
+            ctx.font = '700 13px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = intensity > 0.2 ? p.cold : p.ink;
+            ctx.fillText(`${ambient.toFixed(0)} °C`, x + 17, y + 1);
+            if (weather && (weather.phase === 'warning' || weather.phase === 'front')) {
+                const label = weather.phase === 'warning' ? dict().frontWarning : dict().coldFront;
+                ctx.font = '700 12px system-ui, -apple-system, "Segoe UI", sans-serif';
+                const tw = ctx.measureText(label).width;
+                const bx = layout.w / 2 - tw / 2 - 12;
+                ctx.fillStyle = alpha(p.cold, 0.14);
+                ctx.strokeStyle = alpha(p.cold, 0.6);
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(bx, 12, tw + 24, 24, 12); else ctx.rect(bx, 12, tw + 24, 24);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = p.cold;
+                ctx.textAlign = 'center';
+                ctx.fillText(label, layout.w / 2, 24.5);
+            }
+            ctx.restore();
+        }
+
+        function drawGauge(p) {
+            const { h } = layout;
+            const x = layout.gx;
+            const top = h * 0.18;
+            const bottom = h * 0.84;
+            const min = -8;
+            const max = 8;
+            const yOf = (v) => bottom - (bottom - top) * clamp((v - min) / (max - min), 0, 1);
+            const signed = (v) => v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : '0';
+            ctx.save();
+            ctx.font = '700 11px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = p.text;
+            ctx.fillText(dict().errorGaugeLabel, x, top - 17);
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = alpha(p.line, 0.6);
+            ctx.lineWidth = 8;
+            ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+            ctx.strokeStyle = alpha(p.band, 0.55);
+            ctx.lineWidth = 10;
+            ctx.beginPath(); ctx.moveTo(x, yOf(BAND)); ctx.lineTo(x, yOf(-BAND)); ctx.stroke();
+            ctx.textAlign = 'left';
+            ctx.font = '600 10px system-ui, -apple-system, "Segoe UI", sans-serif';
+            for (const v of [BAND, 0, -BAND]) {
+                const limit = Math.abs(v) === BAND;
+                ctx.fillStyle = limit ? p.band : p.text;
+                ctx.fillText(limit ? `${signed(v)} ${dict().bandLabel}` : signed(v), x + 18, yOf(v) + 3);
+            }
+
+            const ok = statInBand(stats.mean) && statInBand(stats.std);
+            const meanY = yOf(stats.mean);
+            const spreadTop = yOf(stats.mean + stats.std);
+            const spreadBottom = yOf(stats.mean - stats.std);
+            ctx.strokeStyle = ok ? p.ink : p.alert;
+            ctx.lineCap = 'butt';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x - 14, spreadTop);
+            ctx.lineTo(x - 6, spreadTop);
+            ctx.moveTo(x - 14, spreadTop);
+            ctx.lineTo(x - 14, spreadBottom);
+            ctx.moveTo(x - 14, spreadBottom);
+            ctx.lineTo(x - 6, spreadBottom);
+            ctx.stroke();
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x - 7, meanY);
+            ctx.lineTo(x + 7, meanY);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawColorbar(p) {
+            const x = 16;
+            const y = layout.h - 26;
+            const w = Math.min(150, layout.w * 0.24);
+            const table = viewMode === 'T' ? TEMP_LUT : ERROR_LUT;
+            ctx.save();
+            for (let i = 0; i < w; i++) {
+                const k = Math.round(i / (w - 1) * 255) * 3;
+                ctx.fillStyle = `rgb(${table[k]}, ${table[k + 1]}, ${table[k + 2]})`;
+                ctx.fillRect(x + i, y, 1.5, 7);
+            }
+            ctx.font = '600 10px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.fillStyle = p.text;
+            ctx.textBaseline = 'top';
+            if (viewMode === 'T') {
+                ctx.textAlign = 'left';
+                ctx.fillText(`${T_RANGE[0]} °C`, x, y + 10);
+                ctx.textAlign = 'right';
+                ctx.fillText(`${T_RANGE[1]}`, x + w, y + 10);
+                const tx = x + w * (MODEL.target - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]);
+                ctx.fillStyle = p.ink;
+                ctx.fillRect(tx - 0.75, y - 3, 1.5, 13);
+                ctx.textAlign = 'center';
+                ctx.fillText(`${dict().targetLabel} ${MODEL.target}`, tx, y + 10);
+            } else {
+                ctx.textAlign = 'left';
+                ctx.fillText(dict().overLabel, x, y + 10);
+                ctx.textAlign = 'right';
+                ctx.fillText(dict().deficitLabel, x + w, y + 10);
+                ctx.fillStyle = p.ink;
+                ctx.fillRect(x + w / 2 - 0.75, y - 3, 1.5, 13);
+            }
+            ctx.restore();
+        }
+
+        // ------------------------------------------------------------------
+        // hatching
+        // ------------------------------------------------------------------
+        const ease = (u) => 1 - Math.pow(1 - clamp(u, 0, 1), 3);
+
+        function clipAbove(sign) {
+            // half-plane above (sign = -1) or below (sign = 1) the crack line
+            ctx.beginPath();
+            pathFrom([...CRACK, [1.2, CRACK[CRACK.length - 1][1] + sign * 1.2], [-0.2, CRACK[0][1] + sign * 1.2]]);
+            ctx.clip();
+        }
+
+        function drawShellPiece(p, sign) {
+            ctx.save();
+            clipAbove(sign);
+            ctx.beginPath();
+            pathFrom(OUTLINE);
+            ctx.fillStyle = p.shell;
+            ctx.fill();
+            ctx.save();
+            ctx.clip();
+            drawSpeckles(p, 0.22);
+            drawShellShading();
+            ctx.restore();
+            ctx.strokeStyle = alpha(p.ink, 0.35);
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+            ctx.beginPath();
+            pathFrom(CRACK, false);
+            ctx.strokeStyle = alpha(p.ink, 0.5);
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawDino(p, rise, blink) {
+            const S = layout.S;
+            const [cx, cy0] = toScreen(EGG.cx, CRACK[0][1] - 0.01);
+            const cy = cy0 + (1 - rise) * 0.24 * S;
+            const u = (v) => v * S;
+            ctx.save();
+            ctx.lineWidth = Math.max(1.5, u(0.006));
+            ctx.strokeStyle = p.dinoLine;
+            ctx.lineJoin = 'round';
+            // back spikes
+            ctx.fillStyle = p.spike;
+            for (const [ax, ay, ang] of [[-0.07, -0.1, -2.3], [-0.03, -0.155, -1.95], [0.025, -0.175, -1.6]]) {
+                const bx = cx + u(ax);
+                const by = cy + u(ay);
+                ctx.beginPath();
+                ctx.moveTo(bx + Math.cos(ang - 0.45) * u(0.03), by + Math.sin(ang - 0.45) * u(0.03));
+                ctx.lineTo(bx + Math.cos(ang) * u(0.07), by + Math.sin(ang) * u(0.07));
+                ctx.lineTo(bx + Math.cos(ang + 0.45) * u(0.03), by + Math.sin(ang + 0.45) * u(0.03));
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+            // body and head
+            ctx.fillStyle = p.dino;
+            ctx.beginPath();
+            ctx.ellipse(cx - u(0.005), cy + u(0.06), u(0.12), u(0.12), 0, 0, TAU);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = p.belly;
+            ctx.beginPath();
+            ctx.ellipse(cx + u(0.03), cy + u(0.08), u(0.06), u(0.08), 0, 0, TAU);
+            ctx.fill();
+            ctx.fillStyle = p.dino;
+            ctx.beginPath();
+            ctx.arc(cx, cy - u(0.08), u(0.105), 0, TAU);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.ellipse(cx + u(0.09), cy - u(0.05), u(0.075), u(0.052), 0.1, 0, TAU);
+            ctx.fill();
+            ctx.stroke();
+            // cover the seam between head and snout
+            ctx.beginPath();
+            ctx.arc(cx + u(0.02), cy - u(0.07), u(0.085), 0, TAU);
+            ctx.fill();
+            // eye, cheek, nostril and smile
+            ctx.fillStyle = '#23282d';
+            if (blink) {
+                ctx.strokeStyle = '#23282d';
+                ctx.beginPath();
+                ctx.moveTo(cx + u(0.02), cy - u(0.105));
+                ctx.lineTo(cx + u(0.058), cy - u(0.105));
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.arc(cx + u(0.04), cy - u(0.105), u(0.02), 0, TAU);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(cx + u(0.047), cy - u(0.112), u(0.007), 0, TAU);
+                ctx.fill();
+            }
+            ctx.fillStyle = 'rgba(244, 132, 150, 0.6)';
+            ctx.beginPath();
+            ctx.ellipse(cx + u(0.04), cy - u(0.055), u(0.022), u(0.013), 0, 0, TAU);
+            ctx.fill();
+            ctx.fillStyle = p.dinoLine;
+            ctx.beginPath();
+            ctx.arc(cx + u(0.145), cy - u(0.065), u(0.006), 0, TAU);
+            ctx.fill();
+            ctx.strokeStyle = p.dinoLine;
+            ctx.beginPath();
+            ctx.arc(cx + u(0.1), cy - u(0.045), u(0.035), 0.35, 1.25);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawArms(p, rise) {
+            if (rise < 0.85) return;
+            const S = layout.S;
+            ctx.save();
+            ctx.fillStyle = p.dino;
+            ctx.strokeStyle = p.dinoLine;
+            ctx.lineWidth = Math.max(1.5, 0.006 * S);
+            for (const side of [-1, 1]) {
+                const [ax, ay] = toScreen(EGG.cx + side * 0.075, CRACK[0][1] + (side < 0 ? 0.012 : 0.005));
+                ctx.beginPath();
+                ctx.ellipse(ax, ay, 0.026 * S, 0.016 * S, side * 0.4, 0, TAU);
+                ctx.fill();
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawHatching(p) {
+            const S = layout.S;
+            const open = ease(hatchT / 0.9);
+            const rise = ease((hatchT - 0.35) / 0.9);
+            const blink = hatchT > 2 && (hatchT % 3.2) < 0.14;
+            drawDino(p, rise, blink);
+            drawShellPiece(p, 1);
+            drawArms(p, rise);
+            // top shell lifts off and tumbles away
+            const [hx, hy] = toScreen(EGG.cx + 0.2, CRACK[0][1]);
+            ctx.save();
+            ctx.globalAlpha = 1 - clamp((hatchT - 0.9) / 0.6, 0, 1);
+            ctx.translate(hx + open * 0.16 * S, hy - open * 0.12 * S);
+            ctx.rotate(open * 0.9);
+            ctx.translate(-hx, -hy);
+            drawShellPiece(p, -1);
+            ctx.restore();
+            // sparkles
+            if (hatchT < 2.2) {
+                ctx.save();
+                const r = seeded(24);
+                for (let i = 0; i < 8; i++) {
+                    const a = r[i] * TAU;
+                    const dist = (0.18 + 0.12 * r[i + 8]) * S * ease(hatchT / 1.2);
+                    const [ox, oy] = toScreen(EGG.cx, CRACK[0][1] - 0.08);
+                    const x = ox + Math.cos(a) * dist;
+                    const y = oy + Math.sin(a) * dist * 0.8;
+                    ctx.globalAlpha = clamp(1 - (hatchT - 0.6) / 1.6, 0, 1);
+                    ctx.fillStyle = i % 2 ? p.spike : p.band;
+                    ctx.beginPath();
+                    for (let k = 0; k < 8; k++) {
+                        const rr = k % 2 ? 2.5 : 7;
+                        const aa = k * Math.PI / 4;
+                        ctx.lineTo(x + Math.cos(aa) * rr, y + Math.sin(aa) * rr);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+        }
+
+        function render() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+            if (!w || !h) return;
+            if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+                canvas.width = Math.round(w * dpr);
+                canvas.height = Math.round(h * dpr);
+            }
+            const S = Math.min(h * 0.94, w * 0.66);
+            const centre = w * (w / h > 1.25 ? 0.44 : 0.42);
+            layout = { S, x0: centre - S / 2, y0: (h - S) / 2 + h * 0.01, w, h, gx: 0 };
+            layout.gx = Math.min(w - 72, centre + S / 2 + (w - centre - S / 2) * 0.42);
+            const p = palette();
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.fillStyle = p.surface;
+            ctx.fillRect(0, 0, w, h);
+            drawWeather(p);
+            drawNest(p, false);
+            if (state === 'hatched') drawHatching(p);
+            else {
+                drawRing(p);
+                drawEgg(p);
+            }
+            drawNest(p, true);
+            drawSnow(p);
+            drawSource(p);
+            drawGauge(p);
+            if (state !== 'hatched') drawColorbar(p);
+        }
+
+        // ------------------------------------------------------------------
+        // input
+        // ------------------------------------------------------------------
+        const heatToggle = document.getElementById('heatToggle');
+        const powerInput = document.getElementById('power');
+
+        function setPower(power) {
+            source.power = clamp(power, POWER.min, POWER.max);
+            source.d = distanceForPower(source.power);
+            powerInput.value = String(source.power);
+            document.getElementById('powerValue').textContent = `${Math.round(source.power)}%`;
+        }
+
+        powerInput.addEventListener('input', () => setPower(Number(powerInput.value)));
+
+        function aim(event) {
+            const rect = canvas.getBoundingClientRect();
+            const [x, y] = toDomain(event.clientX - rect.left, event.clientY - rect.top);
+            source.x = clamp(x, 0, 1);
+            source.y = clamp(y, 0, 1);
+        }
+
+        canvas.addEventListener('pointermove', (event) => {
+            if (state === 'paused') return;
+            aim(event);
+        });
+        canvas.addEventListener('pointerdown', (event) => {
+            if (state !== 'playing') return;
+            event.preventDefault();
+            canvas.setPointerCapture(event.pointerId);
+            aim(event);
+            pressing = true;
+        });
+        const release = (event) => {
+            pressing = false;
+            if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+        };
+        canvas.addEventListener('pointerup', release);
+        canvas.addEventListener('pointercancel', release);
+        canvas.addEventListener('wheel', (event) => {
+            if (state !== 'playing') return;
+            event.preventDefault();
+            setPower(source.power - Math.sign(event.deltaY) * 5);
+        }, { passive: false });
+
+        const AIM_SPEED = 0.45;
+        const POWER_SPEED = 45;
+        function applyKeys(dt) {
+            let dx = 0;
+            let dy = 0;
+            if (keysDown.has('ArrowLeft')) dx -= 1;
+            if (keysDown.has('ArrowRight')) dx += 1;
+            if (keysDown.has('ArrowUp')) dy -= 1;
+            if (keysDown.has('ArrowDown')) dy += 1;
+            source.x = clamp(source.x + dx * AIM_SPEED * dt, 0, 1);
+            source.y = clamp(source.y + dy * AIM_SPEED * dt, 0, 1);
+            if (keysDown.has('w')) setPower(source.power + POWER_SPEED * dt);
+            if (keysDown.has('s')) setPower(source.power - POWER_SPEED * dt);
+            keyHeat = keysDown.has(' ');
+        }
+
+        const GAME_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 's', ' ']);
+        window.addEventListener('keydown', (event) => {
+            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            // buttons and checkboxes keep Space and Enter, sliders keep their arrow keys
+            const onControl = Boolean(target?.closest('button, a, input[type="checkbox"]')) ||
+                (Boolean(target?.closest('input[type="range"]')) && key.startsWith('Arrow'));
+            if (key === 'p' && (state === 'playing' || state === 'paused')) {
+                event.preventDefault();
+                if (state === 'playing') pauseGame(); else resumeGame();
+                return;
+            }
+            if (state !== 'playing' || onControl || !GAME_KEYS.has(key)) return;
+            event.preventDefault();
+            keysDown.add(key);
+        });
+        window.addEventListener('keyup', (event) => {
+            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+            keysDown.delete(key);
+        });
+        window.addEventListener('blur', () => {
+            keysDown.clear();
+            pressing = false;
+        });
+
+        // ------------------------------------------------------------------
+        // interface
+        // ------------------------------------------------------------------
+        let currentLanguage = storage.get('language') || 'en';
+        if (!translations[currentLanguage]) currentLanguage = 'en';
+        const dict = () => translations[currentLanguage];
+
+        const overlay = document.getElementById('overlay');
+        const overlayKicker = document.getElementById('overlayKicker');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlayText = document.getElementById('overlayText');
+        const overlayBadge = document.getElementById('overlayBadge');
+        const overlayStats = document.getElementById('overlayStats');
+        const overlayButton = document.getElementById('overlayButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const announcer = document.getElementById('announcer');
+        const modeDescription = document.getElementById('modeDescription');
+        const hud = {
+            inBand: document.getElementById('inBand'),
+            meanError: document.getElementById('meanErrorValue'),
+            stdError: document.getElementById('stdErrorValue'),
+            outside: document.getElementById('outsideValue'),
+            time: document.getElementById('timeValue'),
+            best: document.getElementById('bestValue')
+        };
+        let overlayMode = 'start';
+
+        const formatTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+        function announce(text) {
+            announcer.textContent = text;
+        }
+
+        function updateHud() {
+            const best = readBest();
+            hud.best.textContent = best ? formatTime(best) : '–';
+        }
+
+        const shown = {};
+        function setText(key, el, text) {
+            if (shown[key] === text) return;
+            shown[key] = text;
+            el.textContent = text;
+        }
+
+        function updateLiveHud() {
+            const goal = hatchTime();
+            setText('inBand', hud.inBand, `${Math.min(inBand, goal).toFixed(1)} / ${goal} s`);
+            const meanSign = stats.mean > 0 ? '+' : '';
+            setText('meanError', hud.meanError, state === 'ready' ? '–' : `${meanSign}${stats.mean.toFixed(1)} °C`);
+            setText('stdError', hud.stdError, state === 'ready' ? '–' : `${stats.std.toFixed(1)} °C`);
+            setText('outside', hud.outside, `${ambient.toFixed(0)} °C`);
+            hud.outside.dataset.cold = String(frontIntensity() > 0.2);
+            setText('time', hud.time, formatTime(elapsed));
+        }
+
+        function showOverlay(which) {
+            if (which) overlayMode = which;
+            overlay.hidden = !which;
+            overlay.classList.toggle('corner', which === 'hatched');
+            pauseButton.textContent = state === 'paused' ? dict().resume : dict().pause;
+            if (!which) return;
+            const t = dict();
+            const withGoal = (text) => text.replace('{seconds}', String(hatchTime()));
+            overlayKicker.textContent = `${t.kicker} · ${difficulty === 'easy' ? t.easyMode : t.hardMode}`;
+            overlayStats.hidden = which !== 'hatched';
+            overlayBadge.hidden = !(which === 'hatched' && newBest);
+            overlayBadge.textContent = t.newBest;
+            if (which === 'start') {
+                overlayTitle.textContent = t.title;
+                overlayText.textContent = withGoal(t.startText);
+                overlayButton.textContent = t.start;
+            } else if (which === 'paused') {
+                overlayTitle.textContent = t.pausedTitle;
+                overlayText.textContent = t.pausedText;
+                overlayButton.textContent = t.resume;
+            } else {
+                overlayTitle.textContent = t.hatchedTitle;
+                overlayText.textContent = withGoal(t.hatchedText);
+                overlayButton.textContent = t.playAgain;
+                document.getElementById('statTime').textContent = formatTime(elapsed);
+                document.getElementById('statBest').textContent = formatTime(readBest() || elapsed);
+                document.getElementById('statSnow').textContent = String(snowCount);
+                document.getElementById('statFronts').textContent = String(frontCount);
+            }
+        }
+
+        overlayButton.addEventListener('click', () => {
+            if (state === 'paused') resumeGame();
+            else startGame();
+        });
+
+        pauseButton.addEventListener('click', () => {
+            if (state === 'playing') pauseGame();
+            else if (state === 'paused') resumeGame();
+        });
+
+        document.getElementById('restartButton').addEventListener('click', startGame);
+
+        document.querySelectorAll('[data-view]').forEach((button) => {
+            button.addEventListener('click', () => {
+                viewMode = button.dataset.view;
+                document.querySelectorAll('[data-view]').forEach((b) => {
+                    const active = b === button;
+                    b.classList.toggle('active', active);
+                    b.setAttribute('aria-pressed', String(active));
+                });
+            });
+        });
+
+        function syncDifficultyControl() {
+            const t = dict();
+            document.querySelectorAll('[data-difficulty]').forEach((button) => {
+                const active = button.dataset.difficulty === difficulty;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+            modeDescription.textContent = difficulty === 'easy' ? t.easyModeDesc : t.hardModeDesc;
+        }
+
+        document.querySelectorAll('[data-difficulty]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const nextDifficulty = button.dataset.difficulty;
+                if (nextDifficulty === difficulty) return;
+                difficulty = nextDifficulty;
+                storage.set('eggIncubatorDifficulty', difficulty);
+                state = 'ready';
+                pressing = false;
+                keysDown.clear();
+                resetGame();
+                syncDifficultyControl();
+                showOverlay('start');
+            });
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) pauseGame();
+        });
+
+        function applyTranslations() {
+            const t = dict();
+            document.documentElement.lang = currentLanguage;
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const value = t[el.dataset.i18n];
+                if (typeof value === 'string') el.textContent = value;
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+                const value = t[el.getAttribute('data-i18n-aria-label')];
+                if (typeof value === 'string') el.setAttribute('aria-label', value);
+            });
+            document.querySelectorAll('.lang-btn').forEach((button) => {
+                const active = button.dataset.lang === currentLanguage;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+            syncDifficultyControl();
+            showOverlay(overlay.hidden ? null : overlayMode);
+        }
+
+        document.querySelectorAll('.lang-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                currentLanguage = button.dataset.lang;
+                storage.set('language', currentLanguage);
+                applyTranslations();
+            });
+        });
+
+        // ------------------------------------------------------------------
+        // loop
+        // ------------------------------------------------------------------
+        let last = performance.now();
+        function frame(now) {
+            const dt = clamp((now - last) / 1000, 0, 0.05);
+            last = Math.max(last, now);
+            update(dt);
+            render();
+            requestAnimationFrame(frame);
+        }
+
+        resetField();
+        resetWeather();
+        stats = errorStats();
+        setPower(source.power);
+        updateHud();
+        applyTranslations();
+        showOverlay('start');
+        requestAnimationFrame(frame);
+    </script>
+</body>
+</html>

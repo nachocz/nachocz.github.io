@@ -130,6 +130,8 @@ const translations = {
         miniGameShapeDesc: 'Remove material from a block until its shape matches the target.',
         miniGameRodTitle: 'Rod threading',
         miniGameRodDesc: 'Deform a rod held by two robots so that it passes through approaching gaps.',
+        miniGameEggTitle: 'Dino egg incubator',
+        miniGameEggDesc: 'Keep a dinosaur egg uniformly warm with a moving heat source until it hatches.',
 
         // Outreach
         locoCorpTitle: 'Educational robotics: LoCo CORP',
@@ -273,6 +275,8 @@ const translations = {
         miniGameShapeDesc: 'Retira material de un bloque hasta que su forma coincida con el objetivo.',
         miniGameRodTitle: 'Enhebra la varilla',
         miniGameRodDesc: 'Deforma una varilla sujeta por dos robots para que atraviese los huecos que se aproximan.',
+        miniGameEggTitle: 'Incubadora de dinosaurios',
+        miniGameEggDesc: 'Mantén un huevo de dinosaurio a temperatura uniforme con una fuente de calor móvil hasta que eclosione.',
 
         // Divulgación
         locoCorpTitle: 'Robótica educativa: LoCo CORP',
