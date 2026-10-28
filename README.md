@@ -21,7 +21,7 @@ Then open `http://localhost:8000`.
 - English and Spanish content with a saved language preference
 - System-aware light and dark themes with a manual override
 - One page per section (News, CV, Research, Publications, Demos, Outreach), addressed by the URL hash (`#cv`, `#demos`, …); the old `#dissemination` hash opens Demos
-- Demos page with links to the interactive paper companions and two mini-games: shape comparison (`shape-comparison.html`) and rod threading (`rod-threading.html`)
+- Demos page with links to the interactive paper companions and two mini-games: shape comparison (`shape-comparison.html`) and rod threading (`rod-threading.html`, with a joint-space hard mode at `rod-threading.html?mode=hard`)
 - Responsive and print-friendly layouts
 - Publication links, downloadable BibTeX, posters, and thesis flyers
 

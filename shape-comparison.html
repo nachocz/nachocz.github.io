@@ -561,6 +561,46 @@
             color: var(--ink);
         }
 
+        .references {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .references h2 {
+            margin: 0 0 8px;
+            color: var(--ink);
+            font-size: 0.82rem;
+            font-weight: 720;
+        }
+
+        .reference-list {
+            margin: 0;
+            padding-left: 1.3rem;
+            color: var(--muted);
+            font-size: 0.72rem;
+            line-height: 1.5;
+        }
+
+        .reference-list li + li {
+            margin-top: 4px;
+        }
+
+        .reference-list em {
+            color: var(--ink-soft);
+        }
+
+        .reference-list a,
+        .references-extra a {
+            color: var(--accent);
+        }
+
+        .references-extra {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 0.72rem;
+        }
+
         @media (max-width: 720px) {
             body {
                 padding: 10px;
@@ -702,6 +742,16 @@
             </div>
             <button id="nextDemoBtn" class="button button-primary" type="button" data-i18n="nextDemoBtn">Shape servoing tutorial →</button>
         </section>
+
+        <section class="references" aria-labelledby="references-title">
+            <h2 id="references-title" data-i18n="referencesTitle">Related papers</h2>
+            <ol class="reference-list">
+                    <li>I. Cuiral-Zueco and G. López-Nicolás, “Multi-scale elastic contour mapping for deformable object shape control,” <em>Robotics and Autonomous Systems</em>, vol. 194, p. 105134, 2025. <a href="https://doi.org/10.1016/j.robot.2025.105134" target="_blank" rel="noopener noreferrer">doi:10.1016/j.robot.2025.105134</a></li>
+                    <li>I. Cuiral-Zueco and G. López-Nicolás, “Time Consistent Surface Mapping for Deformable Object Shape Control,” <em>IEEE Transactions on Automation Science and Engineering</em>, vol. 22, pp. 11099–11111, 2025. <a href="https://doi.org/10.1109/TASE.2025.3529180" target="_blank" rel="noopener noreferrer">doi:10.1109/TASE.2025.3529180</a></li>
+                    <li>I. Cuiral-Zueco and G. López-Nicolás, “Elastic Contour Mapping for the Estimation of Abrupt Shape Deformations,” <em>Proc. Iberian Robotics Conf.</em>, pp. 400–408, 2023.</li>
+                    <li>I. Cuiral-Zueco and G. López-Nicolás, “Multi-scale Laplacian-based FMM for deformable object elastic shape estimation,” <em>Proc. IEEE/RSJ Int. Conf. Intell. Robots Syst. (IROS)</em>, pp. 1766–1772, 2021. <a href="https://doi.org/10.1109/IROS51168.2021.9636857" target="_blank" rel="noopener noreferrer">doi:10.1109/IROS51168.2021.9636857</a></li>
+            </ol>
+        </section>
     </main>
 
     <script>
@@ -754,6 +804,7 @@
                 takeawayTitle: 'A correction loop requires a similarity measure.',
                 takeawayDesc: 'A shape-servoing controller executes the same loop of measuring, correcting and measuring again, with the area score replaced by a shape error in feature space.',
                 nextDemoBtn: 'Shape servoing tutorial →',
+                referencesTitle: 'Related papers',
                 legendTargetShape: 'Target shape',
                 legendCurrentShape: 'Current shape',
                 targetCanvasAria: 'Target shape overlaid with the current contour',
@@ -809,6 +860,7 @@
                 takeawayTitle: 'Un lazo de corrección requiere una medida de similitud.',
                 takeawayDesc: 'Un controlador de forma ejecuta el mismo lazo de medir, corregir y volver a medir, con la puntuación de áreas sustituida por un error de forma en el espacio de características.',
                 nextDemoBtn: 'Tutorial de control de forma →',
+                referencesTitle: 'Artículos relacionados',
                 legendTargetShape: 'Forma objetivo',
                 legendCurrentShape: 'Forma actual',
                 targetCanvasAria: 'Forma objetivo superpuesta al contorno actual',
