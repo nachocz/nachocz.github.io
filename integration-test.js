@@ -17,7 +17,8 @@ const checks = [
     ['index.html', 'i18n.js'],
     ['robotics-demo.html', 'robotics-demo.html'],
     ['shape-comparison.html', 'shape-comparison.html'],
-    ['shape-features-demo.html', 'shape-features-demo.html']
+    ['shape-features-demo.html', 'shape-features-demo.html'],
+    ['rod-threading.html', 'rod-threading.html']
 ];
 
 for (const [htmlFile, dictionaryFile] of checks) {
@@ -52,7 +53,8 @@ const canonicalPages = new Map([
     ['index.html', SITE_URL],
     ['robotics-demo.html', `${SITE_URL}robotics-demo.html`],
     ['shape-comparison.html', `${SITE_URL}shape-comparison.html`],
-    ['shape-features-demo.html', `${SITE_URL}shape-features-demo.html`]
+    ['shape-features-demo.html', `${SITE_URL}shape-features-demo.html`],
+    ['rod-threading.html', `${SITE_URL}rod-threading.html`]
 ]);
 
 for (const [htmlFile, expectedCanonical] of canonicalPages) {

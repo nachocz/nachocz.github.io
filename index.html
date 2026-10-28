@@ -343,7 +343,7 @@
                 </div>
             </article>
 
-            <p class="see-also"><span data-i18n="demosPointerPrefix">Browser simulations of the main elements of shape control are available on the</span> <a href="#demos" data-i18n="demosPointerLink">Demos</a><span data-i18n="demosPointerSuffix"> page.</span></p>
+            <p class="see-also"><span data-i18n="demosPointerPrefix">Interactive paper companions and mini-games are available on the</span> <a href="#demos" data-i18n="demosPointerLink">Demos</a><span data-i18n="demosPointerSuffix"> page.</span></p>
         </section>
 
         <!-- Publications -->
@@ -406,71 +406,49 @@
         <!-- Demos -->
         <section id="panel-demos" class="panel" aria-labelledby="demos-heading" hidden>
             <h2 id="demos-heading" data-i18n="navDemos">Demos</h2>
-            <p data-i18n="demosIntro">Four browser simulations of the components of a shape-control loop: manual manipulation of a deformable object, a similarity measure between two shapes, the feature vector that defines the shape error, and feedback control with an estimated shape Jacobian. The steps follow the order of the loop, but each simulation can be used on its own.</p>
 
-            <div class="wide">
-                <div class="demo-tabs" role="tablist" aria-label="Interactive demos" data-i18n-aria-label="interactiveDemosAria">
-                    <button class="demo-tab active" type="button" data-target="demo-manipulate">
-                        <span class="demo-tab-index">1</span>
-                        <span class="demo-tab-copy"><strong data-i18n="journeyManipulate">Manipulate</strong><small data-i18n="demoShapeControl">Manual shape servoing</small></span>
-                    </button>
-                    <button class="demo-tab" type="button" data-target="demo-shape-compare">
-                        <span class="demo-tab-index">2</span>
-                        <span class="demo-tab-copy"><strong data-i18n="journeyCompare">Compare</strong><small data-i18n="demoShapeComparison">Shape similarity</small></span>
-                    </button>
-                    <button class="demo-tab" type="button" data-target="demo-representations">
-                        <span class="demo-tab-index">3</span>
-                        <span class="demo-tab-copy"><strong data-i18n="journeyRepresent">Represent</strong><small data-i18n="demoRepresentations">Feature vectors and invariance</small></span>
-                    </button>
-                    <button class="demo-tab" type="button" data-target="demo-data-driven">
-                        <span class="demo-tab-index">4</span>
-                        <span class="demo-tab-copy"><strong data-i18n="journeyDataDriven">Control</strong><small data-i18n="demoDataDriven">Estimated Jacobian and feedback</small></span>
-                    </button>
-                </div>
+            <h3 data-i18n="companionsTitle">Interactive paper companions</h3>
+            <ul class="cards">
+                <li>
+                    <a class="card" href="https://ignaciocuiral.com/tutorial_on_shape_servoing_of_deformable_objects/player.html" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/images/companion-shape-servoing.jpg" alt="" width="640" height="480" loading="lazy">
+                        <strong>A Tutorial on Shape Servoing of Deformable Objects</strong>
+                        <span data-i18n="companionTutorialDesc">Data-driven shape control of an elastic rod held by two robot arms.</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="card" href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/images/companion-soft-extension.jpg" alt="" width="640" height="480" loading="lazy">
+                        <strong>Passive Soft Extensions Actuated by Manipulator Motion</strong>
+                        <span data-i18n="companionSoftExtensionDesc">A tendon-driven soft extension bent and controlled through the joint motion of the arm.</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="card" href="https://ignaciocuiral.com/Ergodic_Heat_Coverage_Control/player.html?p=index.html" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/images/companion-heat-coverage.jpg" alt="" width="640" height="480" loading="lazy">
+                        <strong>Ergodic Heat Coverage Control</strong>
+                        <span data-i18n="companionHeatDesc">Model-free regulation of surface temperature with a robot-mounted heat source.</span>
+                    </a>
+                </li>
+            </ul>
 
-                <div id="demo-manipulate" class="demo-panel active">
-                    <div class="demo-text">
-                        <h3 data-i18n="demoShapeTitle">Manual shape servoing</h3>
-                        <p data-i18n="demoShapeLead">Two planar manipulators hold a deformable linear object by its ends. A translation or rotation of either gripper changes the equilibrium shape of the entire object.</p>
-                        <p><strong data-i18n="demoTryThis">Task:</strong> <span data-i18n="demoShapeMission">Move one gripper, or rotate it with its ring handle, and keep the change only if the shape error decreases.</span></p>
-                        <p class="note" data-i18n="demoShapeModel">Step 4 uses the same manipulators, rod model and target, with an estimated Jacobian in place of the operator.</p>
-                        <p class="note"><span data-i18n="demoRelated">Related papers:</span> <a href="https://doi.org/10.1109/LRA.2023.3292617" data-i18n="demoCompliantControlPaper">object-compliant shape control</a>, <a href="https://doi.org/10.1109/TMECH.2023.3325934" data-i18n="demoProcrustesPaper">multiscale 3-D shape control</a>.</p>
-                    </div>
-                    <iframe src="shape-features-demo.html?mode=manipulate" class="demo-iframe" title="Manual shape servoing" data-i18n-title="manipulateFrameTitle" id="manipulate-iframe" loading="lazy"></iframe>
-                </div>
-
-                <div id="demo-shape-compare" class="demo-panel">
-                    <div class="demo-text">
-                        <h3 data-i18n="demoAnalysisTitle">Shape similarity measure</h3>
-                        <p data-i18n="demoAnalysisLead">A correction loop requires a scalar measure of the difference between the current shape and the target. In this simulation the measure is the area overlap, recomputed after every edit.</p>
-                        <p><strong data-i18n="demoTryThis">Task:</strong> <span data-i18n="demoAnalysisMission">Remove material from the block and undo any edit that lowers the score. A feedback controller repeats this compare-and-correct step.</span></p>
-                        <p class="note" data-i18n="demoAnalysisModel">Area overlap does not establish correspondences between points of the two shapes; shape control of real deformable objects requires correspondence-based measures.</p>
-                        <p class="note"><span data-i18n="demoRelated">Related papers:</span> <a href="https://doi.org/10.1109/TASE.2025.3529180" data-i18n="demoSurfaceMappingPaper">time-consistent surface mapping</a>, <a href="https://doi.org/10.1016/j.robot.2025.105134" data-i18n="demoElasticMappingPaper">elastic contour mapping</a>.</p>
-                    </div>
-                    <iframe src="shape-comparison.html" class="demo-iframe" title="Shape similarity measure" data-i18n-title="shapeFrameTitle" id="shape-iframe" loading="lazy"></iframe>
-                </div>
-
-                <div id="demo-representations" class="demo-panel">
-                    <div class="demo-text">
-                        <h3 data-i18n="demoRepresentTitle">Shape representations and invariance</h3>
-                        <p data-i18n="demoRepresentLead">The controller operates on a feature vector computed from the measured shape. Point coordinates, edge vectors and curvature are three feature vectors computed from the same rod.</p>
-                        <p><strong data-i18n="demoTryThis">Task:</strong> <span data-i18n="demoRepresentMission">Apply Translate, Rotate and Bend in turn and determine which feature vectors each motion changes.</span></p>
-                        <p class="note" data-i18n="demoRepresentModel">A feature vector is invariant to a motion if the motion leaves it unchanged. Disturbances along that motion do not affect the error, and for the same reason the controller cannot correct the configuration of the object along it.</p>
-                    </div>
-                    <iframe src="shape-features-demo.html?mode=representations" class="demo-iframe" title="Shape representations and invariance" data-i18n-title="representationsFrameTitle" id="representations-iframe" loading="lazy"></iframe>
-                </div>
-
-                <div id="demo-data-driven" class="demo-panel">
-                    <div class="demo-text">
-                        <h3 data-i18n="demoDataTitle">Data-driven shape control</h3>
-                        <p data-i18n="demoDataLead">The task of step 1 without an operator. The robots first apply small test motions to estimate the shape Jacobian and then use the estimate in a feedback loop.</p>
-                        <p><strong data-i18n="demoTryThis">Task:</strong> <span data-i18n="demoDataMission">Run the loop once for each feature vector and compare which error components converge to zero and how the gripper motions differ.</span></p>
-                        <p class="note" data-i18n="demoDataModel">The shape Jacobian is the local linear map from gripper velocity to feature velocity. A damped pseudoinverse of the estimate maps the feature error to a gripper velocity command, and a Broyden update corrects the estimate at every step.</p>
-                        <p class="note"><span data-i18n="demoRelatedSingle">Related paper:</span> <a href="https://doi.org/10.1109/TMECH.2026.3715312" data-i18n="demoTrajectoryPaper">data-driven shape trajectory control</a>.</p>
-                    </div>
-                    <iframe src="shape-features-demo.html?mode=data-driven" class="demo-iframe" title="Data-driven shape control" data-i18n-title="dataDrivenFrameTitle" id="data-driven-iframe" loading="lazy"></iframe>
-                </div>
-            </div>
+            <h3 data-i18n="miniGamesTitle">Mini-games</h3>
+            <ul class="cards">
+                <li>
+                    <a class="card" href="shape-comparison.html">
+                        <img src="assets/images/minigame-shape-similarity.jpg" alt="" width="640" height="480" loading="lazy">
+                        <strong data-i18n="miniGameShapeTitle">Shape similarity</strong>
+                        <span data-i18n="miniGameShapeDesc">Remove material from a block until its shape matches the target.</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="card" href="rod-threading.html">
+                        <img src="assets/images/minigame-rod-threading.jpg" alt="" width="640" height="480" loading="lazy">
+                        <strong data-i18n="miniGameRodTitle">Rod threading</strong>
+                        <span data-i18n="miniGameRodDesc">Deform a rod held by two robots so that it passes through approaching gaps.</span>
+                    </a>
+                </li>
+            </ul>
         </section>
 
         <!-- Outreach -->

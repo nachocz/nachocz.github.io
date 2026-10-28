@@ -10,9 +10,6 @@
 
     const navLinks = [...document.querySelectorAll('.site-nav a[data-panel]')];
     const panels = [...document.querySelectorAll('.panel')];
-    const demoTabs = [...document.querySelectorAll('.demo-tab')];
-    const demoPanels = [...document.querySelectorAll('.demo-panel')];
-    const demoFrameIds = ['manipulate-iframe', 'shape-iframe', 'representations-iframe', 'data-driven-iframe'];
     const themeToggle = document.getElementById('theme-toggle');
     const themeColor = document.querySelector('meta[name="theme-color"]');
 
@@ -72,20 +69,6 @@
         updateThemeButton();
     }
 
-    function demoTargetOrigin() {
-        return window.location.protocol === 'file:' ? '*' : window.location.origin;
-    }
-
-    function notifyDemoFrames() {
-        const theme = document.documentElement.dataset.theme || 'light';
-        demoFrameIds.forEach((id) => {
-            document.getElementById(id)?.contentWindow?.postMessage(
-                { type: 'setPreferences', language: currentLanguage, theme },
-                demoTargetOrigin()
-            );
-        });
-    }
-
     function setLanguage(language) {
         if (!VALID_LANGUAGES.includes(language)) return;
 
@@ -97,8 +80,6 @@
         const videoId = language === 'es' ? '0rMbIkIO2SI' : 'gARHGLxpAdU';
         const nextSource = `https://www.youtube.com/embed/${videoId}`;
         if (locoVideo && locoVideo.src !== nextSource) locoVideo.src = nextSource;
-
-        notifyDemoFrames();
     }
 
     function updateThemeButton() {
@@ -117,7 +98,6 @@
         document.documentElement.dataset.theme = theme;
         if (persist) savePreference('theme', theme);
         updateThemeButton();
-        notifyDemoFrames();
     }
 
     // ------------------------------------------------------------------
@@ -154,91 +134,6 @@
         });
     }
 
-    // ------------------------------------------------------------------
-    // demo tabs
-    // ------------------------------------------------------------------
-
-    function activateDemo(targetId) {
-        const targetTab = demoTabs.find((tab) => tab.dataset.target === targetId);
-        if (!targetTab) return;
-
-        demoTabs.forEach((tab) => {
-            const isActive = tab === targetTab;
-            tab.classList.toggle('active', isActive);
-            tab.setAttribute('aria-selected', String(isActive));
-            tab.tabIndex = isActive ? 0 : -1;
-        });
-
-        demoPanels.forEach((panel) => {
-            const isActive = panel.id === targetId;
-            panel.classList.toggle('active', isActive);
-            panel.hidden = !isActive;
-        });
-    }
-
-    function handleDemoKeydown(event) {
-        const currentIndex = demoTabs.indexOf(event.currentTarget);
-        let nextIndex = currentIndex;
-
-        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % demoTabs.length;
-        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + demoTabs.length) % demoTabs.length;
-        if (event.key === 'Home') nextIndex = 0;
-        if (event.key === 'End') nextIndex = demoTabs.length - 1;
-        if (nextIndex === currentIndex) return;
-
-        event.preventDefault();
-        demoTabs[nextIndex].focus();
-        activateDemo(demoTabs[nextIndex].dataset.target);
-    }
-
-    function initializeDemoTabs() {
-        demoTabs.forEach((tab, index) => {
-            tab.id = `demo-tab-${index + 1}`;
-            tab.setAttribute('role', 'tab');
-            tab.setAttribute('aria-controls', tab.dataset.target);
-            tab.addEventListener('click', () => activateDemo(tab.dataset.target));
-            tab.addEventListener('keydown', handleDemoKeydown);
-        });
-
-        demoPanels.forEach((panel, index) => {
-            panel.setAttribute('role', 'tabpanel');
-            panel.setAttribute('aria-labelledby', demoTabs[index]?.id || '');
-        });
-
-        activateDemo(demoTabs[0]?.dataset.target);
-    }
-
-    // ------------------------------------------------------------------
-    // embedded demos: height and step-to-step navigation
-    // ------------------------------------------------------------------
-
-    function initializeDemoFrames() {
-        demoFrameIds.forEach((id) => {
-            document.getElementById(id)?.addEventListener('load', notifyDemoFrames);
-        });
-
-        window.addEventListener('message', (event) => {
-            const frame = demoFrameIds
-                .map((id) => document.getElementById(id))
-                .find((candidate) => candidate?.contentWindow === event.source);
-            if (!frame) return;
-
-            if (event.data?.type === 'demoHeight' && Number.isFinite(event.data.height)) {
-                const contentHeight = Math.min(Math.max(Math.ceil(event.data.height), 560), 6000);
-                frame.style.height = `${contentHeight}px`;
-            }
-
-            if (event.data?.type === 'demoNavigate') {
-                const targetId = event.data.target;
-                if (!demoPanels.some((panel) => panel.id === targetId)) return;
-                activateDemo(targetId);
-                const tab = demoTabs.find((candidate) => candidate.dataset.target === targetId);
-                tab?.focus({ preventScroll: true });
-                document.querySelector('.demo-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    }
-
     function initializePreferences() {
         document.querySelectorAll('.lang-btn').forEach((button) => {
             button.addEventListener('click', () => setLanguage(button.dataset.lang));
@@ -265,8 +160,6 @@
     function initialize() {
         initializePreferences();
         initializeNavigation();
-        initializeDemoTabs();
-        initializeDemoFrames();
         initializeFooter();
         applyTranslations();
         if (currentLanguage !== 'en') setLanguage(currentLanguage);
