@@ -7,7 +7,7 @@
     <!-- Primary Meta Tags -->
     <title>Cavity Inspection | Ignacio Cuiral-Zueco</title>
     <meta name="title" content="Cavity Inspection | Ignacio Cuiral-Zueco">
-    <meta name="description" content="A browser mini-game on passive soft extensions actuated by manipulator motion: with the end effector held at an inspection port, move the joints of a UR10 in the null space of that constraint to find damaged parts with the camera at the tip of a tendon-driven soft extension.">
+    <meta name="description" content="A browser mini-game on passive soft extensions actuated by manipulator motion: with the end effector held at the entrance hole of a closed housing, move the joints of a UR10 in the null space of that constraint to find damaged parts with the camera at the tip of a tendon-driven soft extension.">
     <meta name="author" content="Ignacio Cuiral-Zueco">
     <meta name="keywords" content="soft extension, null-space control, industrial inspection, tendon-driven continuum robot, robotics mini-game">
 
@@ -201,6 +201,37 @@
             margin-bottom: 0;
             color: var(--muted);
             font-size: 0.94rem;
+        }
+
+        .demo-intro + .demo-intro {
+            margin-top: 8px;
+        }
+
+        .demo-intro a {
+            color: var(--accent);
+        }
+
+        .intro-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 190px;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .tendon-demo {
+            margin: 0;
+            text-align: center;
+        }
+
+        .tendon-demo canvas {
+            display: block;
+            width: 100%;
+            height: 170px;
+        }
+
+        .tendon-demo figcaption {
+            color: var(--muted);
+            font-size: 0.7rem;
         }
 
         /* Heads-up display */
@@ -847,8 +878,14 @@
             .views,
             .controls-row,
             .legend,
-            .howto ol {
+            .howto ol,
+            .intro-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .tendon-demo {
+                max-width: 220px;
+                margin: 0 auto;
             }
 
             #external {
@@ -894,7 +931,16 @@
                 </div>
             </div>
             <h1 data-i18n="title">Cavity inspection</h1>
-            <p class="demo-intro" data-i18n="intro">A UR10 holds a passive soft extension with a camera and a light at its tip. Two tendons anchored on the arm bend the extension when the joints move. The end effector is held at the inspection port of a closed housing, so every joint command is projected onto the null space of that position constraint. Inspect the housing and report the three damaged parts.</p>
+            <div class="intro-grid">
+                <div>
+                    <p class="demo-intro"><span data-i18n="introA">You control the joints of a UR10 arm that holds a passive soft extension. A tendon-driven soft robot is a flexible rod with tendons along its sides: pulling one tendon bends the rod toward it, as in the animation. Here no motor pulls the tendons; they are anchored on the arm, so every change of the arm posture stretches or slackens them (</span><a href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer" data-i18n="introLink">interactive companion of the paper</a><span data-i18n="introB">).</span></p>
+                    <p class="demo-intro" data-i18n="intro2">Which joint rotations bend the extension the way you want is hard to predict, but it can be found by trial and error, and that is the game: inspect a closed housing with the camera at the tip and report the three damaged parts. Show solution runs our controller, which computes these motions directly.</p>
+                </div>
+                <figure class="tendon-demo">
+                    <canvas id="tendonDemo" aria-hidden="true"></canvas>
+                    <figcaption data-i18n="tendonCaption">Pulling a tendon bends the rod toward it.</figcaption>
+                </figure>
+            </div>
         </header>
 
         <section aria-labelledby="game-title">
@@ -960,7 +1006,7 @@
             <section class="howto" aria-labelledby="howto-title">
                 <h2 id="howto-title" data-i18n="howTitle">How it works</h2>
                 <ol>
-                    <li><strong data-i18n="how1Title">The end effector stays at the port</strong><span data-i18n="how1Text">Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the port. Faded joints keep less than 25 % of their command in the current posture.</span></li>
+                    <li><strong data-i18n="how1Title">The end effector stays at the hole</strong><span data-i18n="how1Text">Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the hole. Faded joints keep less than 25 % of their command in the current posture.</span></li>
                     <li><strong data-i18n="how2Title">The tendons bend the extension</strong><span data-i18n="how2Text">Two tendons run from anchors on the forearm and on the first wrist link to the base of the extension. A new posture changes their spans outside the extension, hence their tensions, which bend it.</span></li>
                     <li><strong data-i18n="how3Title">The camera sees what the tip light reaches</strong><span data-i18n="how3Text">The camera looks along the tip, with the light aligned to its field of view, so near surfaces appear bright and far ones dark. The coloured arrows on the circle point toward the damaged parts not yet reported; an arrow pointing inward means the part is inside the circle.</span></li>
                 </ol>
@@ -993,7 +1039,12 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Cavity inspection',
-                intro: 'A UR10 holds a passive soft extension with a camera and a light at its tip. Two tendons anchored on the arm bend the extension when the joints move. The end effector is held at the inspection port of a closed housing, so every joint command is projected onto the null space of that position constraint. Inspect the housing and report the three damaged parts.',
+                introA: 'You control the joints of a UR10 arm that holds a passive soft extension. A tendon-driven soft robot is a flexible rod with tendons along its sides: pulling one tendon bends the rod toward it, as in the animation. Here no motor pulls the tendons; they are anchored on the arm, so every change of the arm posture stretches or slackens them (',
+                introLink: 'interactive companion of the paper',
+                introB: ').',
+                intro2: 'Which joint rotations bend the extension the way you want is hard to predict, but it can be found by trial and error, and that is the game: inspect a closed housing with the camera at the tip and report the three damaged parts. Show solution runs our controller, which computes these motions directly.',
+                tendonCaption: 'Pulling a tendon bends the rod toward it.',
+                pull: 'pull',
                 hudSite: 'Site',
                 hudFound: 'Found',
                 hudTime: 'Time',
@@ -1060,8 +1111,10 @@
                 labelsToggle: 'Labels',
                 labelArm: 'UR10 arm',
                 labelTendons: 'Tendons',
-                labelEE: 'End effector held at the port',
-                labelExtension: 'Soft extension (X-ray)',
+                labelEE: 'End effector held at the hole',
+                labelHole: 'Entrance hole',
+                labelXray: 'X-ray view',
+                labelExtension: 'Soft extension',
                 labelCamera: 'Camera and light',
                 labelHousing: 'Closed housing',
                 reportZone: 'report zone',
@@ -1071,8 +1124,8 @@
                 damaged: 'Damaged',
                 legendTitle: 'Damage to look for, as the tip camera sees it',
                 howTitle: 'How it works',
-                how1Title: 'The end effector stays at the port',
-                how1Text: 'Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the port. Faded joints keep less than 25 % of their command in the current posture.',
+                how1Title: 'The end effector stays at the hole',
+                how1Text: 'Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the hole. Faded joints keep less than 25 % of their command in the current posture.',
                 how2Title: 'The tendons bend the extension',
                 how2Text: 'Two tendons run from anchors on the forearm and on the first wrist link to the base of the extension. A new posture changes their spans outside the extension, hence their tensions, which bend it.',
                 how3Title: 'The camera sees what the tip light reaches',
@@ -1086,7 +1139,7 @@
                 part_connector: 'connector',
                 part_bracket: 'bracket',
                 part_terminal: 'terminal block',
-                part_port: 'port rim',
+                part_hole: 'rim of the hole',
                 part_floor: 'floor',
                 part_wall: 'wall',
                 announceReport: '{defect} reported. {found} of 3 found.',
@@ -1100,7 +1153,12 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Inspección de cavidades',
-                intro: 'Un UR10 sujeta una extensión blanda pasiva con una cámara y una luz en su punta. Dos tendones anclados en el brazo flexionan la extensión cuando se mueven las articulaciones. El efector final permanece en el puerto de inspección de una carcasa cerrada, de modo que cada orden articular se proyecta sobre el espacio nulo de esa restricción de posición. Inspecciona la carcasa e informa de las tres piezas dañadas.',
+                introA: 'Controlas las articulaciones de un brazo UR10 que sujeta una extensión blanda pasiva. Un robot blando accionado por tendones es una varilla flexible con tendones a lo largo de sus lados: tirar de un tendón flexiona la varilla hacia él, como en la animación. Aquí ningún motor tira de los tendones; están anclados en el brazo, de modo que cada cambio de postura del brazo los tensa o los destensa (',
+                introLink: 'página interactiva del artículo',
+                introB: ').',
+                intro2: 'Qué giros articulares flexionan la extensión como quieres es difícil de predecir, pero se puede descubrir por ensayo y error, y ese es el juego: inspecciona una carcasa cerrada con la cámara de la punta e informa de las tres piezas dañadas. Ver solución ejecuta nuestro controlador, que calcula estos movimientos directamente.',
+                tendonCaption: 'Tirar de un tendón flexiona la varilla hacia él.',
+                pull: 'tirar',
                 hudSite: 'Instalación',
                 hudFound: 'Encontradas',
                 hudTime: 'Tiempo',
@@ -1167,8 +1225,10 @@
                 labelsToggle: 'Etiquetas',
                 labelArm: 'Brazo UR10',
                 labelTendons: 'Tendones',
-                labelEE: 'Efector final fijo en el puerto',
-                labelExtension: 'Extensión blanda (rayos X)',
+                labelEE: 'Efector final fijo en el orificio',
+                labelHole: 'Orificio de entrada',
+                labelXray: 'Vista de rayos X',
+                labelExtension: 'Extensión blanda',
                 labelCamera: 'Cámara y luz',
                 labelHousing: 'Carcasa cerrada',
                 reportZone: 'zona de aviso',
@@ -1178,8 +1238,8 @@
                 damaged: 'Dañada',
                 legendTitle: 'Daños que buscar, tal como los ve la cámara de la punta',
                 howTitle: 'Cómo funciona',
-                how1Title: 'El efector final no sale del puerto',
-                how1Text: 'Cada orden articular se proyecta sobre el espacio nulo de la restricción de posición del EF: las articulaciones se mueven a la vez para que el efector final no salga del puerto. Las articulaciones atenuadas conservan menos del 25 % de su orden en la postura actual.',
+                how1Title: 'El efector final no sale del orificio',
+                how1Text: 'Cada orden articular se proyecta sobre el espacio nulo de la restricción de posición del EF: las articulaciones se mueven a la vez para que el efector final no salga del orificio. Las articulaciones atenuadas conservan menos del 25 % de su orden en la postura actual.',
                 how2Title: 'Los tendones flexionan la extensión',
                 how2Text: 'Dos tendones van desde anclajes en el antebrazo y en el primer eslabón de la muñeca hasta la base de la extensión. Una nueva postura cambia su longitud fuera de la extensión y, con ella, su tensión, que la flexiona.',
                 how3Title: 'La cámara ve lo que alcanza la luz de la punta',
@@ -1193,7 +1253,7 @@
                 part_connector: 'un conector',
                 part_bracket: 'un soporte',
                 part_terminal: 'una regleta de bornes',
-                part_port: 'el borde del puerto',
+                part_hole: 'el borde del orificio',
                 part_floor: 'el suelo',
                 part_wall: 'la pared',
                 announceReport: '{defect}: aviso aceptado. {found} de 3 encontradas.',
@@ -2028,8 +2088,8 @@
             }
 
             // --------------------------------------------------------------
-            // inspection cavity: a closed housing whose top plate has a port
-            // under the EE; the soft extension hangs through the port
+            // inspection cavity: a closed housing whose top plate has an entrance
+            // hole under the EE; the soft extension hangs through the hole
             // --------------------------------------------------------------
             const ROOM = { min: [-1.17, -0.45, -0.03], max: [-0.50, 0.07, 0.345] };
             const PLATE = 0.012;                 // top plate thickness
@@ -2439,11 +2499,11 @@
             }
 
             // the first part of the scene that a centerline of radius ROD_RADIUS
-            // touches, or null; the rod leaves the housing through the port
+            // touches, or null; the rod leaves the housing through the hole
             function rodContact(scene, centerline) {
                 for (const x of centerline) {
                     if (x[2] > ROOM.max[2] - ROD_RADIUS) {
-                        if (Math.hypot(x[0] - PORT_CENTER[0], x[1] - PORT_CENTER[1]) > PORT_RADIUS - ROD_RADIUS) return { label: 'port' };
+                        if (Math.hypot(x[0] - PORT_CENTER[0], x[1] - PORT_CENTER[1]) > PORT_RADIUS - ROD_RADIUS) return { label: 'hole' };
                         continue;
                     }
                     for (let i = 0; i < 3; i++) {
@@ -3003,7 +3063,7 @@
                 if (!inContact) {
                     contacts += 1;
                     contactFlash = 1;
-                    const part = dict()[`part_${result.contact.label}`] || result.contact.label;
+                    const part = dict()[`part_${result.contact.label}`] || result.contact.label;   // part_hole, part_jbox, ...
                     showToast(dict().contactToast.replace('{part}', part), 'alert');
                     announce(dict().announceContact.replace('{part}', part));
                 }
@@ -3153,16 +3213,18 @@
             const dark = document.documentElement.dataset.theme === 'dark';
             return dark ? {
                 surface: '#1a1d20', grid: '#2a2f34', ink: '#e6e9ec', text: '#949da6', shadow: 'rgba(0, 0, 0, 0.35)',
-                housing: ['#3a4148', '#323840', '#2b3137'], housingEdge: '#5b646d', top: '#454d55', port: '#0b0d0f',
+                housing: ['#3a4148', '#323840', '#2b3137'], housingEdge: '#5b646d', top: '#454d55', port: '#050607',
+                collar: '#6b747d', collarTop: '#8a939b', holeWall: '#1e2226', hazard: '#d9a81f', hazardDark: '#1b1d20',
                 link: '#727c86', linkEdge: '#4b535b', joint: '#5b86ad', jointEdge: '#3f6385', base: '#3d444b',
-                rod: '#c9a676', xray: '#7fd3f7', xrayCore: '#e9f8ff', xrayField: '#06121f', light: '#ffe9a8',
+                rod: '#c9a676', tube: '#4a4f55', xray: '#7fd3f7', xrayCore: '#e9f8ff', xrayField: '#06121f', light: '#ffe9a8',
                 tendon1: '#2dd4bf', tendon2: '#e0b23a', label: '#1e2226', labelEdge: '#434a51',
                 accent: '#8dbbe8', found: '#3cc28f', solver: '#7fa8e6', alert: '#e66767'
             } : {
                 surface: '#fafbfb', grid: '#e4e8eb', ink: '#23282d', text: '#697179', shadow: 'rgba(40, 48, 56, 0.12)',
-                housing: ['#c3cad1', '#b3bbc3', '#a7b0b9'], housingEdge: '#7d8791', top: '#d3d9de', port: '#1d2125',
+                housing: ['#c3cad1', '#b3bbc3', '#a7b0b9'], housingEdge: '#7d8791', top: '#d3d9de', port: '#0d0f11',
+                collar: '#9aa3ab', collarTop: '#e4e8eb', holeWall: '#3a4148', hazard: '#f2c230', hazardDark: '#2b2e33',
                 link: '#dfe3e7', linkEdge: '#9aa3ab', joint: '#8db6d6', jointEdge: '#5d86a6', base: '#8a939b',
-                rod: '#8c6a43', xray: '#4cc3ff', xrayCore: '#eefaff', xrayField: '#0b2236', light: '#f5c542',
+                rod: '#8c6a43', tube: '#e9dcc8', xray: '#4cc3ff', xrayCore: '#eefaff', xrayField: '#0b2236', light: '#f5c542',
                 tendon1: '#0d9488', tendon2: '#c99512', label: '#ffffff', labelEdge: '#c9ced3',
                 accent: '#1d5b94', found: '#1b9e6f', solver: '#3b6fb6', alert: '#d64545'
             };
@@ -3232,24 +3294,57 @@
                     }
                 }
             }
-            // inspection port and its bolt circle
-            const port = Core.portCenter(), top = max[2];
-            const ring = (radius) => Array.from({ length: 40 }, (_, i) => {
-                const a = (i / 40) * Math.PI * 2;
-                return project([port[0] + radius * Math.cos(a), port[1] + radius * Math.sin(a), top]);
-            });
-            polygon(ext, ring(PORT_RADIUS + 0.012));
-            ext.fillStyle = alpha(p.housingEdge, 0.35);
+            ext.restore();
+        }
+
+        // the entrance hole in the top plate: a hazard ring, a raised collar and
+        // the inner wall of the opening
+        const COLLAR = { height: 0.012, wall: 0.01, ring: [0.016, 0.052], depth: 0.04 };
+        function drawHole(p) {
+            const centre = Core.portCenter(), top = HOUSING.max[2], lip = top + COLLAR.height;
+            const at = (radius, a, z) => project([centre[0] + radius * Math.cos(a), centre[1] + radius * Math.sin(a), z]);
+            const ring = (radius, z, n = 48) => Array.from({ length: n }, (_, i) => at(radius, (i / n) * Math.PI * 2, z));
+            ext.save();
+            // yellow and black ring painted on the plate
+            const [r0, r1] = COLLAR.ring.map((r) => PORT_RADIUS + r);
+            for (let k = 0; k < 24; k++) {
+                const a0 = (k / 24) * Math.PI * 2, a1 = ((k + 1) / 24) * Math.PI * 2;
+                polygon(ext, [at(r0, a0, top), at(r1, a0, top), at(r1, a1, top), at(r0, a1, top)]);
+                ext.fillStyle = k % 2 ? p.hazard : p.hazardDark;
+                ext.fill();
+            }
+            // collar: side faces, back to front, then the lip
+            const outer = PORT_RADIUS + COLLAR.wall, n = 40;
+            const sides = Array.from({ length: n }, (_, k) => {
+                const a0 = (k / n) * Math.PI * 2, a1 = ((k + 1) / n) * Math.PI * 2, am = (a0 + a1) / 2;
+                const normal = [Math.cos(am), Math.sin(am), 0];
+                const mid = [centre[0] + outer * normal[0], centre[1] + outer * normal[1], top];
+                return { a0, a1, normal, depth: toView(mid)[2], facing: dot(normal, sub(view.C, mid)) > 0 };
+            }).filter((s) => s.facing).sort((a, b) => b.depth - a.depth);
+            for (const s of sides) {
+                polygon(ext, [at(outer, s.a0, top), at(outer, s.a1, top), at(outer, s.a1, lip), at(outer, s.a0, lip)]);
+                const light = 0.55 + 0.45 * Math.max(0, dot(s.normal, [-0.5, 0.6, 0]));
+                ext.fillStyle = p.collar;
+                ext.fill();
+                ext.fillStyle = `rgba(0, 0, 0, ${(1 - light) * 0.5})`;
+                ext.fill();
+            }
+            polygon(ext, ring(outer, lip));
+            ext.fillStyle = p.collarTop;
             ext.fill();
-            polygon(ext, ring(PORT_RADIUS));
+            ext.strokeStyle = p.housingEdge;
+            ext.lineWidth = 1;
+            ext.stroke();
+            // opening: the inner wall shows as a band on the far side
+            polygon(ext, ring(PORT_RADIUS, lip));
+            ext.fillStyle = p.holeWall;
+            ext.fill();
+            ext.save();
+            ext.clip();
+            polygon(ext, ring(PORT_RADIUS, lip - COLLAR.depth));
             ext.fillStyle = p.port;
             ext.fill();
-            for (let k = 0; k < 8; k++) {
-                const a = (k / 8) * Math.PI * 2 + 0.2;
-                const [sx, sy] = project([port[0] + (PORT_RADIUS + 0.022) * Math.cos(a), port[1] + (PORT_RADIUS + 0.022) * Math.sin(a), top]);
-                ext.fillStyle = p.housingEdge;
-                ext.beginPath(); ext.arc(sx, sy, 1.7, 0, Math.PI * 2); ext.fill();
-            }
+            ext.restore();
             ext.restore();
         }
 
@@ -3326,11 +3421,13 @@
 
         // an X-ray field over the housing around the extension, with the
         // cavity edges and the floor projection of the extension as depth cues
+        let xrayField = null;                    // centre and radius on screen, for the label
         function drawXrayField(p) {
             const corners = [];
             for (const x of [HOUSING.min[0], HOUSING.max[0]]) for (const y of [HOUSING.min[1], HOUSING.max[1]]) for (const z of [HOUSING.min[2], HOUSING.max[2]]) corners.push(project([x, y, z]));
             const line = robot.centerline;
             const [mx, my, s] = project(line[Math.round(line.length * 0.6)]);
+            xrayField = { x: mx, y: my, r: 0.3 * s };
             ext.save();
             polygon(ext, convexHull(corners));
             ext.clip();
@@ -3372,6 +3469,7 @@
         // the extension, drawn in X-ray inside the housing, its tip camera and the light cone
         function drawXray(p) {
             drawXrayField(p);
+            drawHole(p);
             const pts = robot.centerline.map(project);
             const contact = contactFlash > 0;
             ext.save();
@@ -3505,9 +3603,18 @@
             drawLabel(p, t.labelArm, project(mid(o[1], o[2])), -70, -8);
             drawLabel(p, t.labelTendons, project(mid(robot.anchors[1], robot.entries[1])), -10, -34);
             drawLabel(p, t.labelEE, project(P_STAR), 46, -30);
-            drawLabel(p, t.labelExtension, project(robot.centerline[Math.round(robot.centerline.length * 0.55)]), 72, -6);
-            drawLabel(p, t.labelCamera, project(robot.p_D), 58, 34);
-            drawLabel(p, t.labelHousing, project(faces[0].c), -40, 30);
+            const hole = Core.portCenter();
+            // the side of the hazard ring that faces the camera most, away from the flange
+            const toward = Math.atan2(view.C[1] - hole[1], view.C[0] - hole[0]) + 1.4;
+            const ringR = PORT_RADIUS + COLLAR.ring[1];
+            drawLabel(p, t.labelHole, project([hole[0] + ringR * Math.cos(toward), hole[1] + ringR * Math.sin(toward), HOUSING.max[2]]), 64, 6);
+            drawLabel(p, t.labelExtension, project(robot.centerline[Math.round(robot.centerline.length * 0.45)]), 78, 6);
+            if (xrayField) {
+                const a = 0.5;
+                drawLabel(p, t.labelXray, [xrayField.x + 0.72 * xrayField.r * Math.cos(a), xrayField.y + 0.72 * xrayField.r * Math.sin(a)], 34, 22);
+            }
+            drawLabel(p, t.labelCamera, project(robot.p_D), -64, 30);
+            drawLabel(p, t.labelHousing, project(faces[0].c), -40, 34);
             ext.restore();
         }
 
@@ -3949,6 +4056,95 @@
         }
 
         // ------------------------------------------------------------------
+        // introduction: an isolated tendon-driven rod. With constant curvature,
+        // a tendon at distance r from the axis shortens by r theta when the rod
+        // bends by theta toward it.
+        // ------------------------------------------------------------------
+        const tendonCanvas = byId('tendonDemo');
+        const tendonCtx = tendonCanvas.getContext('2d');
+        const TENDON_CYCLE = 6.4;                   // s: rest, pull green, rest, pull yellow
+
+        function tendonPulls(t) {
+            const u = (t % TENDON_CYCLE) / TENDON_CYCLE * 4;
+            const pulse = (x) => (x <= 0 || x >= 1 ? 0 : Math.sin(Math.PI * x) ** 2);
+            return [pulse(u - 0.5), pulse(u - 2.5)];
+        }
+
+        function drawTendonDemo(time) {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = tendonCanvas.clientWidth, h = tendonCanvas.clientHeight;
+            if (!w || !h) return;
+            if (tendonCanvas.width !== Math.round(w * dpr) || tendonCanvas.height !== Math.round(h * dpr)) {
+                tendonCanvas.width = Math.round(w * dpr);
+                tendonCanvas.height = Math.round(h * dpr);
+            }
+            const p = palette(), ctx = tendonCtx, t = dict();
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+            const [green, yellow] = tendonPulls(time);
+            const theta = 1.25 * (green - yellow);   // bending angle, positive toward the green side
+            const L = h * 0.62, r = 8, cx = w / 2, baseY = h * 0.2, steps = 40;
+            // centreline of constant curvature, hanging down from the base
+            const line = [];
+            let x = cx, y = baseY;
+            for (let k = 0; k <= steps; k++) {
+                const phi = theta * k / steps;
+                line.push({ x, y, nx: Math.cos(phi), ny: Math.sin(phi) });
+                x -= Math.sin(phi) * L / steps;
+                y += Math.cos(phi) * L / steps;
+            }
+            const side = (sign) => line.map((q) => [q.x + sign * r * q.nx, q.y + sign * r * q.ny]);
+            const stroke = (pts, colour, width) => {
+                ctx.strokeStyle = colour;
+                ctx.lineWidth = width;
+                ctx.beginPath();
+                pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+                ctx.stroke();
+            };
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            // rod: a light tube with spacer disks that guide the tendons
+            stroke(line.map((q) => [q.x, q.y]), p.linkEdge, 2 * r + 4);
+            stroke(line.map((q) => [q.x, q.y]), p.tube, 2 * r + 1);
+            for (let k = 5; k <= steps; k += 7) {
+                const q = line[k];
+                stroke([[q.x - (r + 4) * q.nx, q.y - (r + 4) * q.ny], [q.x + (r + 4) * q.nx, q.y + (r + 4) * q.ny]], p.linkEdge, 3);
+            }
+            // tendons along both sides, fixed at the tip; above the base, the pulled
+            // length r * theta appears as the tendon end moving up
+            const pullLength = (pull) => 1.25 * pull * r * 2.2;
+            [[-1, p.tendon1, green], [1, p.tendon2, yellow]].forEach(([sign, colour, pull]) => {
+                const pts = side(sign);
+                stroke(pts, colour, 3);
+                const top = baseY - 22 - pullLength(pull);
+                stroke([[cx + sign * r, baseY], [cx + sign * r, top]], colour, 3);
+                ctx.fillStyle = colour;
+                ctx.beginPath(); ctx.arc(cx + sign * r, top, 3.5, 0, Math.PI * 2); ctx.fill();
+                const end = pts[pts.length - 1];
+                ctx.beginPath(); ctx.arc(end[0], end[1], 2.5, 0, Math.PI * 2); ctx.fill();
+                if (pull > 0.15) {
+                    ctx.globalAlpha = Math.min(1, pull * 1.6);
+                    const ax = cx + sign * (r + 14), ay = top + 4;
+                    stroke([[ax, ay + 12], [ax, ay - 6]], colour, 2);
+                    ctx.beginPath(); ctx.moveTo(ax - 4, ay - 2); ctx.lineTo(ax, ay - 8); ctx.lineTo(ax + 4, ay - 2); ctx.fill();
+                    ctx.font = font(700, 11);
+                    ctx.textAlign = sign < 0 ? 'right' : 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(t.pull, ax + sign * 7, ay + 2);
+                    ctx.globalAlpha = 1;
+                }
+            });
+            // fixed base
+            ctx.fillStyle = p.base;
+            ctx.fillRect(cx - 40, baseY - 6, 80, 7);
+            ctx.strokeStyle = p.linkEdge;
+            ctx.lineWidth = 1;
+            for (let k = -36; k <= 36; k += 8) {
+                ctx.beginPath(); ctx.moveTo(cx + k, baseY - 6); ctx.lineTo(cx + k + 6, baseY - 12); ctx.stroke();
+            }
+        }
+
+        // ------------------------------------------------------------------
         // simulation step
         // ------------------------------------------------------------------
         function update(dt) {
@@ -3973,6 +4169,7 @@
             update(dt);
             renderExternal();
             renderFeed();
+            drawTendonDemo(now / 1000);
             requestAnimationFrame(frame);
         }
 
