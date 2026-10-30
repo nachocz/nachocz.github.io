@@ -200,6 +200,10 @@
             font-size: 0.94rem;
         }
 
+        .demo-intro + .demo-intro {
+            margin-top: 8px;
+        }
+
         /* Heads-up display */
 
         .hud {
@@ -681,7 +685,8 @@
                 </div>
             </div>
             <h1 data-i18n="title">Dino egg incubator</h1>
-            <p class="demo-intro" data-i18n="intro">A robot-mounted heat source has to keep a dinosaur egg at a target temperature. Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
+            <p class="demo-intro" data-i18n="intro">Many processes need a surface held at a prescribed temperature: curing composites, activating adhesives on shoe soles, drying coatings or forming plastic sheets. Automating it is hard, because the heat spreads through the material and escapes to the air, so the source has to keep moving and adjusting its power; try it yourself. Our ergodic heat coverage control (EHCC) does it without a thermal model of the material, and Show solution lets it incubate the egg.</p>
+            <p class="demo-intro" data-i18n="intro2">Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
         </header>
 
         <section aria-labelledby="game-title">
@@ -749,6 +754,7 @@
             <div class="controls-row">
                 <p class="hint" data-i18n="hint">Move the pointer over the egg to aim the source and press to heat. Drag the Power slider to the right, or scroll up over the egg, for more power. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.</p>
                 <div class="actions">
+                    <button class="button" type="button" id="solutionButton" data-i18n="showSolution">Show solution</button>
                     <button class="button" type="button" id="pauseButton" data-i18n="pause">Pause</button>
                     <button class="button" type="button" id="restartButton" data-i18n="restart">Restart</button>
                 </div>
@@ -778,7 +784,8 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Dino egg incubator',
-                intro: 'A robot-mounted heat source has to keep a dinosaur egg at a target temperature. Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
+                intro: 'Many processes need a surface held at a prescribed temperature: curing composites, activating adhesives on shoe soles, drying coatings or forming plastic sheets. Automating it is hard, because the heat spreads through the material and escapes to the air, so the source has to keep moving and adjusting its power; try it yourself. Our ergodic heat coverage control (EHCC) does it without a thermal model of the material, and Show solution lets it incubate the egg.',
+                intro2: 'Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
                 hudInBand: 'In band',
                 hudAverageError: 'Average error',
                 hudErrorSpread: 'Error spread',
@@ -822,6 +829,10 @@
                 pausedTitle: 'Paused',
                 pausedText: 'The simulation stops until you resume.',
                 hatchedTitle: 'It hatched!',
+                showSolution: 'Show solution',
+                stopSolution: 'Stop solution',
+                solutionBanner: 'Solution · ergodic heat coverage control (EHCC)',
+                solvedText: 'EHCC kept the whole egg at {target} °C for {seconds} seconds, and a {sex} hatched.',
                 hatchedText: 'A {sex} hatched: the egg stayed uniformly at {target} °C for {seconds} seconds.',
                 statSnow: 'Snowflakes',
                 statFronts: 'Cold fronts',
@@ -843,7 +854,8 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Incubadora de dinosaurios',
-                intro: 'Una fuente de calor montada en un robot debe mantener un huevo de dinosaurio a una temperatura objetivo. No basta con alcanzarla en promedio: el corchete de la barra de error es la dispersión del error, que crece cuando unas zonas de la cáscara están más calientes que otras, así que todo el huevo debe estar igual de caliente. Mantén el promedio y la dispersión dentro de la banda durante 30 segundos en Fácil o 40 segundos en Difícil.',
+                intro: 'Muchos procesos necesitan mantener una superficie a una temperatura prescrita: el curado de materiales compuestos, la activación de adhesivos en suelas de calzado, el secado de recubrimientos o el conformado de láminas de plástico. Automatizarlo es difícil, porque el calor se propaga por el material y se escapa al aire, así que la fuente debe moverse y ajustar su potencia continuamente; pruébalo tú. Nuestro control ergódico de cobertura térmica (EHCC) lo consigue sin un modelo térmico del material, y Ver solución le deja incubar el huevo.',
+                intro2: 'No basta con alcanzar el objetivo en promedio: el corchete de la barra de error es la dispersión del error, que crece cuando unas zonas de la cáscara están más calientes que otras, así que todo el huevo debe estar igual de caliente. Mantén el promedio y la dispersión dentro de la banda durante 30 segundos en Fácil o 40 segundos en Difícil.',
                 hudInBand: 'En banda',
                 hudAverageError: 'Error promedio',
                 hudErrorSpread: 'Dispersión del error',
@@ -887,6 +899,10 @@
                 pausedTitle: 'En pausa',
                 pausedText: 'La simulación se detiene hasta que continúes.',
                 hatchedTitle: '¡Ha eclosionado!',
+                showSolution: 'Ver solución',
+                stopSolution: 'Detener solución',
+                solutionBanner: 'Solución · control ergódico de cobertura térmica (EHCC)',
+                solvedText: 'EHCC ha mantenido todo el huevo a {target} °C durante {seconds} segundos y ha nacido {sex}.',
                 hatchedText: 'Ha nacido {sex}: el huevo se ha mantenido uniformemente a {target} °C durante {seconds} segundos.',
                 statSnow: 'Copos de nieve',
                 statFronts: 'Frentes fríos',
@@ -932,6 +948,7 @@
         const overlayStats = byId('overlayStats');
         const overlayButton = byId('overlayButton');
         const pauseButton = byId('pauseButton');
+        const solutionButton = byId('solutionButton');
         const announcer = byId('announcer');
         const modeDescription = byId('modeDescription');
         const incubationDescription = byId('incubationDescription');
@@ -1103,6 +1120,124 @@
         }
 
         // ------------------------------------------------------------------
+        // solution: ergodic heat coverage control (EHCC), ported from
+        // docs/js/sim/ehcc.js of github.com/nachocz/Ergodic_Heat_Coverage_Control.
+        // The ergodic law moves the focal point so that the time average of its
+        // footprint matches the heat deficit e+ = max(T* - T, 0); the standoff
+        // law sets the distance, and with it the power, from the mean and the
+        // local error. Equation numbers refer to the paper; the gains are
+        // rescaled to the time and distance units of the game.
+        // ------------------------------------------------------------------
+        const EHCC = {
+            K: 12, s: 1.05,          // cosine modes per axis, Sobolev exponent (11), (14)
+            Kg: 0.4, uMax: 0.5,      // gain and speed limit of the tangential law (16) [domain / s]
+            kI: 3.2, dlb0: 16,       // integral gain [STANDOFF units / (s degC)] and d_lb(0) (21)
+            eMax: 1,                 // local deficit that brings the source to d_lb (18) [degC]
+            p0: [0.25, 0.35],        // p(0) in the coordinates of the domain, off its symmetry axes
+            dRate: 20                // speed of the end effector along the normal [STANDOFF units / s]
+        };
+
+        // The domain of the ergodic law is the surface itself, Omega = the bounding
+        // box of the egg on the grid; coordinates (u, v) in [0, 1]^2 of that box.
+        class ErgodicHeatCoverage {
+            constructor() {
+                const K = EHCC.K;
+                const cols = cells.map((k) => k % N), rows = cells.map((k) => (k / N) | 0);
+                this.i0 = Math.min(...cols); this.nx = Math.max(...cols) - this.i0 + 1;
+                this.j0 = Math.min(...rows); this.ny = Math.max(...rows) - this.j0 + 1;
+                this.box = { x: this.i0 / N, y: this.j0 / N, w: this.nx / N, h: this.ny / N };
+                const table = (n) => {                  // cos(k pi u) at the cell centres
+                    const out = new Float64Array(K * n);
+                    for (let k = 0; k < K; k++) for (let i = 0; i < n; i++) out[k * n + i] = Math.cos(Math.PI * k * (i + 0.5) / n);
+                    return out;
+                };
+                this.cosX = table(this.nx);
+                this.cosY = table(this.ny);
+                this.Lambda = new Float64Array(K * K);   // (1 + |k|^2)^(-s)
+                for (let a = 0; a < K; a++) for (let b = 0; b < K; b++) this.Lambda[a * K + b] = (1 + a * a + b * b) ** -EHCC.s;
+                this.Phi = new Float64Array(N * N);
+                this.A = new Float64Array(this.ny * K);
+                this.phi = new Float64Array(K * K);
+                this.cSum = new Float64Array(K * K);
+                this.reset();
+            }
+
+            reset() {
+                this.cSum.fill(0);
+                this.t = 0;
+                const { box } = this;
+                this.p = [box.x + EHCC.p0[0] * box.w, box.y + EHCC.p0[1] * box.h];
+                this.dlb = EHCC.dlb0;
+                this.d = STANDOFF.max;
+                this.trail = [];
+            }
+
+            // heating density Phi (10): the heat deficit on the egg, unit sum;
+            // its cosine coefficients phi_k (12)
+            target() {
+                const { Phi, A, phi, cosX, cosY, i0, j0, nx, ny } = this, K = EHCC.K;
+                let total = 0;
+                for (const k of cells) {
+                    Phi[k] = Math.max(targetTemp - field[k], 0);
+                    total += Phi[k];
+                }
+                for (const k of cells) Phi[k] = total > 0 ? Phi[k] / total : 1 / cells.length;
+                for (let jj = 0; jj < ny; jj++) for (let a = 0; a < K; a++) {
+                    let s = 0;
+                    const row = (j0 + jj) * N + i0;
+                    for (let ii = 0; ii < nx; ii++) if (mask[row + ii]) s += Phi[row + ii] * cosX[a * nx + ii];
+                    A[jj * K + a] = s;
+                }
+                for (let a = 0; a < K; a++) for (let b = 0; b < K; b++) {
+                    let s = 0;
+                    for (let jj = 0; jj < ny; jj++) s += cosY[b * ny + jj] * A[jj * K + a];
+                    phi[a * K + b] = s;
+                }
+            }
+
+            // one control period: the source acts at the current focal point with
+            // the standoff of (17)-(22), then the point moves by the law (16)
+            step(dt) {
+                const K = EHCC.K, { box } = this, [x, y] = this.p;
+                this.dlb = clamp(this.dlb - EHCC.kI * stats.mean * dt, STANDOFF.min, STANDOFF.max);
+                const i = clamp(Math.floor(x * N), 0, N - 1), j = clamp(Math.floor(y * N), 0, N - 1);
+                const local = mask[j * N + i] ? Math.max(targetTemp - field[j * N + i], 0) : 0;
+                // standoff map (18), reached at the speed limit of the end effector
+                const wanted = STANDOFF.max - (STANDOFF.max - this.dlb) * Math.min(local / EHCC.eMax, 1);
+                this.d += clamp(wanted - this.d, -EHCC.dRate * dt, EHCC.dRate * dt);
+                const d = this.d;
+                this.target();
+                const u = (x - box.x) / box.w, v = (y - box.y) / box.h;
+                const cu = [], su = [], cv = [], sv = [];
+                for (let k = 0; k < K; k++) {
+                    cu.push(Math.cos(Math.PI * k * u)); su.push(Math.sin(Math.PI * k * u));
+                    cv.push(Math.cos(Math.PI * k * v)); sv.push(Math.sin(Math.PI * k * v));
+                }
+                // time-averaged coefficients of the trajectory (13) and the gradient
+                // of the ergodic metric (14) with respect to the focal point
+                this.t += dt;
+                let gu = 0, gv = 0;
+                for (let a = 0; a < K; a++) for (let b = 0; b < K; b++) {
+                    const k = a * K + b;
+                    this.cSum[k] += cu[a] * cv[b] * dt;
+                    const w = this.Lambda[k] * (this.cSum[k] / this.t - this.phi[k]);
+                    gu -= w * Math.PI * a * su[a] * cv[b];
+                    gv -= w * Math.PI * b * cu[a] * sv[b];
+                }
+                // tangential law (16) in the coordinates of the box, saturated at u_max
+                let vel = [-EHCC.Kg * gu * box.w, -EHCC.Kg * gv * box.h];
+                const speed = Math.hypot(vel[0], vel[1]);
+                if (speed > EHCC.uMax) vel = vel.map((c) => c * EHCC.uMax / speed);
+                this.trail.push({ x, y, t: elapsed });
+                while (this.trail.length && elapsed - this.trail[0].t > 3) this.trail.shift();
+                this.p = [clamp(x + vel[0] * dt, box.x, box.x + box.w), clamp(y + vel[1] * dt, box.y, box.y + box.h)];
+                return { x, y, d };
+            }
+        }
+        const solver = new ErgodicHeatCoverage();
+        const powerForDistance = (d) => (STANDOFF.max - d) / (STANDOFF.max - STANDOFF.min) * POWER.max;
+
+        // ------------------------------------------------------------------
         // game state
         // ------------------------------------------------------------------
         let state = 'ready';
@@ -1121,6 +1256,7 @@
         let hatchT = 0;
         let leftFlash = 0;
         let newBest = false;
+        let solving = false;                     // the EHCC solution drives the source
         let viewMode = 'T';
         const source = { x: EGG.cx, y: EGG.cy, power: 50, d: distanceForPower(50), heat: false };
         let pressing = false;
@@ -1158,9 +1294,28 @@
 
         function startGame() {
             resetGame();
+            solving = false;
             state = 'playing';
             showOverlay(null);
             canvas.focus({ preventScroll: true });
+        }
+
+        // the solution starts from a new egg, with the same difficulty and target
+        function startSolution() {
+            resetGame();
+            solver.reset();
+            solving = true;
+            pressing = false;
+            keysDown.clear();
+            state = 'playing';
+            showOverlay(null);
+        }
+
+        function stopSolution() {
+            solving = false;
+            state = 'ready';
+            resetGame();
+            showOverlay('start');
         }
 
         function pauseGame() {
@@ -1186,7 +1341,7 @@
             weather.phase = 'calm';
             weather.target = MODEL.ambient;
             const best = readBest();
-            newBest = !best || elapsed < best;
+            newBest = !solving && (!best || elapsed < best);
             if (newBest) saveBest(elapsed);
             announce(dict().announceHatched.replace('{sex}', sexName()));
             updateHud();
@@ -1269,8 +1424,16 @@
 
         function update(dt) {
             if (state === 'playing') {
-                applyKeys(dt);
-                source.heat = pressing || keysDown.has(' ') || heatToggle.checked;
+                if (solving) {
+                    const command = solver.step(dt);
+                    source.x = command.x;
+                    source.y = command.y;
+                    setPower(powerForDistance(command.d));
+                    source.heat = true;
+                } else {
+                    applyKeys(dt);
+                    source.heat = pressing || keysDown.has(' ') || heatToggle.checked;
+                }
                 elapsed += dt;
                 updateWeather(dt);
                 advanceField(dt);
@@ -2019,6 +2182,43 @@
             }
         }
 
+        // the last three seconds of the focal point under EHCC
+        function drawTrail(p) {
+            if (!solving || solver.trail.length < 2) return;
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            for (let k = 1; k < solver.trail.length; k++) {
+                const a = solver.trail[k - 1], b = solver.trail[k];
+                const age = (elapsed - b.t) / 3;
+                const [ax, ay] = toScreen(a.x, a.y), [bx, by] = toScreen(b.x, b.y);
+                ctx.strokeStyle = `rgba(255, 255, 255, ${0.75 * (1 - age)})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawSolutionBanner(p) {
+            if (!solving || state === 'hatched') return;
+            const text = dict().solutionBanner;
+            ctx.save();
+            ctx.font = font(700, 12);
+            const tw = ctx.measureText(text).width, by = layout.h - 34;
+            ctx.fillStyle = alpha(p.heat, 0.14);
+            ctx.strokeStyle = alpha(p.heat, 0.6);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(layout.w / 2 - tw / 2 - 12, by, tw + 24, 24, 12); else ctx.rect(layout.w / 2 - tw / 2 - 12, by, tw + 24, 24);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = p.heat;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, layout.w / 2, by + 12.5);
+            ctx.restore();
+        }
+
         function render() {
             const dpr = Math.min(window.devicePixelRatio || 1, 2);
             const w = canvas.clientWidth;
@@ -2046,9 +2246,11 @@
             }
             drawNest(p, true);
             drawSnow(p);
+            drawTrail(p);
             drawSource(p);
             drawGauge(p);
             if (state !== 'hatched') drawColorbar(p);
+            drawSolutionBanner(p);
         }
 
         // ------------------------------------------------------------------
@@ -2061,7 +2263,9 @@
             powerValue.textContent = `${Math.round(source.power)}%`;
         }
 
-        powerInput.addEventListener('input', () => setPower(Number(powerInput.value)));
+        powerInput.addEventListener('input', () => {
+            if (!solving) setPower(Number(powerInput.value));
+        });
 
         function aim(event) {
             const rect = canvas.getBoundingClientRect();
@@ -2071,11 +2275,11 @@
         }
 
         canvas.addEventListener('pointermove', (event) => {
-            if (state === 'paused') return;
+            if (state === 'paused' || solving) return;
             aim(event);
         });
         canvas.addEventListener('pointerdown', (event) => {
-            if (state !== 'playing') return;
+            if (state !== 'playing' || solving) return;
             event.preventDefault();
             canvas.setPointerCapture(event.pointerId);
             aim(event);
@@ -2089,7 +2293,7 @@
         canvas.addEventListener('pointercancel', release);
         // scrolling up increases the power
         canvas.addEventListener('wheel', (event) => {
-            if (state !== 'playing') return;
+            if (state !== 'playing' || solving) return;
             event.preventDefault();
             setPower(source.power - Math.sign(event.deltaY) * 5);
         }, { passive: false });
@@ -2121,7 +2325,7 @@
                 if (state === 'playing') pauseGame(); else resumeGame();
                 return;
             }
-            if (state !== 'playing' || onControl || !GAME_KEYS.has(key)) return;
+            if (state !== 'playing' || solving || onControl || !GAME_KEYS.has(key)) return;
             event.preventDefault();
             keysDown.add(key);
         });
@@ -2174,6 +2378,7 @@
             overlay.hidden = !which;
             overlay.classList.toggle('corner', which === 'hatched');
             pauseButton.textContent = state === 'paused' ? dict().resume : dict().pause;
+            solutionButton.textContent = solving && state !== 'hatched' ? dict().stopSolution : dict().showSolution;
             if (!which) return;
             const t = dict();
             const withGoal = (text) => text.replace('{seconds}', String(hatchTime())).replace('{target}', String(targetTemp)).replace('{sex}', sexName());
@@ -2191,7 +2396,7 @@
                 overlayButton.textContent = t.resume;
             } else {
                 overlayTitle.textContent = t.hatchedTitle;
-                overlayText.textContent = withGoal(t.hatchedText);
+                overlayText.textContent = withGoal(solving ? t.solvedText : t.hatchedText);
                 overlayButton.textContent = t.playAgain;
                 finalStats.time.textContent = formatTime(elapsed);
                 finalStats.best.textContent = formatTime(readBest() || elapsed);
@@ -2211,6 +2416,11 @@
         });
 
         byId('restartButton').addEventListener('click', startGame);
+
+        solutionButton.addEventListener('click', () => {
+            if (solving && state !== 'hatched') stopSolution(); else startSolution();
+            showOverlay(overlay.hidden ? null : overlayMode);
+        });
 
         // marks the active button of a segmented control
         function syncSegment(attribute, value) {
