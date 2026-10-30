@@ -211,27 +211,152 @@
             color: var(--accent);
         }
 
+        .intro-title {
+            margin: 15px 0 8px;
+            color: var(--ink);
+            font-size: 1rem;
+            font-weight: 720;
+            letter-spacing: -0.012em;
+        }
+
         .intro-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 190px;
+            grid-template-columns: minmax(0, 1fr) 460px;
             gap: 24px;
             align-items: center;
         }
 
-        .tendon-demo {
+        .intro-demos {
+            display: grid;
+            grid-template-columns: 148px minmax(0, 1fr);
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .intro-demo {
             margin: 0;
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--canvas);
             text-align: center;
+        }
+
+        .intro-demo-title {
+            margin: 0 0 4px;
+            color: var(--ink);
+            font-size: 0.72rem;
+            font-weight: 750;
+            letter-spacing: 0.01em;
+            line-height: 1.25;
+            text-align: left;
         }
 
         .tendon-demo canvas {
             display: block;
             width: 100%;
-            height: 184px;
+            height: 188px;
         }
 
-        .tendon-demo figcaption {
+        .planar-demo canvas {
+            display: block;
+            width: 100%;
+            height: 150px;
+        }
+
+        .intro-demo figcaption {
+            margin-top: 5px;
             color: var(--muted);
             font-size: 0.7rem;
+            line-height: 1.35;
+        }
+
+        .workspace-heading {
+            margin-top: 23px;
+            padding: 16px 2px 9px;
+            border-top: 1px solid var(--line);
+        }
+
+        .workspace-heading h2 {
+            margin: 0 0 3px;
+            color: var(--ink);
+            font-size: 1.08rem;
+            font-weight: 730;
+            letter-spacing: -0.018em;
+        }
+
+        .workspace-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        .toy-controls {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+            gap: 5px;
+            align-items: end;
+            margin-top: 4px;
+        }
+
+        .toy-control {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1px 4px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 0.66rem;
+        }
+
+        .toy-control span {
+            color: var(--ink);
+            font-weight: 720;
+        }
+
+        .toy-control input {
+            width: 100%;
+            min-width: 0;
+            grid-column: 1 / -1;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+
+        .toy-control output {
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+
+        .toy-reset {
+            min-height: 30px;
+            padding: 3px 8px;
+            border: 1px solid var(--line-strong);
+            border-radius: 7px;
+            color: var(--ink);
+            background: var(--surface);
+            font-size: 0.66rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .toy-reset:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .toy-constraint {
+            display: inline-flex;
+            grid-column: 1 / -1;
+            gap: 6px;
+            align-items: center;
+            justify-self: center;
+            color: var(--ink-soft);
+            font-size: 0.66rem;
+            cursor: pointer;
+        }
+
+        .toy-constraint input {
+            margin: 0;
+            accent-color: var(--accent);
         }
 
         /* Heads-up display */
@@ -857,6 +982,14 @@
         }
 
         @media (max-width: 900px) {
+            .intro-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .intro-demos {
+                width: min(100%, 520px);
+            }
+
             .joint-grid {
                 grid-template-columns: 1fr;
             }
@@ -883,9 +1016,14 @@
                 grid-template-columns: 1fr;
             }
 
-            .tendon-demo {
-                max-width: 220px;
+            .intro-demos {
+                grid-template-columns: 1fr;
+                max-width: 320px;
                 margin: 0 auto;
+            }
+
+            .tendon-demo canvas {
+                height: 170px;
             }
 
             #external {
@@ -931,20 +1069,39 @@
                 </div>
             </div>
             <h1 data-i18n="title">Cavity inspection</h1>
+            <h2 class="intro-title" data-i18n="introTitle">How joint motion bends the extension</h2>
             <div class="intro-grid">
                 <div>
-                    <p class="demo-intro"><span data-i18n="introA">You control the joints of a UR10 arm that holds a passive soft extension. The extension is a flexible rod with tendons along its sides; pulling one tendon bends it toward that tendon, as shown in the animation. The tendons have no motors. Their anchors on the arm change the external tendon spans as the arm moves, which changes tendon tension (</span><a href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer" data-i18n="introLink">interactive companion of the paper</a><span data-i18n="introB">).</span></p>
-                    <p class="demo-intro" data-i18n="intro2">The nonlinear relation between joint rotation and extension bending is difficult to predict manually. Use trial and error to inspect the closed housing with the tip camera and report its three damaged parts. Show solution runs our controller, which computes the required joint motions directly.</p>
+                    <p class="demo-intro"><span data-i18n="introA">You control a UR10 arm carrying a passive soft extension: a flexible rod with two tendons. Pulling one tendon bends the rod toward it, as Animation 1 shows. Here the tendons have no motors; anchors on the robot links change their external spans as the joints move, which changes tendon tension (</span><a href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer" data-i18n="introLink">interactive companion of the paper</a><span data-i18n="introB">).</span></p>
+                    <p class="demo-intro" data-i18n="intro2">The end effector (EE) is the robot tip that holds the extension. Fixing its position still permits redundant joint motions, like moving your elbow while keeping your hand still. The planar toy example shows how varying q₁–q₃ changes the rod shape while the EE position remains fixed. In the game, apply the same principle to aim a tip camera inside a closed housing and identify three damaged parts.</p>
                 </div>
-                <figure class="tendon-demo">
-                    <canvas id="tendonDemo" aria-hidden="true"></canvas>
-                    <figcaption data-i18n="tendonCaption">Pulling a tendon bends the rod toward it.</figcaption>
-                </figure>
+                <div class="intro-demos">
+                    <figure class="intro-demo tendon-demo">
+                        <h3 class="intro-demo-title" data-i18n="animationTitle">Animation 1 · Direct tendon pull</h3>
+                        <canvas id="tendonDemo" aria-hidden="true"></canvas>
+                        <figcaption data-i18n="tendonCaption">Pulling a tendon bends the rod toward it.</figcaption>
+                    </figure>
+                    <figure class="intro-demo planar-demo">
+                        <h3 class="intro-demo-title" data-i18n="toyTitle">Planar toy example</h3>
+                        <canvas id="planarToy" role="img" aria-label="Planar three-joint robot with two link-anchored tendons and a passive rod" data-i18n-aria-label="toyAria"></canvas>
+                        <div class="toy-controls" role="group" aria-label="Toy robot joint angles" data-i18n-aria-label="toyControlsAria">
+                            <label class="toy-control"><span>q₁</span><output id="toyQ1Value">−60°</output><input id="toyQ1" type="range" min="-67" max="-44" value="-60"></label>
+                            <label class="toy-control"><span>q₂</span><output id="toyQ2Value">60°</output><input id="toyQ2" type="range" min="25" max="80" value="60"></label>
+                            <label class="toy-control"><span>q₃</span><output id="toyQ3Value">45°</output><input id="toyQ3" type="range" min="10" max="80" value="45"></label>
+                            <button class="toy-reset" id="toyReset" type="button" data-i18n="toyReset">Reset</button>
+                            <label class="toy-constraint"><input id="toyConstraint" type="checkbox"> <span data-i18n="toyConstraint">EE position constrained</span></label>
+                        </div>
+                        <figcaption data-i18n="toyCaption">Move q₁–q₃. The ℓ₁/ℓ₂ bars show external tendon spans; taller means longer.</figcaption>
+                    </figure>
+                </div>
             </div>
         </header>
 
-        <section aria-labelledby="game-title">
-            <h2 id="game-title" class="sr-only" data-i18n="title">Cavity inspection</h2>
+        <section aria-labelledby="workspace-title">
+            <div class="workspace-heading">
+                <h2 id="workspace-title" data-i18n="workspaceTitle">Inspection workspace</h2>
+                <p data-i18n="workspaceLead">Use the joint controls to aim the tip camera and report damaged parts.</p>
+            </div>
             <div class="hud">
                 <div class="hud-item site"><span data-i18n="hudSite">Site</span><output id="siteValue">1 / 5</output></div>
                 <div class="hud-item primary"><span data-i18n="hudFound">Found</span><output id="foundValue">0 / 3</output></div>
@@ -1039,12 +1196,23 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Cavity inspection',
-                introA: 'You control the joints of a UR10 arm that holds a passive soft extension. The extension is a flexible rod with tendons along its sides; pulling one tendon bends it toward that tendon, as shown in the animation. The tendons have no motors. Their anchors on the arm change the external tendon spans as the arm moves, which changes tendon tension (',
+                introTitle: 'How joint motion bends the extension',
+                introA: 'You control a UR10 arm carrying a passive soft extension: a flexible rod with two tendons. Pulling one tendon bends the rod toward it, as Animation 1 shows. Here the tendons have no motors; anchors on the robot links change their external spans as the joints move, which changes tendon tension (',
                 introLink: 'interactive companion of the paper',
                 introB: ').',
-                intro2: 'The nonlinear relation between joint rotation and extension bending is difficult to predict manually. Use trial and error to inspect the closed housing with the tip camera and report its three damaged parts. Show solution runs our controller, which computes the required joint motions directly.',
+                intro2: 'The end effector (EE) is the robot tip that holds the extension. Fixing its position still permits redundant joint motions, like moving your elbow while keeping your hand still. The planar toy example shows how varying q₁–q₃ changes the rod shape while the EE position remains fixed. In the game, apply the same principle to aim a tip camera inside a closed housing and identify three damaged parts.',
+                animationTitle: 'Animation 1 · Direct tendon pull',
+                toyTitle: 'Planar toy example',
                 tendonCaption: 'Pulling a tendon bends the rod toward it.',
+                toyAria: 'Planar three-joint robot with two link-anchored tendons and a passive rod',
+                toyControlsAria: 'Toy robot joint angles',
+                toyReset: 'Reset',
+                toyConstraint: 'EE position constrained',
+                toyCaption: 'Move q₁–q₃. The ℓ₁/ℓ₂ bars show external tendon spans; taller means longer.',
+                toyEE: 'EE',
                 pull: 'pull',
+                workspaceTitle: 'Inspection workspace',
+                workspaceLead: 'Use the joint controls to aim the tip camera and report damaged parts.',
                 hudSite: 'Site',
                 hudFound: 'Found',
                 hudTime: 'Time',
@@ -1153,12 +1321,23 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Inspección de cavidades',
-                introA: 'Controlas las articulaciones de un brazo UR10 que sujeta una extensión blanda pasiva. La extensión es una varilla flexible con tendones laterales; tirar de uno la flexiona hacia ese tendón, como muestra la animación. Los tendones no tienen motores. Sus anclajes en el brazo cambian las longitudes exteriores al moverse el brazo, lo que modifica la tensión (',
+                introTitle: 'Cómo el movimiento articular flexiona la extensión',
+                introA: 'Controlas un brazo UR10 con una extensión blanda pasiva: una varilla flexible con dos tendones. Tirar de uno flexiona la varilla hacia él, como muestra la Animación 1. Aquí los tendones no tienen motores; los anclajes en los eslabones cambian sus longitudes exteriores al moverse las articulaciones, lo que modifica la tensión (',
                 introLink: 'página interactiva del artículo',
                 introB: ').',
-                intro2: 'La relación no lineal entre el giro articular y la flexión de la extensión es difícil de predecir manualmente. Usa ensayo y error para inspeccionar la carcasa cerrada con la cámara de la punta e informa de sus tres piezas dañadas. Ver solución ejecuta nuestro controlador, que calcula directamente los movimientos articulares necesarios.',
+                intro2: 'El efector final (EF) es la punta del robot que sujeta la extensión. Fijar su posición aún permite movimientos articulares redundantes, igual que puedes mover el codo sin desplazar la mano. El ejemplo plano muestra cómo variar q₁–q₃ cambia la forma de la varilla mientras la posición del EF permanece fija. En el juego, aplica el mismo principio para orientar una cámara dentro de una carcasa cerrada e identificar tres piezas dañadas.',
+                animationTitle: 'Animación 1 · Tracción directa del tendón',
+                toyTitle: 'Ejemplo plano simplificado',
                 tendonCaption: 'Tirar de un tendón flexiona la varilla hacia él.',
+                toyAria: 'Robot plano de tres articulaciones con dos tendones anclados a sus eslabones y una varilla pasiva',
+                toyControlsAria: 'Ángulos articulares del robot simplificado',
+                toyReset: 'Reiniciar',
+                toyConstraint: 'Posición del EF restringida',
+                toyCaption: 'Mueve q₁–q₃. Las barras ℓ₁/ℓ₂ muestran las longitudes exteriores; más alta significa más larga.',
+                toyEE: 'EF',
                 pull: 'tirar',
+                workspaceTitle: 'Zona de inspección',
+                workspaceLead: 'Usa los controles articulares para orientar la cámara e informar de las piezas dañadas.',
                 hudSite: 'Instalación',
                 hudFound: 'Encontradas',
                 hudTime: 'Tiempo',
@@ -4148,6 +4327,291 @@
         }
 
         // ------------------------------------------------------------------
+        // introduction: a planar three-joint toy. The two external tendon
+        // spans run from link anchors to opposite sides of the extension.
+        // Joint motion changes those spans; their differential change sets a
+        // simple constant-curvature rod, making the coupling directly visible.
+        // ------------------------------------------------------------------
+        const toyCanvas = byId('planarToy');
+        const toyCtx = toyCanvas.getContext('2d');
+        const TOY_HOME = [-60, 60, 45];
+        const TOY_LIMITS = [[-67, -44], [25, 80], [10, 80]];
+        const TOY_LENGTHS = [58, 52, 42];
+        const TOY_NEUTRAL = TOY_HOME.map((v) => v * DEG);
+        const toyInputs = [byId('toyQ1'), byId('toyQ2'), byId('toyQ3')];
+        const toyOutputs = [byId('toyQ1Value'), byId('toyQ2Value'), byId('toyQ3Value')];
+        const toyConstraint = byId('toyConstraint');
+
+        function toyEndPoint(q) {
+            let x = 0, y = 0, angle = 0;
+            const angles = [];
+            for (let i = 0; i < 3; i++) {
+                angle += q[i];
+                angles.push(angle);
+                x += TOY_LENGTHS[i] * Math.cos(angle);
+                y += TOY_LENGTHS[i] * Math.sin(angle);
+            }
+            return { p: [x, y], angles };
+        }
+
+        let toyConstraintTarget = toyEndPoint(TOY_NEUTRAL).p;
+
+        function syncToyControls(values = toyInputs.map((input) => Number(input.value))) {
+            values.forEach((value, i) => {
+                const rounded = Math.round(value * 10) / 10;
+                toyInputs[i].value = String(rounded);
+                const magnitude = Number.isInteger(Math.abs(rounded)) ? Math.abs(rounded).toFixed(0) : Math.abs(rounded).toFixed(1);
+                toyOutputs[i].textContent = `${rounded < 0 ? '−' : ''}${magnitude}°`;
+            });
+        }
+
+        // Hold the EE position while one selected joint is commanded. The two
+        // remaining joints are solved by a small Newton iteration. Orientation
+        // stays free, matching the position constraint used by the main game.
+        function solveToyConstraint(selected, requested) {
+            const q = toyInputs.map((input) => Number(input.value) * DEG);
+            q[selected] = requested * DEG;
+            const free = [0, 1, 2].filter((i) => i !== selected);
+            for (let iteration = 0; iteration < 18; iteration++) {
+                const state = toyEndPoint(q), error = [toyConstraintTarget[0] - state.p[0], toyConstraintTarget[1] - state.p[1]];
+                if (Math.hypot(...error) < 1e-4) break;
+                const J = [[], []];
+                for (let joint = 0; joint < 3; joint++) {
+                    let dx = 0, dy = 0;
+                    for (let link = joint; link < 3; link++) {
+                        dx -= TOY_LENGTHS[link] * Math.sin(state.angles[link]);
+                        dy += TOY_LENGTHS[link] * Math.cos(state.angles[link]);
+                    }
+                    J[0][joint] = dx;
+                    J[1][joint] = dy;
+                }
+                const [a, b] = free, det = J[0][a] * J[1][b] - J[0][b] * J[1][a];
+                if (Math.abs(det) < 1e-7) break;
+                const da = clamp((error[0] * J[1][b] - J[0][b] * error[1]) / det, -0.25, 0.25);
+                const db = clamp((J[0][a] * error[1] - error[0] * J[1][a]) / det, -0.25, 0.25);
+                q[a] = clamp(q[a] + da, TOY_LIMITS[a][0] * DEG, TOY_LIMITS[a][1] * DEG);
+                q[b] = clamp(q[b] + db, TOY_LIMITS[b][0] * DEG, TOY_LIMITS[b][1] * DEG);
+            }
+            return q.map((value) => value / DEG);
+        }
+
+        toyInputs.forEach((input, selected) => input.addEventListener('input', () => {
+            const values = toyConstraint.checked ? solveToyConstraint(selected, Number(input.value)) : toyInputs.map((item) => Number(item.value));
+            syncToyControls(values);
+        }));
+        toyConstraint.addEventListener('change', () => {
+            if (toyConstraint.checked) toyConstraintTarget = toyEndPoint(toyInputs.map((input) => Number(input.value) * DEG)).p;
+        });
+        byId('toyReset').addEventListener('click', () => {
+            syncToyControls(TOY_HOME);
+            if (toyConstraint.checked) toyConstraintTarget = toyEndPoint(TOY_NEUTRAL).p;
+        });
+        syncToyControls(TOY_HOME);
+
+        function toyKinematics(q, w, h) {
+            const s = Math.min(w / 290, h / 170);
+            const lengths = [58, 52, 42].map((v) => v * s);
+            const points = [[12 + 18 * s, h - 24 * s]];
+            const angles = [];
+            let angle = 0;
+            for (let i = 0; i < 3; i++) {
+                angle += q[i];
+                angles.push(angle);
+                const a = points[points.length - 1];
+                points.push([a[0] + lengths[i] * Math.cos(angle), a[1] + lengths[i] * Math.sin(angle)]);
+            }
+            const mix = (a, b, u) => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+            const ee = points[3], normal = [-Math.sin(angles[2]), Math.cos(angles[2])], offset = 5.5 * s;
+            const entries = [
+                [ee[0] + normal[0] * offset, ee[1] + normal[1] * offset],
+                [ee[0] - normal[0] * offset, ee[1] - normal[1] * offset]
+            ];
+            const anchors = [[points[0][0] - 11 * s, points[0][1] - 34 * s], mix(points[1], points[2], 0.38)];
+            const spans = anchors.map((a, i) => Math.hypot(entries[i][0] - a[0], entries[i][1] - a[1]));
+            return { s, points, angles, ee, normal, entries, anchors, spans };
+        }
+
+        function toyRodGeometry(g, neutral) {
+            const differential = (g.spans[0] - neutral.spans[0]) - (g.spans[1] - neutral.spans[1]);
+            const bend = clamp(differential / (4.5 * g.s), -1.35, 1.35);
+            const steps = 36, rodLength = 56 * g.s, centre = [];
+            let x = g.ee[0], y = g.ee[1];
+            for (let i = 0; i <= steps; i++) {
+                const u = i / steps, phi = g.angles[2] + bend * u;
+                centre.push({ x, y, nx: -Math.sin(phi), ny: Math.cos(phi) });
+                x += Math.cos(phi) * rodLength / steps;
+                y += Math.sin(phi) * rodLength / steps;
+            }
+            const side = (sign) => centre.map((point) => [point.x + sign * 5.5 * g.s * point.nx, point.y + sign * 5.5 * g.s * point.ny]);
+            return { centre, sides: [side(1), side(-1)] };
+        }
+
+        let toyViewportCache = null;
+        function toyFixedViewport(w, h, neutral) {
+            const key = `${w.toFixed(1)}:${h.toFixed(1)}`;
+            if (toyViewportCache?.key === key) return toyViewportCache;
+            const points = [];
+            const samples = 7;
+            for (let a = 0; a < samples; a++) {
+                for (let b = 0; b < samples; b++) {
+                    for (let c = 0; c < samples; c++) {
+                        const indices = [a, b, c];
+                        const q = indices.map((sample, joint) => {
+                            const [low, high] = TOY_LIMITS[joint];
+                            return (low + (high - low) * sample / (samples - 1)) * DEG;
+                        });
+                        const pose = toyKinematics(q, w, h);
+                        const rod = toyRodGeometry(pose, neutral);
+                        points.push(...pose.points, ...pose.anchors, ...pose.entries);
+                        points.push(...rod.centre.map((point) => [point.x, point.y]), ...rod.sides[0], ...rod.sides[1]);
+                    }
+                }
+            }
+            const base = neutral.points[0], padding = 14 * neutral.s;
+            points.push(
+                [base[0] - 18 * neutral.s, base[1] + 14 * neutral.s],
+                [base[0] + 18 * neutral.s, base[1] + 14 * neutral.s]
+            );
+            toyViewportCache = {
+                key,
+                minX: Math.min(...points.map((point) => point[0])) - padding,
+                maxX: Math.max(...points.map((point) => point[0])) + padding,
+                minY: Math.min(...points.map((point) => point[1])) - padding,
+                maxY: Math.max(...points.map((point) => point[1])) + padding
+            };
+            return toyViewportCache;
+        }
+
+        function drawPlanarToy() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = toyCanvas.clientWidth, h = toyCanvas.clientHeight;
+            if (!w || !h) return;
+            if (toyCanvas.width !== Math.round(w * dpr) || toyCanvas.height !== Math.round(h * dpr)) {
+                toyCanvas.width = Math.round(w * dpr);
+                toyCanvas.height = Math.round(h * dpr);
+            }
+            const p = palette(), ctx = toyCtx;
+            const q = toyInputs.map((input) => Number(input.value) * DEG);
+            const g = toyKinematics(q, w, h), neutral = toyKinematics(TOY_NEUTRAL, w, h);
+            const rod = toyRodGeometry(g, neutral), centre = rod.centre, rodSides = rod.sides;
+            const stroke = (points, colour, width, dash = []) => {
+                ctx.strokeStyle = colour;
+                ctx.lineWidth = width;
+                ctx.setLineDash(dash);
+                ctx.beginPath();
+                points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+                ctx.stroke();
+                ctx.setLineDash([]);
+            };
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Use one fixed camera centred on the allowed joint range. A moderate
+            // fixed zoom keeps the mechanism legible; only limit poses may clip.
+            const base = g.points[0];
+            const viewport = toyFixedViewport(w, h, neutral);
+            const area = { x: 5, y: 5, width: Math.max(48, w - 66), height: Math.max(48, h - 10) };
+            const rangeX = viewport.maxX - viewport.minX, rangeY = viewport.maxY - viewport.minY;
+            const baseFit = Math.min(area.width / rangeX, area.height / rangeY);
+            const fit = Math.min(1.15, baseFit * 1.32);
+            const offsetX = area.x + (area.width - rangeX * fit) / 2 - viewport.minX * fit;
+            const offsetY = area.y + (area.height - rangeY * fit) / 2 - viewport.minY * fit;
+            ctx.save();
+            ctx.translate(offsetX, offsetY);
+            ctx.scale(fit, fit);
+
+            // ground and fixed base
+            stroke([[base[0] - 18 * g.s, base[1] + 14 * g.s], [base[0] + 18 * g.s, base[1] + 14 * g.s]], p.grid, 1);
+            ctx.fillStyle = p.base;
+            ctx.fillRect(base[0] - 12 * g.s, base[1] + 7 * g.s, 24 * g.s, 7 * g.s);
+            stroke([[base[0] - 11 * g.s, base[1] + 6 * g.s], g.anchors[0]], p.linkEdge, 7 * g.s);
+            stroke([[base[0] - 11 * g.s, base[1] + 6 * g.s], g.anchors[0]], p.base, 4 * g.s);
+
+            // external tendon spans, drawn behind the links
+            const colours = [p.tendon1, p.tendon2];
+            g.anchors.forEach((anchor, i) => {
+                stroke([anchor, g.entries[i]], colours[i], 2.2);
+                ctx.fillStyle = colours[i];
+                ctx.beginPath(); ctx.arc(anchor[0], anchor[1], 3.2, 0, Math.PI * 2); ctx.fill();
+            });
+
+            // rigid planar arm
+            for (let i = 0; i < 3; i++) {
+                stroke([g.points[i], g.points[i + 1]], p.linkEdge, 13 * g.s);
+                stroke([g.points[i], g.points[i + 1]], p.link, 9 * g.s);
+            }
+            g.points.slice(0, 3).forEach((point, i) => {
+                ctx.fillStyle = p.joint;
+                ctx.strokeStyle = p.jointEdge;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.arc(point[0], point[1], 6.2 * g.s, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = p.ink;
+                ctx.font = font(750, 9);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(['q₁', 'q₂', 'q₃'][i], point[0], point[1] - 8 * g.s);
+            });
+
+            // constant-curvature passive rod fixed to the end effector
+            stroke(centre.map((point) => [point.x, point.y]), p.linkEdge, 14 * g.s);
+            stroke(centre.map((point) => [point.x, point.y]), p.tube, 10 * g.s);
+            stroke(rodSides[0], p.tendon1, 2.2);
+            stroke(rodSides[1], p.tendon2, 2.2);
+            ctx.fillStyle = p.ink;
+            ctx.font = font(750, 9);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(dict().toyEE, g.ee[0], g.ee[1] - 10 * g.s);
+            if (toyConstraint.checked) {
+                ctx.strokeStyle = p.found;
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.arc(g.ee[0], g.ee[1], 10 * g.s, 0, Math.PI * 2); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // tendon identifiers make the two link-to-rod paths traceable
+            g.anchors.forEach((anchor, i) => {
+                ctx.fillStyle = colours[i];
+                ctx.font = font(750, 9);
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`ℓ${i + 1}`, anchor[0] + 4, anchor[1] - 2);
+            });
+            ctx.restore();
+
+            // live external-span gauges: the centre tick is the neutral length
+            const barTop = 31, barBottom = h - 20, barHeight = barBottom - barTop;
+            g.spans.forEach((span, i) => {
+                const x = w - 36 + 20 * i;
+                const ratio = span / neutral.spans[i];
+                const fill = clamp(0.5 + 2 * (ratio - 1), 0.08, 0.92);
+                ctx.fillStyle = alpha(p.text, 0.16);
+                ctx.fillRect(x - 4, barTop, 8, barHeight);
+                ctx.fillStyle = colours[i];
+                ctx.fillRect(x - 4, barBottom - fill * barHeight, 8, fill * barHeight);
+                ctx.strokeStyle = p.grid;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x - 4.5, barTop - 0.5, 9, barHeight + 1);
+                ctx.strokeStyle = p.ink;
+                ctx.beginPath();
+                ctx.moveTo(x - 6, barBottom - 0.5 * barHeight);
+                ctx.lineTo(x + 6, barBottom - 0.5 * barHeight);
+                ctx.stroke();
+                const change = Math.round(100 * (ratio - 1));
+                ctx.fillStyle = colours[i];
+                ctx.font = font(750, 8);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(`ℓ${i + 1}`, x, 3);
+                ctx.fillText(`${change > 0 ? '+' : change < 0 ? '−' : ''}${Math.abs(change)}%`, x, 15);
+            });
+        }
+
+        // ------------------------------------------------------------------
         // simulation step
         // ------------------------------------------------------------------
         function update(dt) {
@@ -4173,6 +4637,7 @@
             renderExternal();
             renderFeed();
             drawTendonDemo(now / 1000);
+            drawPlanarToy();
             requestAnimationFrame(frame);
         }
 
