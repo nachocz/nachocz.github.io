@@ -559,6 +559,50 @@ strong {
     text-underline-offset: 0.2em;
 }
 
+/* Difficulty of a mini-game, next to its title */
+.difficulty {
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    vertical-align: 0.12em;
+}
+
+.difficulty.easy {
+    color: #17784f;
+    background: rgba(27, 158, 111, 0.13);
+}
+
+.difficulty.medium {
+    color: #8a5a00;
+    background: rgba(201, 133, 0, 0.15);
+}
+
+.difficulty.hard {
+    color: #b23434;
+    background: rgba(214, 69, 69, 0.13);
+}
+
+[data-theme="dark"] .difficulty.easy {
+    color: #5fd3a3;
+    background: rgba(60, 194, 143, 0.16);
+}
+
+[data-theme="dark"] .difficulty.medium {
+    color: #f0bf5a;
+    background: rgba(224, 165, 38, 0.16);
+}
+
+[data-theme="dark"] .difficulty.hard {
+    color: #f08a8a;
+    background: rgba(230, 103, 103, 0.16);
+}
+
 /* Footer */
 
 .site-footer {
