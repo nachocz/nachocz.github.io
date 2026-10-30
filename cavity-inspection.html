@@ -1,0 +1,3852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Cavity Inspection | Ignacio Cuiral-Zueco</title>
+    <meta name="title" content="Cavity Inspection | Ignacio Cuiral-Zueco">
+    <meta name="description" content="A browser mini-game on passive soft extensions actuated by manipulator motion: with the end effector held at an inspection port, move the joints of a UR10 in the null space of that constraint to find damaged parts with the camera at the tip of a tendon-driven soft extension.">
+    <meta name="author" content="Ignacio Cuiral-Zueco">
+    <meta name="keywords" content="soft extension, null-space control, industrial inspection, tendon-driven continuum robot, robotics mini-game">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ignaciocuiral.com/cavity-inspection.html">
+    <meta property="og:title" content="Cavity Inspection | Ignacio Cuiral-Zueco">
+    <meta property="og:description" content="Find damaged parts inside a closed housing with the tip camera of a soft extension that the robot bends only through null-space joint motion.">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Cavity Inspection | Ignacio Cuiral-Zueco">
+    <meta name="twitter:description" content="Find damaged parts inside a closed housing with the tip camera of a soft extension that the robot bends only through null-space joint motion.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ignaciocuiral.com/cavity-inspection.html">
+    <script>
+        (() => {
+            let savedTheme = null;
+            try { savedTheme = localStorage.getItem('theme'); } catch (error) { /* storage blocked */ }
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.dataset.theme = savedTheme || systemTheme;
+            document.documentElement.classList.toggle('is-embedded', window.self !== window.top);
+        })();
+    </script>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --surface-soft: #f4f5f6;
+            --ink: #1f2328;
+            --ink-soft: #3d444d;
+            --muted: #697179;
+            --line: #e3e6e9;
+            --line-strong: #c9ced3;
+            --accent: #1d5b94;
+            --accent-strong: #23282d;
+            --accent-soft: #f1f3f5;
+            --canvas: #fafbfb;
+            --found: #1b9e6f;
+            --solver: #3b6fb6;
+            --alert: #d64545;
+            --tendon1: #0d9488;
+            --tendon2: #c99512;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #15181b;
+            --surface: #15181b;
+            --surface-soft: #1e2226;
+            --ink: #e3e6e9;
+            --ink-soft: #c3c9cf;
+            --muted: #949da6;
+            --line: #2c3136;
+            --line-strong: #434a51;
+            --accent: #8dbbe8;
+            --accent-strong: #e3e6e9;
+            --accent-soft: #23282d;
+            --canvas: #1a1d20;
+            --found: #3cc28f;
+            --solver: #7fa8e6;
+            --alert: #e66767;
+            --tendon1: #2dd4bf;
+            --tendon2: #e0b23a;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 300px;
+            min-height: 100vh;
+            margin: 0;
+            padding: 18px;
+            color: var(--ink);
+            background: var(--bg);
+            font-size: 15px;
+            line-height: 1.5;
+            text-rendering: optimizeLegibility;
+        }
+
+        button {
+            font: inherit;
+            color: inherit;
+        }
+
+        :focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+            outline-offset: 2px;
+        }
+
+        .demo-shell {
+            width: min(100%, 1040px);
+            margin: 0 auto;
+            padding: 24px 0;
+        }
+
+        .standalone-back {
+            display: inline-flex;
+            margin-bottom: 13px;
+            color: var(--accent-strong);
+            font-size: 0.72rem;
+            font-weight: 750;
+            text-decoration: none;
+        }
+
+        .standalone-back:hover {
+            text-decoration: underline;
+        }
+
+        .is-embedded .standalone-back {
+            display: none;
+        }
+
+        .demo-heading {
+            margin-bottom: 16px;
+        }
+
+        .demo-topline {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .demo-kicker {
+            margin: 0;
+            color: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 750;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface-soft);
+        }
+
+        .lang-btn {
+            min-width: 36px;
+            min-height: 30px;
+            padding: 4px 9px;
+            border: 0;
+            border-radius: 999px;
+            color: var(--muted);
+            background: transparent;
+            font-size: 0.72rem;
+            font-weight: 750;
+            cursor: pointer;
+        }
+
+        .lang-btn:hover {
+            color: var(--ink);
+        }
+
+        .lang-btn.active {
+            color: var(--ink);
+            background: var(--surface);
+            box-shadow: inset 0 0 0 1px var(--line);
+        }
+
+        h1,
+        h2,
+        p {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-bottom: 7px;
+            color: var(--ink);
+            font-size: clamp(1.65rem, 4vw, 2.25rem);
+            font-weight: 680;
+            letter-spacing: -0.045em;
+            line-height: 1.05;
+        }
+
+        .demo-intro {
+            max-width: 780px;
+            margin-bottom: 0;
+            color: var(--muted);
+            font-size: 0.94rem;
+        }
+
+        /* Heads-up display */
+
+        .hud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 22px;
+            align-items: baseline;
+            padding: 8px 2px 10px;
+        }
+
+        .hud-item {
+            display: flex;
+            gap: 6px;
+            align-items: baseline;
+            color: var(--muted);
+            font-size: 0.7rem;
+        }
+
+        .hud-item output {
+            color: var(--accent-strong);
+            font-size: 0.9rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 750;
+        }
+
+        .hud-item.primary output {
+            color: var(--found);
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hud-item.site {
+            margin-right: auto;
+        }
+
+        .hud-item.site output {
+            font-size: 0.82rem;
+        }
+
+        /* Views */
+
+        .stage {
+            position: relative;
+        }
+
+        .views {
+            display: grid;
+            grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+            gap: 10px;
+        }
+
+        .view {
+            position: relative;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .view canvas {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--canvas);
+            touch-action: none;
+        }
+
+        #external {
+            cursor: grab;
+        }
+
+        #external.dragging {
+            cursor: grabbing;
+        }
+
+        #feed {
+            background: #050607;
+        }
+
+        .view figcaption {
+            position: absolute;
+            top: 9px;
+            left: 12px;
+            color: var(--muted);
+            font-size: 0.66rem;
+            font-weight: 750;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .view.camera figcaption {
+            color: rgba(230, 236, 240, 0.72);
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            border-radius: 9px;
+            background: color-mix(in srgb, var(--canvas) 40%, transparent);
+        }
+
+        .overlay[hidden] {
+            display: none;
+        }
+
+        .overlay-card {
+            width: min(100%, 390px);
+            padding: 20px 22px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--surface) 93%, transparent);
+            box-shadow: 0 12px 36px rgba(20, 26, 32, 0.14);
+            text-align: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay-card h2 {
+            margin-bottom: 6px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .overlay-card p {
+            margin-bottom: 14px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .overlay-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+
+        .overlay-stats[hidden],
+        .overlay-badge[hidden],
+        .overlay-actions .button[hidden] {
+            display: none;
+        }
+
+        .overlay-stats div {
+            padding: 7px 6px;
+            border-radius: 8px;
+            background: var(--surface-soft);
+        }
+
+        .overlay-stats dt {
+            color: var(--muted);
+            font-size: 0.66rem;
+        }
+
+        .overlay-stats dd {
+            margin: 0;
+            color: var(--ink);
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 750;
+        }
+
+        .overlay-badge {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            color: var(--found);
+            background: color-mix(in srgb, var(--found) 14%, transparent);
+            font-size: 0.7rem;
+            font-weight: 750;
+        }
+
+        .overlay-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .button {
+            min-height: 36px;
+            padding: 7px 14px;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            color: var(--ink);
+            background: var(--surface);
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color 150ms ease, background-color 150ms ease;
+        }
+
+        .button:hover:not(:disabled) {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .button:disabled {
+            cursor: default;
+            opacity: 0.45;
+        }
+
+        .button-primary {
+            min-width: 140px;
+            color: #ffffff;
+            border-color: var(--accent-strong);
+            background: var(--accent-strong);
+        }
+
+        [data-theme="dark"] .button-primary {
+            color: #15181b;
+        }
+
+        .button-primary:hover:not(:disabled) {
+            color: #ffffff;
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        [data-theme="dark"] .button-primary:hover:not(:disabled) {
+            color: #15181b;
+        }
+
+        /* Joint commands */
+
+        .joint-panel {
+            margin-top: 12px;
+            padding: 10px 14px 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface-soft);
+        }
+
+        .joint-title {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px 10px;
+            align-items: baseline;
+            margin: 0 0 6px;
+            color: var(--ink);
+            font-size: 0.76rem;
+            font-weight: 720;
+        }
+
+        .joint-title span {
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .joint-title output {
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 0.7rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 650;
+        }
+
+        .joint-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 4px 28px;
+        }
+
+        .joint {
+            display: grid;
+            grid-template-columns: 6.6rem 34px minmax(0, 1fr) 34px 3.3rem 2.6rem;
+            gap: 8px;
+            align-items: center;
+            min-height: 38px;
+            color: var(--muted);
+            font-size: 0.74rem;
+        }
+
+        .joint-symbol {
+            color: var(--accent);
+            font-weight: 750;
+        }
+
+        .jog {
+            width: 34px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            background: var(--surface);
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .jog:hover:not(:disabled) {
+            border-color: var(--accent);
+        }
+
+        .jog.held {
+            color: #ffffff;
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        [data-theme="dark"] .jog.held {
+            color: #15181b;
+        }
+
+        .jog:disabled {
+            cursor: default;
+            opacity: 0.4;
+        }
+
+        .joint-meter {
+            position: relative;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--line);
+        }
+
+        .joint-meter::before {
+            content: "";
+            position: absolute;
+            top: -3px;
+            bottom: -3px;
+            left: 50%;
+            width: 1px;
+            background: var(--line-strong);
+        }
+
+        .joint-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--surface);
+            border-radius: 50%;
+            background: var(--muted);
+            transform: translate(-50%, -50%);
+            transition: background-color 120ms ease;
+        }
+
+        .joint-dot.moving {
+            background: var(--accent);
+        }
+
+        .joint output {
+            color: var(--ink);
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+        }
+
+        .joint kbd {
+            color: var(--muted);
+            font: inherit;
+            font-size: 0.68rem;
+            text-align: right;
+        }
+
+        /* Controls and legend */
+
+        .controls-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: start;
+            margin-top: 12px;
+        }
+
+        .hint {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.75rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+            max-width: 560px;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px 18px;
+            margin: 16px 0 0;
+            padding: 14px 0 0;
+            border-top: 1px solid var(--line);
+            list-style: none;
+            font-size: 0.75rem;
+        }
+
+        .legend li {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 2px 9px;
+            color: var(--muted);
+        }
+
+        .legend strong {
+            color: var(--ink);
+            font-size: 0.78rem;
+        }
+
+        .legend-dot {
+            grid-row: span 2;
+            width: 9px;
+            height: 9px;
+            margin-top: 5px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.connector {
+            background: #d9622b;
+        }
+
+        .legend-dot.cable {
+            background: #c98500;
+        }
+
+        .legend-dot.bracket {
+            background: #b8860b;
+        }
+
+        .legend-dot.terminal {
+            background: #4a3b30;
+        }
+
+        .note {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 0.72rem;
+        }
+
+        .references {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .references h2 {
+            margin: 0 0 8px;
+            color: var(--ink);
+            font-size: 0.82rem;
+            font-weight: 720;
+        }
+
+        .reference-list {
+            margin: 0;
+            padding-left: 1.3rem;
+            color: var(--muted);
+            font-size: 0.72rem;
+            line-height: 1.5;
+        }
+
+        .reference-list li + li {
+            margin-top: 4px;
+        }
+
+        .reference-list em {
+            color: var(--ink-soft);
+        }
+
+        .reference-list a {
+            color: var(--accent);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 900px) {
+            .joint-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 10px;
+            }
+
+            .demo-shell {
+                padding: 16px 6px;
+            }
+
+            .views,
+            .controls-row,
+            .legend {
+                grid-template-columns: 1fr;
+            }
+
+            #external {
+                aspect-ratio: 16 / 11;
+            }
+
+            .joint {
+                grid-template-columns: 5.6rem 40px minmax(0, 1fr) 40px 3rem;
+            }
+
+            .jog {
+                width: 40px;
+                height: 36px;
+            }
+
+            .joint kbd {
+                display: none;
+            }
+
+            .actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="demo-shell">
+        <header class="demo-heading">
+            <a class="standalone-back" href="index.html#demos" data-i18n="backToDemos">← Back to the demos</a>
+            <div class="demo-topline">
+                <p class="demo-kicker" data-i18n="kicker">Mini-game</p>
+                <div class="language-switcher" aria-label="Language" data-i18n-aria-label="languageAria">
+                    <button class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
+                    <button class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
+                </div>
+            </div>
+            <h1 data-i18n="title">Cavity inspection</h1>
+            <p class="demo-intro" data-i18n="intro">A UR10 holds a passive soft extension with a camera and a light at its tip. Two tendons anchored on the arm bend the extension when the joints move. The end effector is held at the inspection port of a closed housing, so every joint command is projected onto the null space of that position constraint. Inspect the housing and report the three damaged parts.</p>
+        </header>
+
+        <section aria-labelledby="game-title">
+            <h2 id="game-title" class="sr-only" data-i18n="title">Cavity inspection</h2>
+            <div class="hud">
+                <div class="hud-item site"><span data-i18n="hudSite">Site</span><output id="siteValue">1 / 5</output></div>
+                <div class="hud-item primary"><span data-i18n="hudFound">Found</span><output id="foundValue">0 / 3</output></div>
+                <div class="hud-item"><span data-i18n="hudTime">Time</span><output id="timeValue">0:00</output></div>
+                <div class="hud-item"><span data-i18n="hudFalse">False reports</span><output id="falseValue">0</output></div>
+                <div class="hud-item"><span data-i18n="hudContacts">Contacts</span><output id="contactValue">0</output></div>
+                <div class="hud-item"><span data-i18n="hudDeviation">EE deviation</span><output id="deviationValue">0.00 mm</output></div>
+            </div>
+
+            <div class="stage">
+                <div class="views">
+                    <figure class="view">
+                        <canvas id="external" tabindex="0" aria-label="External view of the robot and the housing, with the soft extension inside the housing drawn in X-ray" data-i18n-aria-label="externalAria"></canvas>
+                        <figcaption data-i18n="externalCaption">External view · X-ray of the extension</figcaption>
+                    </figure>
+                    <figure class="view camera">
+                        <canvas id="feed" aria-label="Image of the camera at the tip of the soft extension" data-i18n-aria-label="feedAria"></canvas>
+                        <figcaption data-i18n="feedCaption">Tip camera</figcaption>
+                    </figure>
+                </div>
+                <div class="overlay" id="overlay">
+                    <div class="overlay-card">
+                        <p class="demo-kicker" id="overlayKicker">Mini-game</p>
+                        <h2 id="overlayTitle">Cavity inspection</h2>
+                        <span class="overlay-badge" id="overlayBadge" hidden>New best time</span>
+                        <p id="overlayText">Find the three damaged parts inside the housing.</p>
+                        <dl class="overlay-stats" id="overlayStats" hidden>
+                            <div><dt data-i18n="hudTime">Time</dt><dd id="statTime">0:00</dd></div>
+                            <div><dt data-i18n="statBest">Best</dt><dd id="statBest">0:00</dd></div>
+                            <div><dt data-i18n="hudFalse">False reports</dt><dd id="statFalse">0</dd></div>
+                            <div><dt data-i18n="hudContacts">Contacts</dt><dd id="statContacts">0</dd></div>
+                        </dl>
+                        <div class="overlay-actions">
+                            <button class="button button-primary" type="button" id="overlayButton">Start</button>
+                            <button class="button" type="button" id="overlaySecondary" hidden>Next site</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="sr-only" aria-live="polite" id="announcer"></p>
+
+            <div class="joint-panel">
+                <p class="joint-title"><span data-i18n="jointsTitle">Joint commands</span><span data-i18n="jointsSubtitle">projected onto the null space of the EE position constraint</span><output id="shareValue" aria-live="off"></output></p>
+                <div class="joint-grid" id="jointGrid"></div>
+            </div>
+
+            <div class="controls-row">
+                <p class="hint" data-i18n="hint">Hold the − and + buttons, or the keys Q/A, W/S, E/D, R/F, T/G and Y/H, to move the joints q₁ to q₆. Press Report or Space when a damaged part is inside the circle of the camera image. Drag the external view to rotate it. P pauses.</p>
+                <div class="actions">
+                    <button class="button button-primary" type="button" id="reportButton" data-i18n="report">Report damage</button>
+                    <button class="button" type="button" id="solutionButton" data-i18n="showSolution">Show solution</button>
+                    <button class="button" type="button" id="pauseButton" data-i18n="pause">Pause</button>
+                    <button class="button" type="button" id="restartButton" data-i18n="restart">Restart site</button>
+                    <button class="button" type="button" id="nextButton" data-i18n="nextSite">Next site</button>
+                </div>
+            </div>
+
+            <ul class="legend">
+                <li><span class="legend-dot connector" aria-hidden="true"></span><strong data-i18n="defect_connector">Disconnected connector</strong><span data-i18n="legendConnector">The plug lies out of its socket and its pins are exposed.</span></li>
+                <li><span class="legend-dot cable" aria-hidden="true"></span><strong data-i18n="defect_cable">Damaged cable</strong><span data-i18n="legendCable">The insulation is torn: copper conductor and loose strands.</span></li>
+                <li><span class="legend-dot bracket" aria-hidden="true"></span><strong data-i18n="defect_bracket">Cracked bracket</strong><span data-i18n="legendBracket">The upright is cracked and bent; a fragment lies next to it.</span></li>
+                <li><span class="legend-dot terminal" aria-hidden="true"></span><strong data-i18n="defect_terminal">Burnt terminal</strong><span data-i18n="legendTerminal">Soot around one terminal and a charred conductor.</span></li>
+            </ul>
+            <p class="note" data-i18n="note">Intact parts of the same four kinds are installed elsewhere in the housing. The arm, the soft extension and the controller are those of the simulations of the paper: a UR10 with a Cosserat-rod extension and two elastic tendons, whose spans set the tensions that bend the extension. A joint command u is applied as q̇ = N_c u + J_c⁺ k_c e_c, with the null-space projector N_c = I − J_c⁺ J_c of the EE position constraint, and the motion stops at the limits of the span domain identified from probing motions and at any contact. The solution runs the controller of the paper from the start configuration: the damped least-squares law in the null space of the constraint and a quadratic program with control barrier functions for the walls, the contents of the housing and the span domain drive the tip to one viewpoint per damaged part. A report is accepted when the damaged part lies within 13° of the optical axis, closer than 24 cm and in line of sight.</p>
+
+            <section class="references" aria-labelledby="references-title">
+                <h2 id="references-title" data-i18n="referencesTitle">Related work</h2>
+                <ol class="reference-list">
+                    <li>“Actuation and Control of Passive Tendon-Driven Soft Extensions Through Rigid Manipulator Motion,” <em data-i18n="companionNote">interactive companion with simulations and code</em>. <a href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer">ignaciocuiral.com/passive_soft_extension_control</a></li>
+                </ol>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const translations = {
+            en: {
+                backToDemos: '← Back to the demos',
+                kicker: 'Mini-game',
+                languageAria: 'Language',
+                title: 'Cavity inspection',
+                intro: 'A UR10 holds a passive soft extension with a camera and a light at its tip. Two tendons anchored on the arm bend the extension when the joints move. The end effector is held at the inspection port of a closed housing, so every joint command is projected onto the null space of that position constraint. Inspect the housing and report the three damaged parts.',
+                hudSite: 'Site',
+                hudFound: 'Found',
+                hudTime: 'Time',
+                hudFalse: 'False reports',
+                hudContacts: 'Contacts',
+                hudDeviation: 'EE deviation',
+                externalAria: 'External view of the robot and the housing, with the soft extension inside the housing drawn in X-ray',
+                externalCaption: 'External view · X-ray of the extension',
+                feedAria: 'Image of the camera at the tip of the soft extension',
+                feedCaption: 'Tip camera',
+                statBest: 'Best',
+                jointsTitle: 'Joint commands',
+                jointsSubtitle: 'projected onto the null space of the EE position constraint',
+                shareLabel: 'share kept by the projection',
+                joint1: 'Base',
+                joint2: 'Shoulder',
+                joint3: 'Elbow',
+                joint4: 'Wrist 1',
+                joint5: 'Wrist 2',
+                joint6: 'Wrist 3',
+                jogMinus: 'Joint {joint}, negative direction',
+                jogPlus: 'Joint {joint}, positive direction',
+                hint: 'Hold the − and + buttons, or the keys Q/A, W/S, E/D, R/F, T/G and Y/H, to move the joints q₁ to q₆. Press Report or Space when a damaged part is inside the circle of the camera image. Drag the external view to rotate it. P pauses.',
+                report: 'Report damage',
+                showSolution: 'Show solution',
+                stopSolution: 'Stop solution',
+                pause: 'Pause',
+                resume: 'Resume',
+                restart: 'Restart site',
+                nextSite: 'Next site',
+                defect_connector: 'Disconnected connector',
+                defect_cable: 'Damaged cable',
+                defect_bracket: 'Cracked bracket',
+                defect_terminal: 'Burnt terminal',
+                legendConnector: 'The plug lies out of its socket and its pins are exposed.',
+                legendCable: 'The insulation is torn: copper conductor and loose strands.',
+                legendBracket: 'The upright is cracked and bent; a fragment lies next to it.',
+                legendTerminal: 'Soot around one terminal and a charred conductor.',
+                note: 'Intact parts of the same four kinds are installed elsewhere in the housing. The arm, the soft extension and the controller are those of the simulations of the paper: a UR10 with a Cosserat-rod extension and two elastic tendons, whose spans set the tensions that bend the extension. A joint command u is applied as q̇ = N_c u + J_c⁺ k_c e_c, with the null-space projector N_c = I − J_c⁺ J_c of the EE position constraint, and the motion stops at the limits of the span domain identified from probing motions and at any contact. The solution runs the controller of the paper from the start configuration: the damped least-squares law in the null space of the constraint and a quadratic program with control barrier functions for the walls, the contents of the housing and the span domain drive the tip to one viewpoint per damaged part. A report is accepted when the damaged part lies within 13° of the optical axis, closer than 24 cm and in line of sight.',
+                referencesTitle: 'Related work',
+                companionNote: 'interactive companion with simulations and code',
+                startText: 'Three parts inside this housing are damaged. Move the joints to point the tip camera at each of them and report it when it is inside the circle.',
+                start: 'Start',
+                pausedTitle: 'Paused',
+                pausedText: 'The clock stops until you resume.',
+                completeTitle: 'Inspection complete',
+                completeText: 'All three damaged parts are reported.',
+                solvedTitle: 'Solution',
+                solvedText: 'The controller of the paper reached one viewpoint per damaged part in {seconds} s of simulated time and reported all three.',
+                tryAgain: 'Try this site',
+                newBest: 'New best time',
+                playAgain: 'Play again',
+                solutionBanner: 'Solution · controller of the paper · viewpoint {index} / {count}',
+                viewpoint: 'viewpoint',
+                reportedBy: 'reported',
+                reportedToast: 'Reported: {defect}',
+                falseToast: 'No damaged part inside the circle',
+                alreadyToast: 'This part is already reported',
+                contactToast: 'Contact with the {part}: the motion stops',
+                spanToast: 'Tendon span at the limit of the identified domain',
+                nullToast: 'This command has almost no component in the null space',
+                rangeLabel: 'range',
+                spanDomain: 'span domain',
+                eeFixed: 'p* (EE held)',
+                part_pipe: 'pipe',
+                part_column: 'column',
+                part_jbox: 'junction box',
+                part_tray: 'cable tray',
+                part_cable: 'cable',
+                part_tape: 'floor marking',
+                part_connector: 'connector',
+                part_bracket: 'bracket',
+                part_terminal: 'terminal block',
+                part_port: 'port rim',
+                part_floor: 'floor',
+                part_wall: 'wall',
+                announceReport: '{defect} reported. {found} of 3 found.',
+                announceFalse: 'False report.',
+                announceContact: 'Contact with the {part}.',
+                announceComplete: 'Inspection complete.',
+                announceSolution: 'The controller reported the {defect}.'
+            },
+            es: {
+                backToDemos: '← Volver a las demos',
+                kicker: 'Minijuego',
+                languageAria: 'Idioma',
+                title: 'Inspección de cavidades',
+                intro: 'Un UR10 sujeta una extensión blanda pasiva con una cámara y una luz en su punta. Dos tendones anclados en el brazo flexionan la extensión cuando se mueven las articulaciones. El efector final permanece en el puerto de inspección de una carcasa cerrada, de modo que cada orden articular se proyecta sobre el espacio nulo de esa restricción de posición. Inspecciona la carcasa e informa de las tres piezas dañadas.',
+                hudSite: 'Instalación',
+                hudFound: 'Encontradas',
+                hudTime: 'Tiempo',
+                hudFalse: 'Avisos falsos',
+                hudContacts: 'Contactos',
+                hudDeviation: 'Desviación del EF',
+                externalAria: 'Vista exterior del robot y de la carcasa, con la extensión blanda dentro de la carcasa dibujada en rayos X',
+                externalCaption: 'Vista exterior · rayos X de la extensión',
+                feedAria: 'Imagen de la cámara situada en la punta de la extensión blanda',
+                feedCaption: 'Cámara de la punta',
+                statBest: 'Récord',
+                jointsTitle: 'Órdenes articulares',
+                jointsSubtitle: 'proyectadas sobre el espacio nulo de la restricción de posición del EF',
+                shareLabel: 'fracción conservada por la proyección',
+                joint1: 'Base',
+                joint2: 'Hombro',
+                joint3: 'Codo',
+                joint4: 'Muñeca 1',
+                joint5: 'Muñeca 2',
+                joint6: 'Muñeca 3',
+                jogMinus: 'Articulación {joint}, sentido negativo',
+                jogPlus: 'Articulación {joint}, sentido positivo',
+                hint: 'Mantén pulsados los botones − y +, o las teclas Q/A, W/S, E/D, R/F, T/G e Y/H, para mover las articulaciones q₁ a q₆. Pulsa Informar o Espacio cuando una pieza dañada esté dentro del círculo de la imagen de la cámara. Arrastra la vista exterior para girarla. P pausa el juego.',
+                report: 'Informar de daño',
+                showSolution: 'Ver solución',
+                stopSolution: 'Detener solución',
+                pause: 'Pausa',
+                resume: 'Continuar',
+                restart: 'Reiniciar instalación',
+                nextSite: 'Siguiente instalación',
+                defect_connector: 'Conector desconectado',
+                defect_cable: 'Cable dañado',
+                defect_bracket: 'Soporte agrietado',
+                defect_terminal: 'Borne quemado',
+                legendConnector: 'La clavija está fuera de su base y sus contactos quedan expuestos.',
+                legendCable: 'El aislamiento está roto: se ven el conductor de cobre y hilos sueltos.',
+                legendBracket: 'La pieza vertical está agrietada y doblada; a su lado hay un fragmento.',
+                legendTerminal: 'Hollín alrededor de un borne y un conductor carbonizado.',
+                note: 'En otros puntos de la carcasa hay piezas intactas de los mismos cuatro tipos. El brazo, la extensión blanda y el controlador son los de las simulaciones del artículo: un UR10 con una extensión modelada como varilla de Cosserat y dos tendones elásticos, cuyas longitudes exteriores fijan las tensiones que flexionan la extensión. Una orden articular u se aplica como q̇ = N_c u + J_c⁺ k_c e_c, con el proyector N_c = I − J_c⁺ J_c sobre el espacio nulo de la restricción de posición del EF, y el movimiento se detiene en los límites del dominio de longitudes identificado con movimientos de sondeo y ante cualquier contacto. La solución ejecuta el controlador del artículo desde la configuración inicial: la ley de mínimos cuadrados amortiguados en el espacio nulo de la restricción y un programa cuadrático con funciones barrera de control para las paredes, el contenido de la carcasa y el dominio de longitudes llevan la punta a un punto de vista por cada pieza dañada. Un aviso se acepta cuando la pieza dañada está a menos de 13° del eje óptico, a menos de 24 cm y en línea de visión.',
+                referencesTitle: 'Trabajo relacionado',
+                companionNote: 'página interactiva con simulaciones y código',
+                startText: 'Tres piezas de esta carcasa están dañadas. Mueve las articulaciones para apuntar la cámara de la punta a cada una e informa cuando esté dentro del círculo.',
+                start: 'Empezar',
+                pausedTitle: 'En pausa',
+                pausedText: 'El reloj se detiene hasta que continúes.',
+                completeTitle: 'Inspección completa',
+                completeText: 'Has informado de las tres piezas dañadas.',
+                solvedTitle: 'Solución',
+                solvedText: 'El controlador del artículo ha alcanzado un punto de vista por cada pieza dañada en {seconds} s de tiempo simulado y ha informado de las tres.',
+                tryAgain: 'Probar esta instalación',
+                newBest: 'Nuevo récord',
+                playAgain: 'Jugar de nuevo',
+                solutionBanner: 'Solución · controlador del artículo · punto de vista {index} / {count}',
+                viewpoint: 'punto de vista',
+                reportedBy: 'informado',
+                reportedToast: 'Informado: {defect}',
+                falseToast: 'No hay ninguna pieza dañada dentro del círculo',
+                alreadyToast: 'Ya has informado de esta pieza',
+                contactToast: 'Contacto con {part}: el movimiento se detiene',
+                spanToast: 'Longitud de tendón en el límite del dominio identificado',
+                nullToast: 'Esta orden apenas tiene componente en el espacio nulo',
+                rangeLabel: 'distancia',
+                spanDomain: 'dominio de longitudes',
+                eeFixed: 'p* (EF fijo)',
+                part_pipe: 'la tubería',
+                part_column: 'la columna',
+                part_jbox: 'la caja de conexiones',
+                part_tray: 'la bandeja de cables',
+                part_cable: 'un cable',
+                part_tape: 'la marca del suelo',
+                part_connector: 'un conector',
+                part_bracket: 'un soporte',
+                part_terminal: 'una regleta de bornes',
+                part_port: 'el borde del puerto',
+                part_floor: 'el suelo',
+                part_wall: 'la pared',
+                announceReport: '{defect}: aviso aceptado. {found} de 3 encontradas.',
+                announceFalse: 'Aviso falso.',
+                announceContact: 'Contacto con {part}.',
+                announceComplete: 'Inspección completa.',
+                announceSolution: 'El controlador ha informado de: {defect}.'
+            }
+        };
+
+        const isEmbedded = window.self !== window.top;
+        // embedded copies keep their preferences out of the parent's storage
+        const storage = {
+            get(key) {
+                if (isEmbedded) return null;
+                try { return localStorage.getItem(key); } catch (error) { return null; }
+            },
+            set(key, value) {
+                if (isEmbedded) return;
+                try { localStorage.setItem(key, value); } catch (error) { /* storage blocked */ }
+            }
+        };
+
+        // ==================================================================
+        // simulation core (no page access): the model and the controller of
+        // the passive-soft-extension companion, the inspection cavity and
+        // the closed-loop solution. integration-test.js loads this block in
+        // Node.js and replays the solution of every site.
+        // ==================================================================
+        const Core = (() => {
+            // --------------------------------------------------------------
+            // linear algebra and QP: port of docs/js/sim/linalg.js of
+            // github.com/nachocz/passive_soft_extension_control
+            // --------------------------------------------------------------
+            const vec = (n, v = 0) => new Array(n).fill(v);
+            const zeros = (m, n) => Array.from({ length: m }, () => new Array(n).fill(0));
+            const eye = (n) => Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)));
+            const clone = (A) => A.map((row) => row.slice());
+            const add = (a, b) => a.map((v, i) => v + b[i]);
+            const sub = (a, b) => a.map((v, i) => v - b[i]);
+            const scale = (a, s) => a.map((v) => v * s);
+            const dot = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; };
+            const norm = (a) => Math.sqrt(dot(a, a));
+            const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+            const skew = (x) => [[0, -x[2], x[1]], [x[2], 0, -x[0]], [-x[1], x[0], 0]];
+            const outer = (a, b) => a.map((x) => b.map((y) => x * y));
+            const col = (A, j) => A.map((row) => row[j]);
+            const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+
+            function transpose(A) {
+                if (!A.length) return [];
+                return A[0].map((_, j) => A.map((row) => row[j]));
+            }
+
+            function matmul(A, B) {
+                const m = A.length, n = B.length ? B[0].length : 0, k = B.length;
+                const C = zeros(m, n);
+                for (let i = 0; i < m; i++) {
+                    const Ai = A[i], Ci = C[i];
+                    for (let p = 0; p < k; p++) {
+                        const a = Ai[p];
+                        if (a === 0) continue;
+                        const Bp = B[p];
+                        for (let j = 0; j < n; j++) Ci[j] += a * Bp[j];
+                    }
+                }
+                return C;
+            }
+
+            const matvec = (A, x) => A.map((row) => dot(row, x));
+
+            function vecmat(x, A) {                         // x^T A
+                const n = A.length ? A[0].length : 0, out = vec(n);
+                for (let i = 0; i < A.length; i++) {
+                    const xi = x[i];
+                    if (xi) for (let j = 0; j < n; j++) out[j] += xi * A[i][j];
+                }
+                return out;
+            }
+
+            const mscale = (A, s) => A.map((row) => row.map((v) => v * s));
+
+            // A X = B by Gaussian elimination with partial pivoting (B a vector or a matrix)
+            function solve(A, B) {
+                const n = A.length, isVec = !Array.isArray(B[0]);
+                const M = clone(A), X = isVec ? B.map((v) => [v]) : clone(B), m = X[0] ? X[0].length : 0;
+                for (let k = 0; k < n; k++) {
+                    let p = k, best = Math.abs(M[k][k]);
+                    for (let i = k + 1; i < n; i++) if (Math.abs(M[i][k]) > best) { best = Math.abs(M[i][k]); p = i; }
+                    if (p !== k) { [M[k], M[p]] = [M[p], M[k]]; [X[k], X[p]] = [X[p], X[k]]; }
+                    const piv = M[k][k];
+                    for (let i = k + 1; i < n; i++) {
+                        const f = M[i][k] / piv;
+                        if (f === 0) continue;
+                        for (let j = k; j < n; j++) M[i][j] -= f * M[k][j];
+                        for (let j = 0; j < m; j++) X[i][j] -= f * X[k][j];
+                    }
+                }
+                for (let k = n - 1; k >= 0; k--) {
+                    for (let j = 0; j < m; j++) {
+                        let s = X[k][j];
+                        for (let i = k + 1; i < n; i++) s -= M[k][i] * X[i][j];
+                        X[k][j] = s / M[k][k];
+                    }
+                }
+                return isVec ? X.map((r) => r[0]) : X;
+            }
+
+            function cholesky(A) {
+                const n = A.length, L = zeros(n, n);
+                for (let j = 0; j < n; j++) {
+                    let s = A[j][j];
+                    for (let k = 0; k < j; k++) s -= L[j][k] * L[j][k];
+                    L[j][j] = Math.sqrt(s);
+                    for (let i = j + 1; i < n; i++) {
+                        let t = A[i][j];
+                        for (let k = 0; k < j; k++) t -= L[i][k] * L[j][k];
+                        L[i][j] = t / L[j][j];
+                    }
+                }
+                return L;
+            }
+
+            function solveLower(L, b) {
+                const x = vec(b.length);
+                for (let i = 0; i < b.length; i++) {
+                    let s = b[i];
+                    for (let k = 0; k < i; k++) s -= L[i][k] * x[k];
+                    x[i] = s / L[i][i];
+                }
+                return x;
+            }
+
+            function solveUpperT(L, b) {                    // L^T x = b
+                const n = b.length, x = vec(n);
+                for (let i = n - 1; i >= 0; i--) {
+                    let s = b[i];
+                    for (let k = i + 1; k < n; k++) s -= L[k][i] * x[k];
+                    x[i] = s / L[i][i];
+                }
+                return x;
+            }
+
+            // symmetric eigendecomposition (cyclic Jacobi): ascending eigenvalues,
+            // eigenvectors as the columns of U
+            function symEig(S) {
+                const n = S.length, A = clone(S), U = eye(n);
+                for (let sweep = 0; sweep < 60; sweep++) {
+                    let off = 0;
+                    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += A[i][j] * A[i][j];
+                    if (off < 1e-30) break;
+                    for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+                        if (Math.abs(A[p][q]) < 1e-300) continue;
+                        const theta = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+                        const t = Math.sign(theta || 1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+                        const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+                        for (let k = 0; k < n; k++) {
+                            const akp = A[k][p], akq = A[k][q];
+                            A[k][p] = c * akp - s * akq; A[k][q] = s * akp + c * akq;
+                        }
+                        for (let k = 0; k < n; k++) {
+                            const apk = A[p][k], aqk = A[q][k];
+                            A[p][k] = c * apk - s * aqk; A[q][k] = s * apk + c * aqk;
+                        }
+                        for (let k = 0; k < n; k++) {
+                            const ukp = U[k][p], ukq = U[k][q];
+                            U[k][p] = c * ukp - s * ukq; U[k][q] = s * ukp + c * ukq;
+                        }
+                    }
+                }
+                const order = A.map((_, i) => i).sort((a, b) => A[a][a] - A[b][b]);
+                return { values: order.map((i) => A[i][i]), vectors: U.map((row) => order.map((i) => row[i])) };
+            }
+
+            function householderLstsq(A, b) {
+                const R = clone(A), y = b.slice(), m = R.length, n = m ? R[0].length : 0;
+                for (let k = 0; k < n; k++) {
+                    const v = [];
+                    for (let i = k; i < m; i++) v.push(R[i][k]);
+                    const alpha = -Math.sign(v[0] !== 0 ? v[0] : 1) * norm(v);
+                    v[0] -= alpha;
+                    const vv = dot(v, v);
+                    if (vv < 1e-300) continue;
+                    for (let j = k; j < n; j++) {
+                        let s = 0;
+                        for (let i = k; i < m; i++) s += v[i - k] * R[i][j];
+                        const f = 2 * s / vv;
+                        for (let i = k; i < m; i++) R[i][j] -= f * v[i - k];
+                    }
+                    let s = 0;
+                    for (let i = k; i < m; i++) s += v[i - k] * y[i];
+                    const f = 2 * s / vv;
+                    for (let i = k; i < m; i++) y[i] -= f * v[i - k];
+                }
+                const x = vec(n);
+                for (let k = n - 1; k >= 0; k--) {
+                    let s = y[k];
+                    for (let j = k + 1; j < n; j++) s -= R[k][j] * x[j];
+                    x[k] = s / R[k][k];
+                }
+                return x;
+            }
+
+            // min |E u - f| subject to u >= 0 (Lawson-Hanson)
+            function nnls(E, f, tol = 1e-12) {
+                const n = E[0].length;
+                let u = vec(n);
+                const passive = vec(n, false);
+                const ET = transpose(E);
+                for (let iteration = 0; iteration < 3 * n + 10; iteration++) {
+                    const r = sub(f, matvec(E, u));
+                    const w = matvec(ET, r);
+                    let t = -1, best = tol;
+                    for (let j = 0; j < n; j++) if (!passive[j] && w[j] > best) { best = w[j]; t = j; }
+                    if (t < 0) break;
+                    passive[t] = true;
+                    for (;;) {
+                        const idx = [];
+                        for (let j = 0; j < n; j++) if (passive[j]) idx.push(j);
+                        const z = vec(n);
+                        if (idx.length) {
+                            const sol = householderLstsq(E.map((row) => idx.map((j) => row[j])), f);
+                            idx.forEach((j, k) => { z[j] = sol[k]; });
+                        }
+                        if (idx.every((j) => z[j] > tol)) { u = z; break; }
+                        let alpha = Infinity;
+                        for (const j of idx) if (z[j] <= tol) alpha = Math.min(alpha, u[j] / (u[j] - z[j]));
+                        u = u.map((v, j) => v + alpha * (z[j] - v));
+                        for (let j = 0; j < n; j++) {
+                            if (passive[j] && !(u[j] > tol)) passive[j] = false;
+                            if (!passive[j]) u[j] = 0;
+                        }
+                    }
+                }
+                return u;
+            }
+
+            // min |y| subject to G y >= h; null if infeasible
+            function ldp(G, h) {
+                const n = G[0].length;
+                const E = [...transpose(G), h.slice()];
+                const f = vec(n + 1); f[n] = 1;
+                const u = nnls(E, f);
+                const r = sub(matvec(E, u), f);
+                if (norm(r) < 1e-10 || Math.abs(r[n]) < 1e-12) return null;
+                return r.slice(0, n).map((v) => -v / r[n]);
+            }
+
+            // min 1/2 x^T H x + g^T x subject to A x >= b; null if infeasible
+            function solveQP(H, g, A, b) {
+                const L = cholesky(H);
+                const xFree = scale(solve(H, g), -1);
+                if (!b.length) return xFree;
+                const G = A.map((row) => solveLower(L, row));            // rows of A L^-T
+                const y = ldp(G, sub(b, matvec(A, xFree)));
+                if (!y) return null;
+                return add(xFree, solveUpperT(L, y));
+            }
+
+            class Random {
+                constructor(seed = 0) { this.state = seed >>> 0; }
+                uniform() {
+                    const a = this.state = (this.state + 0x6D2B79F5) >>> 0;
+                    let t = Math.imul(a ^ (a >>> 15), 1 | a) >>> 0;
+                    t = ((t + (Math.imul(t ^ (t >>> 7), 61 | t) >>> 0)) >>> 0) ^ t;
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                }
+                normal() {
+                    const u1 = 1 - this.uniform(), u2 = this.uniform();
+                    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                }
+                normals(n) { return Array.from({ length: n }, () => this.normal()); }
+            }
+
+            // --------------------------------------------------------------
+            // plant and differential model: port of docs/js/sim/model.js
+            // (simulated UR10, Cosserat rod with two tendons, Sec. III)
+            // --------------------------------------------------------------
+            const DEG = Math.PI / 180;
+            const CONFIG = {
+                arm: {
+                    a: [0.0, -0.612, -0.5723, 0.0, 0.0, 0.0],
+                    alpha_deg: [90.0, 0.0, 0.0, 90.0, -90.0, 0.0],
+                    d: [0.1273, 0.0, 0.0, 0.163941, 0.1157, 0.0922],
+                    joint_limits_deg: [[-180, 180], [-180, 10], [-160, 160], [-180, 180], [-180, 180], [-180, 180]],
+                    q0_deg: [0.0, -70.0, 95.0, -115.0, -90.0, 0.0]
+                },
+                rod: { length: 0.320, radius: 0.009, youngs_modulus: 1.1e6, shear_modulus: 4.0e5, sections: 5, steps_per_section: 5 },
+                tendons: [
+                    { angle_deg: 0.0, routing_radius: 0.0055, stiffness: 260.0, max_tension: 14.0, anchor_link: 4, anchor_fraction: 0.75 },
+                    { angle_deg: 90.0, routing_radius: 0.0055, stiffness: 260.0, max_tension: 14.0, anchor_link: 3, anchor_fraction: 0.60 }
+                ],
+                home_tension: 1.5,
+                sensing: { plant_rate: 100.0, rate: 20.0, noise: 0.0005, body_points: 5 },
+                identification: { broyden_gain: 0.4, broyden_decay: 0.995, broyden_min_step: 0.0002 },
+                control: { rate: 50.0, k_t: 1.4, k_c: 3.0, xi: 0.04, mu: 0.04, w_c: 200.0, qdot_max: 0.30, reference_speed: 0.10 },
+                barriers: {
+                    obstacle: { alpha: 3.0, eps: 0.008, offset: 0.012, smoothing: 0.004 },
+                    span: { alpha: 4.0, eps: 0.0005 }
+                }
+            };
+
+            const tendonsOf = (config) => config.tendons.map((t) => {
+                const angle = t.angle_deg * DEG;
+                return {
+                    k: t.stiffness, tauMax: t.max_tension, link: t.anchor_link, fraction: t.anchor_fraction,
+                    entry: [t.routing_radius * Math.cos(angle), t.routing_radius * Math.sin(angle), 0]
+                };
+            });
+
+            // a frame is {R, p}: rotation (rows) and position in the world
+            function dhTransform(a, alpha, d, theta) {
+                const ct = Math.cos(theta), st = Math.sin(theta), ca = Math.cos(alpha), sa = Math.sin(alpha);
+                return { R: [[ct, -st * ca, st * sa], [st, ct * ca, -ct * sa], [0, sa, ca]], p: [a * ct, a * st, d] };
+            }
+            const compose = (A, B) => ({ R: matmul(A.R, B.R), p: add(A.p, matvec(A.R, B.p)) });
+
+            class Arm {
+                constructor(config) {
+                    this.a = config.arm.a.slice();
+                    this.alpha = config.arm.alpha_deg.map((v) => v * DEG);
+                    this.d = config.arm.d.slice();
+                    this.limits = config.arm.joint_limits_deg.map(([lo, hi]) => [lo * DEG, hi * DEG]);
+                }
+
+                frames(q) {
+                    const out = [{ R: eye(3), p: [0, 0, 0] }];
+                    for (let i = 0; i < 6; i++) out.push(compose(out[i], dhTransform(this.a[i], this.alpha[i], this.d[i], q[i])));
+                    return out;
+                }
+
+                static originJacobian(frames, k) {
+                    const J = zeros(3, 6), p = frames[k].p;
+                    for (let j = 1; j <= k; j++) {
+                        const c = cross(col(frames[j - 1].R, 2), sub(p, frames[j - 1].p));
+                        for (let i = 0; i < 3; i++) J[i][j - 1] = c[i];
+                    }
+                    return J;
+                }
+
+                static pointOnLink(frames, link, fraction) {
+                    return add(scale(frames[link - 1].p, 1 - fraction), scale(frames[link].p, fraction));
+                }
+
+                static pointJacobian(frames, link, fraction) {
+                    const A = Arm.originJacobian(frames, link - 1), B = Arm.originJacobian(frames, link);
+                    return A.map((row, i) => row.map((v, j) => (1 - fraction) * v + fraction * B[i][j]));
+                }
+
+                static geometricJacobian(frames) {
+                    const Jv = Arm.originJacobian(frames, 6);
+                    const Jw = [0, 1, 2].map((i) => [0, 1, 2, 3, 4, 5].map((j) => frames[j].R[i][2]));
+                    return [...Jv, ...Jw];
+                }
+            }
+
+            const E_Z = [0, 0, 1];
+
+            function sectionIncrement(u, ds) {
+                const k = norm(u), U = skew(u);
+                if (k < 1e-10) return { R: eye(3).map((row, i) => row.map((v, j) => v + U[i][j] * ds)), p: [0, 0, ds] };
+                const U2 = matmul(U, U), angle = k * ds;
+                const c1 = Math.sin(angle) / k, c2 = (1 - Math.cos(angle)) / (k * k), c3 = (angle - Math.sin(angle)) / (k * k * k);
+                const R = eye(3).map((row, i) => row.map((v, j) => v + c1 * U[i][j] + c2 * U2[i][j]));
+                const V = eye(3).map((row, i) => row.map((v, j) => v * ds + c2 * U[i][j] + c3 * U2[i][j]));
+                return { R, p: col(V, 2) };
+            }
+
+            // inextensible, unshearable Cosserat rod with piecewise-constant
+            // curvature; its equilibrium minimizes the elastic and tendon energy
+            class Rod {
+                constructor(config) {
+                    const rod = config.rod;
+                    this.L = rod.length;
+                    this.S = rod.sections;
+                    this.steps = rod.steps_per_section;
+                    this.ls = this.L / this.S;
+                    this.ds = this.ls / this.steps;
+                    const I = Math.PI * rod.radius ** 4 / 4;
+                    this.K = [rod.youngs_modulus * I, rod.youngs_modulus * I, rod.shear_modulus * 2 * I];
+                    const tendons = tendonsOf(config);
+                    this.m = tendons.length;
+                    this.r = tendons.map((t) => t.entry);
+                    this.k = tendons.map((t) => t.k);
+                    this.tauMax = tendons.map((t) => t.tauMax);
+                    this.rest = vec(this.m, this.L);
+                }
+
+                section(z, s) { return [z[3 * s], z[3 * s + 1], z[3 * s + 2]]; }
+
+                interiorLengths(z) {
+                    return this.r.map((r) => {
+                        let l = 0;
+                        for (let s = 0; s < this.S; s++) l += this.ls * norm(add(E_Z, cross(this.section(z, s), r)));
+                        return l;
+                    });
+                }
+
+                interiorGradient(z) {                       // J_lz, m x 3S
+                    return this.r.map((r) => {
+                        const row = [];
+                        for (let s = 0; s < this.S; s++) {
+                            const t = add(E_Z, cross(this.section(z, s), r));
+                            row.push(...scale(cross(r, scale(t, 1 / norm(t))), this.ls));
+                        }
+                        return row;
+                    });
+                }
+
+                stretch(z, spans) {
+                    const lin = this.interiorLengths(z);
+                    const e = spans.map((s, i) => s + lin[i] - this.rest[i]);
+                    const tau = e.map((v, i) => Math.min(Math.max(this.k[i] * v, 0), this.tauMax[i]));
+                    const active = e.map((v, i) => v > 0 && this.k[i] * v < this.tauMax[i]);
+                    return { e, tau, active };
+                }
+
+                energy(z, spans) {
+                    let elastic = 0;
+                    for (let i = 0; i < z.length; i++) elastic += z[i] * z[i] * this.K[i % 3];
+                    elastic *= 0.5 * this.ls;
+                    const { e } = this.stretch(z, spans);
+                    let cable = 0;
+                    e.forEach((ei, i) => {
+                        if (ei <= 0) return;
+                        const k = this.k[i], t = this.tauMax[i];
+                        cable += k * ei <= t ? 0.5 * k * ei * ei : t * ei - 0.5 * t * t / k;
+                    });
+                    return elastic + cable;
+                }
+
+                gradient(z, spans) {
+                    const { tau } = this.stretch(z, spans);
+                    const g = z.map((v, i) => this.ls * v * this.K[i % 3]);
+                    const J = this.interiorGradient(z);
+                    J.forEach((row, i) => { for (let j = 0; j < g.length; j++) g[j] += tau[i] * row[j]; });
+                    return g;
+                }
+
+                loadHessian(z, tau) {
+                    const n = 3 * this.S, H = zeros(n, n);
+                    for (let i = 0; i < n; i++) H[i][i] = this.ls * this.K[i % 3];
+                    this.r.forEach((r, i) => {
+                        if (tau[i] === 0) return;
+                        const Rx = skew(r);
+                        for (let s = 0; s < this.S; s++) {
+                            const t = add(E_Z, cross(this.section(z, s), r)), nt = norm(t), th = scale(t, 1 / nt);
+                            const P = eye(3).map((row, a) => row.map((v, b) => v - th[a] * th[b]));
+                            const B = matmul(matmul(transpose(Rx), P), Rx);
+                            for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) H[3 * s + a][3 * s + b] += tau[i] * this.ls * B[a][b] / nt;
+                        }
+                    });
+                    return H;
+                }
+
+                hessian(z, spans) {
+                    const { tau, active } = this.stretch(z, spans);
+                    const H = this.loadHessian(z, tau), J = this.interiorGradient(z);
+                    J.forEach((row, i) => {
+                        if (!active[i]) return;
+                        for (let a = 0; a < row.length; a++) for (let b = 0; b < row.length; b++) H[a][b] += this.k[i] * row[a] * row[b];
+                    });
+                    return H;
+                }
+
+                solve(spans, z0 = null, tol = 1e-13, maxIter = 60) {
+                    let z = z0 ? z0.slice() : vec(3 * this.S);
+                    for (let it = 0; it < maxIter; it++) {
+                        const g = this.gradient(z, spans);
+                        if (norm(g) < tol) return { z, iterations: it };
+                        const step = solve(this.hessian(z, spans), g);
+                        const slope = dot(g, step);
+                        let t = 1;
+                        if (slope > 1e-14) {
+                            const u0 = this.energy(z, spans);
+                            while (t > 1e-6 && this.energy(sub(z, scale(step, t)), spans) > u0 - 1e-4 * t * slope) t *= 0.5;
+                        }
+                        z = sub(z, scale(step, t));
+                    }
+                    return { z, iterations: maxIter };
+                }
+
+                integrate(z) {
+                    let R = eye(3), p = [0, 0, 0];
+                    const points = [p.slice()], rotations = [clone(R)];
+                    for (let s = 0; s < this.S; s++) {
+                        const inc = sectionIncrement(this.section(z, s), this.ds);
+                        for (let k = 0; k < this.steps; k++) {
+                            p = add(p, matvec(R, inc.p));
+                            R = matmul(R, inc.R);
+                            points.push(p.slice());
+                            rotations.push(clone(R));
+                        }
+                    }
+                    return { points, rotations };
+                }
+            }
+
+            class Plant {
+                constructor(config, calibrationIterations = 8, initialExcess = 0.055) {
+                    this.config = config;
+                    this.arm = new Arm(config);
+                    this.tendons = tendonsOf(config);
+                    this.rod = new Rod(config);
+                    const samples = this.rod.S * this.rod.steps + 1, k = config.sensing.body_points;
+                    this.bodyIndex = [...new Set(Array.from({ length: k }, (_, i) => Math.trunc(i * (samples - 1) / (k - 1))))];
+                    this.q0 = config.arm.q0_deg.map((v) => v * DEG);
+                    // rest lengths calibrated for the home tension at q0
+                    this.rod.rest = vec(this.rod.m, this.rod.L + initialExcess);
+                    for (let it = 0; it < calibrationIterations; it++) {
+                        const spans = this.spans(this.q0);
+                        const { z } = this.rod.solve(spans);
+                        const lin = this.rod.interiorLengths(z);
+                        this.rod.rest = spans.map((s, i) => this.rod.L + Math.max(s + lin[i] - this.rod.L - config.home_tension / this.rod.k[i], 0));
+                    }
+                    this.z = null;
+                }
+
+                endpoints(frames) {
+                    const B = frames[6];
+                    return {
+                        anchors: this.tendons.map((t) => Arm.pointOnLink(frames, t.link, t.fraction)),
+                        entries: this.tendons.map((t) => add(B.p, matvec(B.R, t.entry)))
+                    };
+                }
+
+                spans(q) {
+                    const { anchors, entries } = this.endpoints(this.arm.frames(q));
+                    return anchors.map((a, i) => norm(sub(a, entries[i])));
+                }
+
+                evaluate(q, warm = true) {
+                    q = q.slice();
+                    const frames = this.arm.frames(q);
+                    const { anchors, entries } = this.endpoints(frames);
+                    const spans = anchors.map((a, i) => norm(sub(a, entries[i])));
+                    const { z } = this.rod.solve(spans, warm ? this.z : null);
+                    this.z = z;
+                    const { tau } = this.rod.stretch(z, spans);
+                    const { points, rotations } = this.rod.integrate(z);
+                    const B = frames[6];
+                    const centerline = points.map((p) => add(B.p, matvec(B.R, p)));
+                    return {
+                        q, frames, anchors, entries, spans, tensions: tau, z, centerline,
+                        R_B: B.R, p_B: B.p, p_D: centerline[centerline.length - 1],
+                        R_D: matmul(B.R, rotations[rotations.length - 1]),
+                        bodyPoints: this.bodyIndex.map((i) => centerline[i])
+                    };
+                }
+
+                reset() { this.z = null; }
+            }
+
+            function spanJacobian(plant, frames) {         // J_lq (3)-(4)
+                const JB = Arm.geometricJacobian(frames), R_B = frames[6].R;
+                const { anchors, entries } = plant.endpoints(frames);
+                return plant.tendons.map((t, i) => {
+                    const diff = sub(anchors[i], entries[i]), d = scale(diff, 1 / norm(diff));
+                    const Ja = Arm.pointJacobian(frames, t.link, t.fraction);
+                    const S = matmul(skew(matvec(R_B, t.entry)), JB.slice(3));
+                    return vecmat(d, Ja.map((row, a) => row.map((v, j) => v - JB[a][j] + S[a][j])));
+                });
+            }
+
+            function transportJacobian(JB, pB, pD) {        // J_transport (8)
+                const S = matmul(skew(sub(pD, pB)), JB.slice(3));
+                return [...JB.slice(0, 3).map((row, i) => row.map((v, j) => v - S[i][j])), ...JB.slice(3).map((row) => row.slice())];
+            }
+
+            function distalJacobian(Jtr, RB, Jspan, Jlq) {   // J_D (9)
+                const D = matmul(Jspan, Jlq);
+                const top = matmul(RB, D.slice(0, 3)), bottom = matmul(RB, D.slice(3));
+                return Jtr.map((row, i) => row.map((v, j) => v + (i < 3 ? top[i][j] : bottom[i - 3][j])));
+            }
+
+            // the identified model of the controller at the measured tip (10)-(11)
+            function differential(plant, frames, tip, spans, spanMap) {
+                const JB = Arm.geometricJacobian(frames), R_B = frames[6].R;
+                const Jlq = spanJacobian(plant, frames);
+                const Jtr = transportJacobian(JB, frames[6].p, tip);
+                const Jspan = [...spanMap.tipJacobian(spans), ...zeros(3, spans.length)];
+                const local = spanMap.predictShape(spans), sens = spanMap.shapeJacobian(spans);
+                const Jw = JB.slice(3);
+                const Jp = local.map((lp, k) => {
+                    const S = matmul(skew(matvec(R_B, lp)), Jw), D = matmul(matmul(R_B, sens[k]), Jlq);
+                    return JB.slice(0, 3).map((row, i) => row.map((v, j) => v - S[i][j] + D[i][j]));
+                });
+                const JD = distalJacobian(Jtr, R_B, Jspan, Jlq);
+                return { JB, Jlq, Jt: JD.slice(0, 3), Jp };
+            }
+
+            // span-to-deformation map identified from probing motions: polynomial
+            // of the spans with an online secant correction
+            class SpanMap {
+                constructor(degree = 4) {
+                    this.degree = degree;
+                    this.gain = 0.4; this.decay = 0.995; this.minStep = 2e-4;
+                }
+
+                terms(m) {
+                    if (this._terms && this._terms.m === m) return this._terms;
+                    const out = [];
+                    const rec = (prefix) => {
+                        if (prefix.length === m) { if (prefix.reduce((a, b) => a + b, 0) <= this.degree) out.push(prefix); return; }
+                        for (let p = 0; p <= this.degree; p++) rec([...prefix, p]);
+                    };
+                    rec([]);
+                    out.sort((a, b) => {
+                        const sa = a.reduce((x, y) => x + y, 0), sb = b.reduce((x, y) => x + y, 0);
+                        if (sa !== sb) return sa - sb;
+                        for (let i = 0; i < m; i++) if (a[i] !== b[i]) return a[i] - b[i];
+                        return 0;
+                    });
+                    this._terms = Object.assign(out, { m });
+                    return this._terms;
+                }
+
+                features(spans) {
+                    const x = spans.map((s, i) => (s - this.centre[i]) / this.scale[i]);
+                    return this.terms(x.length).map((p) => p.reduce((acc, power, i) => acc * x[i] ** power, 1));
+                }
+
+                featureGradient(spans) {
+                    const x = spans.map((s, i) => (s - this.centre[i]) / this.scale[i]);
+                    return this.terms(x.length).map((p) => p.map((power, i) => {
+                        if (!power) return 0;
+                        let others = 1;
+                        for (let j = 0; j < x.length; j++) if (j !== i) others *= x[j] ** p[j];
+                        return power * x[i] ** (power - 1) * others / this.scale[i];
+                    }));
+                }
+
+                tipJacobian(spans) {                         // 3 x m, with the online correction
+                    const base = matmul(transpose(this.coef), this.featureGradient(spans));
+                    return base.map((row, i) => row.map((v, j) => v + this.residual[i][j]));
+                }
+
+                predictShape(spans) {
+                    const flat = vecmat(this.features(spans), this.shape);
+                    return Array.from({ length: this.shapePoints }, (_, k) => flat.slice(3 * k, 3 * k + 3));
+                }
+
+                shapeJacobian(spans) {                       // (k, 3, m)
+                    const flat = matmul(transpose(this.shape), this.featureGradient(spans));
+                    return Array.from({ length: this.shapePoints }, (_, k) => flat.slice(3 * k, 3 * k + 3));
+                }
+
+                update(spans, previous, stepTipLocal) {
+                    const step = sub(spans, previous);
+                    if (norm(step) < this.minStep) { this.residual = this.residual.map((row) => row.map((v) => this.decay * v)); return; }
+                    const predicted = matvec(this.tipJacobian(spans), step);
+                    const c = outer(sub(stepTipLocal, predicted), step), ss = dot(step, step);
+                    this.residual = this.residual.map((row, i) => row.map((v, j) => v + this.gain * c[i][j] / ss));
+                }
+
+                reset() { this.residual = zeros(3, this.centre.length); }
+
+                static fromData(data, config) {
+                    const out = new SpanMap(data.degree);
+                    out.centre = data.centre.slice();
+                    out.scale = data.scale.slice();
+                    out.coef = data.coefficients.map((row) => row.slice(0, 3));
+                    out.shape = data.shape_coefficients.map((row) => row.slice());
+                    out.shapePoints = data.shape_points;
+                    out.lower = data.span_min_m.slice();
+                    out.upper = data.span_max_m.slice();
+                    const c = config.identification;
+                    out.gain = c.broyden_gain; out.decay = c.broyden_decay; out.minStep = c.broyden_min_step;
+                    out.reset();
+                    return out;
+                }
+
+                copy() {
+                    const out = Object.assign(new SpanMap(this.degree), this);
+                    out.residual = this.residual.map((row) => row.slice());
+                    out._terms = null;
+                    return out;
+                }
+            }
+
+            // span map identified by the simulator of the paper (data/model.json)
+            const SPAN_MAP_DATA = {"degree":4,"centre":[0.153445125777,0.403391878308],"scale":[0.00579774145196,0.00612790490541],"coefficients":[[0.0836717850228,0.0637793307388,0.295951352282],[-0.00202776303612,0.0546046465305,-0.0142311148091],[0.048408309279,-0.00194473884871,-0.0177900739592],[-0.000790202658535,-0.00423699834852,-0.00579339970317],[-0.00135905040381,-0.00137436009429,0.000399583940557],[-0.00528715459019,-0.000759407324323,-0.00504610655302],[5.41036757666e-05,-0.00427877585958,4.11548061734e-05],[-0.000626287012539,2.02808499419e-05,0.000229639304841],[0.000132836399302,-0.000415239133209,9.73748631799e-05],[-0.00100578607114,7.45883054822e-05,0.000177915836025],[-4.91306590655e-05,0.0023473254601,9.07471383226e-05],[-1.096352515e-06,5.76000513379e-05,4.00991902079e-05],[0.000276567101465,-5.55993549152e-05,1.04808411931e-05],[6.02083015349e-05,-4.82919128147e-05,3.0612255991e-05],[0.00141452239476,0.000140930167795,4.91615917498e-05]],"shape_points":5,"shape_coefficients":[[-4.18764148663e-06,-6.66716851787e-06,8.82539545657e-06,0.00502572009557,0.00382896335419,0.0765171779758,0.019887235694,0.0151489986172,0.150897210135,0.0491490605954,0.037428496499,0.232556285471,0.0836485225392,0.0638095255767,0.296007573427],[-1.81304094052e-05,-3.03658878768e-05,1.51285152801e-05,-1.5508016914e-06,0.00336408529303,-0.000286103437823,-0.000118161376647,0.0131894826028,-0.00160979983727,-0.00072158510765,0.0324479086686,-0.00636585216062,-0.00206459953574,0.0546532894154,-0.0142500134868],[1.26304048976e-05,3.06551317691e-05,-6.40239381815e-05,0.00298467709673,-4.2466954328e-05,-0.000304712843543,0.0119803946886,-5.79975324069e-05,-0.00202768108602,0.0290463746961,-0.000680109050932,-0.00784834086822,0.048395156272,-0.00190486550799,-0.0177938802255],[2.33449906567e-05,1.28381339011e-05,5.36841743349e-05,-6.08911764268e-05,-0.000255782504452,-9.06383526856e-05,-0.000101497373476,-0.000669948293756,-0.000717152403961,-0.000272460409001,-0.00197114048125,-0.00263583674479,-0.000730562696571,-0.00427773598904,-0.00582752806483],[5.48652819647e-05,-3.62363003473e-05,-4.60495309456e-05,-6.82291599883e-05,-1.49959177612e-05,-6.66627858822e-05,-6.43216946402e-05,5.95132424036e-06,-2.5796421655e-05,-0.000555949015532,-0.000406442583463,0.000196055578438,-0.0015038430789,-0.00134181814591,0.000374431531813],[-4.67309749923e-06,6.18954392207e-06,-1.24078206124e-05,-0.000200098205371,-6.88452874662e-06,-0.000193403463955,-0.00087350517885,-9.30010893526e-05,-0.000614483611079,-0.00254634847606,-0.000327644694945,-0.0024067313814,-0.00529083465203,-0.000839379767667,-0.00512677925406],[4.19482770933e-06,1.80241487317e-05,1.41980860612e-05,-4.39460965171e-06,-0.000237980570054,3.3680555624e-05,-4.16436448849e-06,-0.000895175305953,-3.19290847483e-05,2.8129038535e-05,-0.00239410839645,-3.600796914e-05,7.40734234587e-05,-0.00430644594849,2.24045879824e-05],[-1.69329367954e-05,-3.59950452304e-05,1.11708376135e-05,-1.46512716053e-06,1.36514393071e-05,-2.64689217601e-05,-8.07465582193e-05,-5.66865748189e-06,3.97214446982e-06,-0.000285589552845,4.03093401861e-05,2.29429810308e-05,-0.000621599824046,-2.19439119348e-05,0.00022790504111],[2.27501423015e-05,4.05830096096e-06,-4.14928600063e-05,-9.39186906996e-06,-4.6335902992e-06,6.40606605679e-06,4.92015477935e-05,-1.4225407026e-05,7.04976869378e-06,0.000111254607743,-0.000173417757516,6.53620725028e-05,0.000148420784021,-0.000388646563831,0.000130311960856],[-6.23007893724e-06,1.5643487025e-05,4.25613004241e-05,-2.43383870319e-05,1.74902472474e-05,3.09558826158e-05,-0.000188520936385,-1.55806872146e-05,6.38814035202e-06,-0.000499989465953,1.90784931985e-05,-6.05072036908e-06,-0.000992756685806,7.07905886852e-05,0.000183717133334],[-7.60866850618e-06,9.40804224206e-07,-2.49658386589e-05,1.4309681717e-05,0.000178114663766,-8.52543447902e-06,3.88942696971e-06,0.000545704135345,3.12178401348e-05,-3.1296816039e-05,0.00135497214125,4.51374336749e-05,-6.63745940526e-05,0.00236426870766,0.000113612522426],[-7.42488144115e-06,1.89408730712e-05,3.31316448582e-05,-1.7205919293e-06,-5.26320105435e-06,5.86368468035e-05,-2.67817917488e-05,-6.83370084856e-06,-1.28007347284e-05,2.36014327147e-06,2.34263573639e-05,-7.20651122828e-06,5.44884544779e-05,4.14267824283e-05,1.82326509222e-05],[1.4933010891e-05,-1.58134416953e-05,-3.32043474466e-05,2.52750888286e-05,1.34206374477e-05,1.06837179086e-05,9.96522577817e-05,1.07083994174e-05,7.53788589713e-06,0.000126804614231,-7.28357824836e-05,2.94587791433e-05,0.000212173231996,-4.75601196228e-05,3.29907651616e-05],[-3.65473169282e-05,-4.71844036421e-06,7.43838627943e-06,3.69416790206e-05,4.68553345939e-06,-1.40022703807e-05,-8.45821510608e-06,-3.83131459515e-05,2.46807321774e-05,4.49636330589e-05,-5.62139686751e-05,-4.54625236097e-05,0.00010011838836,-8.28090196909e-05,7.52707742077e-05],[1.1939532887e-05,9.41024435926e-06,9.13879210496e-06,7.54187672088e-05,4.3591346397e-06,4.25745066112e-05,0.000327064298389,2.76400346456e-05,-1.87306029709e-06,0.000826901390871,9.56858998406e-05,4.25236356732e-05,0.00144248620185,0.000174126233897,6.13491924622e-05]],"span_min_m":[0.142164266424,0.394353120444],"span_max_m":[0.162139859459,0.41434254806]};
+
+            // --------------------------------------------------------------
+            // controller of Sec. IV: port of docs/js/sim/control.js
+            // --------------------------------------------------------------
+            // EE position constraint (Table II): e_c = p* - p_B, d e_c / dt = -J_c qdot
+            class PositionConstraint {
+                constructor(pStar) { this.pStar = pStar.slice(); }
+                error(frames) { return sub(this.pStar, frames[6].p); }
+                jacobian(frames, JB) { return JB.slice(0, 3).map((row) => row.slice()); }
+                deviation(frames) { return norm(this.error(frames)); }
+            }
+
+            function pinv(J) {
+                return matmul(transpose(J), solve(matmul(J, transpose(J)), eye(J.length)));
+            }
+
+            function projector(J) {                          // N_c = I - J_c^+ J_c (13)
+                const P = matmul(pinv(J), J);
+                return eye(6).map((row, i) => row.map((v, j) => v - P[i][j]));
+            }
+
+            // obstacle of the barriers (Table III): signed distance to a box or a sphere
+            class Obstacle {
+                constructor(name, kind, center, size) {
+                    this.name = name; this.kind = kind; this.center = center.slice();
+                    this.size = kind === 'box' ? size.slice() : [size];
+                }
+
+                distance(p) {
+                    const offset = sub(p, this.center);
+                    if (this.kind === 'sphere') {
+                        const d = norm(offset);
+                        if (d < 1e-12) return [-this.size[0], [1, 0, 0]];
+                        return [d - this.size[0], scale(offset, 1 / d)];
+                    }
+                    const sign = offset.map((v) => (v >= 0 ? 1 : -1));
+                    const delta = offset.map((v, i) => Math.abs(v) - 0.5 * this.size[i]);
+                    const outside = delta.map((v) => Math.max(v, 0)), length = norm(outside);
+                    if (length > 1e-12) return [length, outside.map((v, i) => sign[i] * v / length)];
+                    let axis = 0;
+                    for (let i = 1; i < 3; i++) if (delta[i] > delta[axis]) axis = i;
+                    const grad = [0, 0, 0]; grad[axis] = sign[axis];
+                    return [delta[axis], grad];
+                }
+
+                closestFraction(a, b) {
+                    const edge = sub(b, a), length = dot(edge, edge);
+                    if (length < 1e-18) return 0;
+                    if (this.kind === 'sphere') return clamp(dot(sub(this.center, a), edge) / length, 0, 1);
+                    const at = (x) => this.distance(add(a, scale(edge, x)))[0];
+                    const golden = 0.5 * (Math.sqrt(5) - 1);
+                    let lo = 0, hi = 1, x1 = hi - golden * (hi - lo), x2 = lo + golden * (hi - lo), f1 = at(x1), f2 = at(x2);
+                    for (let k = 0; k < 60; k++) {
+                        if (f1 <= f2) { hi = x2; x2 = x1; f2 = f1; x1 = hi - golden * (hi - lo); f1 = at(x1); }
+                        else { lo = x1; x1 = x2; f1 = f2; x2 = lo + golden * (hi - lo); f2 = at(x2); }
+                    }
+                    let best = 0.5 * (lo + hi);
+                    for (const end of [0, 1]) if (at(end) < at(best)) best = end;
+                    return best;
+                }
+            }
+
+            // clearance of the predicted body polyline, smoothed over its segments
+            function obstacleRow(obstacle, points, jacobians, cfg) {
+                const dist = [], dirs = [], fracs = [];
+                for (let k = 0; k + 1 < points.length; k++) {
+                    const a = points[k], b = points[k + 1], f = obstacle.closestFraction(a, b);
+                    const [gap, n] = obstacle.distance(add(a, scale(sub(b, a), f)));
+                    dist.push(gap - cfg.offset); dirs.push(n); fracs.push(f);
+                }
+                const floor = Math.min(...dist);
+                const w = dist.map((d) => Math.exp(-(d - floor) / cfg.smoothing)), total = w.reduce((x, y) => x + y, 0);
+                const h = floor - cfg.smoothing * Math.log(total);
+                const grad = vec(6);
+                dirs.forEach((n, k) => {
+                    const share = w[k] / total, f = fracs[k];
+                    const moved = jacobians[k].map((row, i) => row.map((v, j) => (1 - f) * v + f * jacobians[k + 1][i][j]));
+                    const g = vecmat(n, moved);
+                    for (let j = 0; j < 6; j++) grad[j] += share * g[j];
+                });
+                return { name: obstacle.name, h, grad, alpha: cfg.alpha, eps: cfg.eps };
+            }
+
+            // the spans stay in the domain L of the identified map
+            function spanRows(spans, Jlq, lower, upper, cfg) {
+                const rows = [];
+                spans.forEach((s, i) => {
+                    rows.push({ name: `span ${i + 1} lower`, h: s - lower[i], grad: Jlq[i].slice(), alpha: cfg.alpha, eps: cfg.eps });
+                    rows.push({ name: `span ${i + 1} upper`, h: upper[i] - s, grad: Jlq[i].map((v) => -v), alpha: cfg.alpha, eps: cfg.eps });
+                });
+                return rows;
+            }
+
+            // A^T f(A A^T) r with the damped-inverse filter f(l) = 1 / (l + xi^2) (18), (24)
+            function spectralVelocity(A, r, xi) {
+                const { values, vectors } = symEig(matmul(A, transpose(A)));
+                const coeff = vecmat(r, vectors).map((v, i) => v / (values[i] + xi * xi));
+                return vecmat(matvec(vectors, coeff), A);
+            }
+
+            class Controller {
+                constructor(plant, constraint, spanMap, obstacles) {
+                    Object.assign(this, { plant, constraint, spanMap, obstacles });
+                    const c = plant.config.control;
+                    Object.assign(this, { k_t: c.k_t, k_c: c.k_c, xi: c.xi, mu: c.mu, w_c: c.w_c, qdotMax: c.qdot_max });
+                }
+
+                rows(frames, spans, diff) {
+                    const cfg = this.plant.config.barriers;
+                    const rows = spanRows(spans, diff.Jlq, this.spanMap.lower, this.spanMap.upper, cfg.span);
+                    const B = frames[6];
+                    const points = this.spanMap.predictShape(spans).map((lp) => add(B.p, matvec(B.R, lp)));
+                    for (const o of this.obstacles) rows.push(obstacleRow(o, points, diff.Jp, cfg.obstacle));
+                    return rows;
+                }
+
+                // tip reference -> joint rates: null-space DLS law (14)-(18) filtered
+                // by the barrier QP (19)
+                command(q, tip, reference) {
+                    const frames = this.plant.arm.frames(q);
+                    const { anchors, entries } = this.plant.endpoints(frames);
+                    const spans = anchors.map((a, i) => norm(sub(a, entries[i])));
+                    const diff = differential(this.plant, frames, tip, spans, this.spanMap);
+                    const { Jt } = diff;
+                    const ec = this.constraint.error(frames), Jc = this.constraint.jacobian(frames, diff.JB);
+                    const vStar = scale(sub(reference, tip), this.k_t);
+                    const qdotC = matvec(pinv(Jc), scale(ec, this.k_c));
+                    const Nc = projector(Jc);
+                    const A = matmul(Jt, Nc);
+                    const vRes = sub(vStar, matvec(Jt, qdotC));
+                    const nominal = add(qdotC, matvec(Nc, spectralVelocity(A, vRes, this.xi)));
+                    const rows = this.rows(frames, spans, diff);
+                    const JtT = transpose(Jt), JcT = transpose(Jc);
+                    let H = matmul(JtT, Jt);
+                    H = H.map((row, i) => row.map((v, j) => v + this.w_c * dot(JcT[i], JcT[j]) + (i === j ? this.mu * this.mu : 0)));
+                    const g = scale(add(matvec(JtT, vStar), scale(matvec(JcT, ec), this.w_c * this.k_c)), -1);
+                    const I6 = eye(6);
+                    const A_in = [...rows.map((r) => r.grad), ...I6, ...mscale(I6, -1)];
+                    const rhs = rows.map((r) => -r.alpha * (r.h - r.eps)), bounds = vec(12, -this.qdotMax);
+                    let qdot = solveQP(H, g, A_in, [...rhs, ...bounds]);
+                    if (!qdot) qdot = solveQP(H, g, A_in, [...rhs.map((v) => Math.min(v, 0)), ...bounds]);
+                    if (!qdot) qdot = nominal;
+                    return { qdot: qdot.map((v) => clamp(v, -this.qdotMax, this.qdotMax)), rows, nominal };
+                }
+            }
+
+            function advanceReference(reference, goal, speed, dt) {
+                const delta = sub(goal, reference), d = norm(delta);
+                return d <= speed * dt ? goal.slice() : add(reference, scale(delta, speed * dt / d));
+            }
+
+            // --------------------------------------------------------------
+            // inspection cavity: a closed housing whose top plate has a port
+            // under the EE; the soft extension hangs through the port
+            // --------------------------------------------------------------
+            const ROOM = { min: [-1.17, -0.45, -0.03], max: [-0.50, 0.07, 0.345] };
+            const PLATE = 0.012;                 // top plate thickness
+            const PORT_RADIUS = 0.045;
+            const ROD_RADIUS = CONFIG.rod.radius;
+            const CAPSULE = 1, SPHERE = 2, BOX = 3;
+            const PATTERN = { none: 0, wall: 1, floor: 2, hazard: 3 };
+
+            // linear-RGB albedo, specular weight and exponent, procedural pattern
+            const MATERIALS = [
+                { name: 'wall', rgb: [0.30, 0.33, 0.36], spec: 0.12, gloss: 10, pattern: PATTERN.wall },
+                { name: 'floor', rgb: [0.20, 0.21, 0.22], spec: 0.10, gloss: 8, pattern: PATTERN.floor },
+                { name: 'port', rgb: [0.02, 0.02, 0.02], spec: 0, gloss: 1, pattern: PATTERN.none },
+                { name: 'steel', rgb: [0.46, 0.48, 0.51], spec: 0.55, gloss: 30, pattern: PATTERN.none },
+                { name: 'pipe', rgb: [0.30, 0.42, 0.36], spec: 0.40, gloss: 22, pattern: PATTERN.none },
+                { name: 'cableBlack', rgb: [0.035, 0.035, 0.04], spec: 0.35, gloss: 28, pattern: PATTERN.none },
+                { name: 'cableGrey', rgb: [0.30, 0.31, 0.33], spec: 0.30, gloss: 24, pattern: PATTERN.none },
+                { name: 'cableBlue', rgb: [0.04, 0.12, 0.40], spec: 0.30, gloss: 24, pattern: PATTERN.none },
+                { name: 'cableGreen', rgb: [0.20, 0.42, 0.06], spec: 0.30, gloss: 24, pattern: PATTERN.none },
+                { name: 'plug', rgb: [0.06, 0.065, 0.07], spec: 0.25, gloss: 20, pattern: PATTERN.none },
+                { name: 'socket', rgb: [0.62, 0.58, 0.46], spec: 0.15, gloss: 12, pattern: PATTERN.none },
+                { name: 'hole', rgb: [0.01, 0.01, 0.01], spec: 0, gloss: 1, pattern: PATTERN.none },
+                { name: 'copper', rgb: [0.85, 0.38, 0.12], spec: 0.90, gloss: 40, pattern: PATTERN.none },
+                { name: 'terminal', rgb: [0.72, 0.72, 0.68], spec: 0.20, gloss: 16, pattern: PATTERN.none },
+                { name: 'screw', rgb: [0.55, 0.56, 0.58], spec: 0.80, gloss: 40, pattern: PATTERN.none },
+                { name: 'bracket', rgb: [0.55, 0.37, 0.03], spec: 0.25, gloss: 18, pattern: PATTERN.none },
+                { name: 'jbox', rgb: [0.52, 0.53, 0.51], spec: 0.20, gloss: 14, pattern: PATTERN.none },
+                { name: 'hazard', rgb: [0.75, 0.55, 0.02], spec: 0.15, gloss: 10, pattern: PATTERN.hazard },
+                { name: 'charred', rgb: [0.05, 0.035, 0.025], spec: 0.05, gloss: 6, pattern: PATTERN.none }
+            ];
+            const MAT = Object.fromEntries(MATERIALS.map((m, i) => [m.name, i]));
+            const ROOM_MATERIAL = [MAT.wall, MAT.wall, MAT.wall, MAT.wall, MAT.floor, MAT.wall];
+
+            const normalize = (a) => scale(a, 1 / norm(a));
+
+            // a point o on a surface with outward normal n; u and v span the
+            // surface, u at `angle` from a horizontal (walls) or x-aligned (floor) tangent
+            function surfaceFrame(o, n, angle = 0) {
+                const ref = Math.abs(n[2]) > 0.9 ? [0, 1, 0] : [0, 0, 1];
+                const t1 = normalize(cross(ref, n)), t2 = cross(n, t1);
+                const u = add(scale(t1, Math.cos(angle)), scale(t2, Math.sin(angle)));
+                return { o, n, u, v: cross(n, u) };
+            }
+            const at = (F, a, b, c) => [0, 1, 2].map((i) => F.o[i] + a * F.u[i] + b * F.v[i] + c * F.n[i]);
+
+            class SceneBuilder {
+                constructor() {
+                    this.prims = [];
+                    this.groups = [];
+                    this.decals = [];
+                    this.defects = [];
+                }
+
+                // a group is one component; `flush` groups lie on a surface and
+                // need no barrier of their own
+                group(label, flush = false) {
+                    const g = { id: this.groups.length, label, flush, prims: [] };
+                    this.groups.push(g);
+                    return g;
+                }
+
+                add(g, prim, mat) {
+                    prim.mat = MAT[mat];
+                    prim.owner = g.id;
+                    g.prims.push(prim);
+                    this.prims.push(prim);
+                    return prim;
+                }
+
+                capsule(g, a, b, r, mat) {
+                    const ba = sub(b, a);
+                    return this.add(g, { k: CAPSULE, a, b, r, ba, baba: dot(ba, ba) }, mat);
+                }
+
+                sphere(g, c, r, mat) { return this.add(g, { k: SPHERE, c, r }, mat); }
+
+                box(g, c, u, v, w, h, mat) { return this.add(g, { k: BOX, c, u, v, w, h }, mat); }
+
+                // the same primitives in the local coordinates (a, b, c) of a surface frame
+                fBox(g, F, [a, b, c], h, mat, spin = 0) {
+                    const u = add(scale(F.u, Math.cos(spin)), scale(F.v, Math.sin(spin)));
+                    return this.box(g, at(F, a, b, c), u, cross(F.n, u), F.n, h, mat);
+                }
+
+                fCapsule(g, F, p, q, r, mat) { return this.capsule(g, at(F, ...p), at(F, ...q), r, mat); }
+
+                fSphere(g, F, p, r, mat) { return this.sphere(g, at(F, ...p), r, mat); }
+
+                // a cable resting on the surface through (a, b) points, or (a, b, c)
+                fCable(g, F, points, r, mat) {
+                    const pts = points.map((p) => (p.length === 3 ? p : [p[0], p[1], r]));
+                    for (let i = 0; i + 1 < pts.length; i++) this.fCapsule(g, F, pts[i], pts[i + 1], r, mat);
+                }
+
+                cable(g, points, r, mat) {
+                    for (let i = 0; i + 1 < points.length; i++) this.capsule(g, points[i], points[i + 1], r, mat);
+                }
+            }
+
+            // ---- inspected parts: each kind exists intact and damaged ----
+            const PARTS = {
+                // plug pulled out of its socket: exposed pins next to live contacts
+                connector(sb, F, broken) {
+                    const g = sb.group('connector');
+                    sb.fBox(g, F, [0, 0, 0.016], [0.024, 0.018, 0.016], 'socket');
+                    for (const b of [-0.008, 0, 0.008]) sb.fSphere(g, F, [0.024, b, 0.018], 0.0032, 'hole');
+                    sb.fCable(g, F, [[-0.024, 0, 0.01], [-0.06, 0.01], [-0.1, -0.004]], 0.006, 'cableGrey');
+                    if (!broken) {
+                        sb.fBox(g, F, [0.045, 0, 0.015], [0.021, 0.015, 0.013], 'plug');
+                        sb.fCable(g, F, [[0.066, 0, 0.01], [0.1, 0.014], [0.13, 0.004]], 0.006, 'cableBlack');
+                        return { group: g, center: at(F, 0.03, 0, 0.016) };
+                    }
+                    const spin = 0.45, cu = Math.cos(spin), su = Math.sin(spin);
+                    const pc = [0.088, 0.016];
+                    sb.fBox(g, F, [pc[0], pc[1], 0.013], [0.021, 0.015, 0.013], 'plug', spin);
+                    for (const b of [-0.008, 0, 0.008]) {
+                        const s = [pc[0] - 0.021 * cu - b * su, pc[1] - 0.021 * su + b * cu];
+                        sb.fCapsule(g, F, [s[0], s[1], 0.013], [s[0] - 0.013 * cu, s[1] - 0.013 * su, 0.013], 0.0018, 'copper');
+                    }
+                    const back = [pc[0] + 0.021 * cu, pc[1] + 0.021 * su];
+                    sb.fCable(g, F, [[back[0], back[1], 0.01], [back[0] + 0.035 * cu, back[1] + 0.035 * su], [0.16, 0.05]], 0.006, 'cableBlack');
+                    return { group: g, center: at(F, 0.045, 0.006, 0.015), sparks: at(F, 0.026, 0, 0.018) };
+                },
+
+                // insulation torn over 3 cm: copper core and loose strands
+                cable(sb, F, broken) {
+                    const g = sb.group('cable');
+                    const r = 0.0065;
+                    if (!broken) {
+                        sb.fCable(g, F, [[-0.11, -0.014], [-0.05, -0.003], [0, 0], [0.05, 0.004], [0.11, 0.016]], r, 'cableBlue');
+                        return { group: g, center: at(F, 0, 0, r) };
+                    }
+                    sb.fCable(g, F, [[-0.11, -0.014], [-0.05, -0.003], [-0.016, 0]], r, 'cableBlue');
+                    sb.fCable(g, F, [[0.016, 0], [0.05, 0.004], [0.11, 0.016]], r, 'cableBlue');
+                    sb.fCapsule(g, F, [-0.018, 0, r], [-0.013, 0, r], r + 0.0012, 'cableBlue');
+                    sb.fCapsule(g, F, [0.013, 0, r], [0.018, 0, r], r + 0.0012, 'cableBlue');
+                    sb.fCapsule(g, F, [-0.016, 0, r], [0.016, 0, r], 0.0042, 'copper');
+                    const strands = [[-0.009, 0.014, 0.008], [-0.003, -0.012, 0.012], [0.004, 0.009, 0.016], [0.01, -0.016, 0.006], [0.0, 0.018, 0.004], [0.007, 0.004, 0.019]];
+                    for (const [a, db, dc] of strands) sb.fCapsule(g, F, [a, 0, r], [a + 0.4 * db, db, r + dc], 0.0011, 'copper');
+                    return { group: g, center: at(F, 0, 0, r) };
+                },
+
+                // mounting bracket whose upright is cracked at the weld and bent;
+                // a broken-off piece lies next to it
+                bracket(sb, F, broken) {
+                    const g = sb.group('bracket');
+                    sb.fBox(g, F, [0, 0, 0.003], [0.036, 0.026, 0.003], 'bracket');
+                    for (const a of [-0.024, 0.024]) sb.fSphere(g, F, [a, -0.014, 0.006], 0.0045, 'screw');
+                    const tilt = broken ? 0.24 : 0;
+                    const up = add(scale(F.n, Math.cos(tilt)), scale(F.v, Math.sin(tilt)));
+                    const thick = cross(up, F.u);
+                    const base = at(F, 0, 0.012, 0.006);
+                    const c = add(base, scale(up, 0.03));
+                    const upright = sb.box(g, c, F.u, thick, up, [0.036, 0.003, 0.03], 'bracket');
+                    sb.sphere(g, add(c, scale(up, 0.012)), 0.007, 'hole');
+                    if (!broken) return { group: g, center: c };
+                    upright.decal = {
+                        o: c, a: F.u, b: up, width: 0.0016,
+                        pts: [[-0.036, -0.02], [-0.02, -0.012], [-0.008, -0.022], [0.006, -0.013], [0.018, -0.021], [0.036, -0.015]]
+                    };
+                    sb.fBox(g, F, [0.052, -0.036, 0.003], [0.012, 0.008, 0.003], 'bracket', 0.7);
+                    return { group: g, center: add(c, scale(up, -0.012)) };
+                },
+
+                // terminal block with one terminal burnt: soot around it and a
+                // charred conductor
+                terminal(sb, F, broken) {
+                    const g = sb.group('terminal');
+                    sb.fBox(g, F, [0, 0, 0.012], [0.042, 0.017, 0.012], 'terminal');
+                    const colours = ['cableBlack', 'cableBlue', 'cableGrey', 'cableGreen'];
+                    for (let k = 0; k < 4; k++) {
+                        const a = -0.0315 + 0.021 * k, burnt = broken && k === 1;
+                        sb.fSphere(g, F, [a, -0.004, 0.024], 0.0045, burnt ? 'charred' : 'screw');
+                        sb.fCable(g, F, [[a, 0.017, 0.008], [a + 0.01 * (k - 1.5), 0.05], [a + 0.025 * (k - 1.5), 0.1]], 0.0045, burnt ? 'charred' : colours[k]);
+                    }
+                    const centre = at(F, -0.0105, -0.004, 0.024);
+                    if (broken) sb.decals.push({ c: centre, r: 0.034 });
+                    return { group: g, center: centre };
+                }
+            };
+            const PART_KINDS = Object.keys(PARTS);
+
+            // damage point of each part in its surface frame (a, b, c)
+            const PART_CENTERS = Object.fromEntries(PART_KINDS.map((kind) => {
+                const F = { o: [0, 0, 0], n: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0] };
+                return [kind, PARTS[kind](new SceneBuilder(), F, true).center];
+            }));
+
+            // ---- the housing contents ----
+            const COMPONENTS = {
+                pipe(sb, { a, b, r }) {
+                    const g = sb.group('pipe');
+                    sb.capsule(g, a, b, r, 'pipe');
+                    const axis = normalize(sub(b, a));
+                    for (const f of [0.25, 0.75]) {
+                        const p = add(a, scale(sub(b, a), f));
+                        sb.capsule(g, sub(p, scale(axis, 0.007)), add(p, scale(axis, 0.007)), r + 0.009, 'steel');
+                        const height = p[2] - ROOM.min[2];
+                        if (Math.abs(axis[2]) < 0.2 && height > r + 0.01) {
+                            const side = normalize(cross([0, 0, 1], axis));
+                            sb.box(g, [p[0], p[1], ROOM.min[2] + (height - r) / 2], axis, side, [0, 0, 1], [0.012, 0.022, (height - r) / 2], 'steel');
+                        }
+                    }
+                },
+
+                column(sb, { x, y, r }) {
+                    const g = sb.group('column');
+                    sb.capsule(g, [x, y, ROOM.min[2]], [x, y, ROOM.max[2]], r, 'pipe');
+                    sb.box(g, [x, y, ROOM.min[2] + 0.004], [1, 0, 0], [0, 1, 0], [0, 0, 1], [r + 0.02, r + 0.02, 0.004], 'steel');
+                },
+
+                jbox(sb, { x, y, size, spin = 0 }) {
+                    const g = sb.group('jbox');
+                    const u = [Math.cos(spin), Math.sin(spin), 0], v = [-u[1], u[0], 0], w = [0, 0, 1];
+                    const [sx, sy, sz] = size;
+                    sb.box(g, [x, y, ROOM.min[2] + sz / 2], u, v, w, [sx / 2, sy / 2, sz / 2], 'jbox');
+                    sb.box(g, [x, y, ROOM.min[2] + sz + 0.003], u, v, w, [sx / 2 + 0.004, sy / 2 + 0.004, 0.003], 'steel');
+                    for (const [i, j] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+                        const p = add([x, y, ROOM.min[2] + sz + 0.006], add(scale(u, i * (sx / 2 - 0.01)), scale(v, j * (sy / 2 - 0.01))));
+                        sb.sphere(g, p, 0.004, 'screw');
+                    }
+                    sb.box(g, add([x, y, ROOM.min[2] + sz * 0.6], scale(v, sy / 2 + 0.001)), u, v, w, [sx * 0.3, 0.001, sz * 0.12], 'hazard');
+                },
+
+                // cable tray along the +x or +y wall
+                tray(sb, { wall, from, to, z }) {
+                    const g = sb.group('tray');
+                    const xWall = wall === 'x+';
+                    const n = xWall ? [-1, 0, 0] : [0, -1, 0], along = xWall ? [0, 1, 0] : [1, 0, 0];
+                    const face = xWall ? ROOM.max[0] : ROOM.max[1];
+                    const point = (depth, s, h) => (xWall ? [face - depth, s, h] : [s, face - depth, h]);
+                    const mid = (from + to) / 2, half = (to - from) / 2;
+                    sb.box(g, point(0.035, mid, z), along, n, [0, 0, 1], [half, 0.035, 0.003], 'steel');
+                    sb.box(g, point(0.068, mid, z + 0.015), along, n, [0, 0, 1], [half, 0.002, 0.015], 'steel');
+                    ['cableBlack', 'cableGrey', 'cableBlue'].forEach((mat, i) => {
+                        sb.capsule(g, point(0.018 + 0.017 * i, from + 0.01, z + 0.0095), point(0.018 + 0.017 * i, to - 0.01, z + 0.0095), 0.0065, mat);
+                    });
+                },
+
+                cable(sb, { points, r, mat }) {
+                    sb.cable(sb.group('cable', true), points, r, mat);
+                },
+
+                tape(sb, { a, b }) {
+                    const g = sb.group('tape', true);
+                    const d = sub([b[0], b[1], 0], [a[0], a[1], 0]), len = norm(d), u = scale(d, 1 / len);
+                    sb.box(g, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, ROOM.min[2] + 0.0008], u, [-u[1], u[0], 0], [0, 0, 1], [len / 2, 0.022, 0.0008], 'hazard');
+                }
+            };
+
+            // axis-aligned bounds and bounding sphere of every group, and the
+            // obstacles of the barriers: the walls, the floor and every
+            // component that stands out of a surface
+            function finishScene(sb) {
+                for (const g of sb.groups) {
+                    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+                    const grow = (c, e) => { for (let i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], c[i] - e[i]); hi[i] = Math.max(hi[i], c[i] + e[i]); } };
+                    for (const p of g.prims) {
+                        if (p.k === CAPSULE) { grow(p.a, [p.r, p.r, p.r]); grow(p.b, [p.r, p.r, p.r]); }
+                        else if (p.k === SPHERE) grow(p.c, [p.r, p.r, p.r]);
+                        else grow(p.c, [0, 1, 2].map((i) => Math.abs(p.u[i]) * p.h[0] + Math.abs(p.v[i]) * p.h[1] + Math.abs(p.w[i]) * p.h[2]));
+                    }
+                    g.lo = lo; g.hi = hi;
+                    g.center = scale(add(lo, hi), 0.5);
+                    g.radius = 0.5 * norm(sub(hi, lo));
+                }
+                const [x0, y0, z0] = ROOM.min, [x1, y1, z1] = ROOM.max;
+                const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, cz = (z0 + z1) / 2;
+                const width = x1 - x0 + 0.4, depth = y1 - y0 + 0.4, height = z1 - z0 + 0.4;
+                const obstacles = [
+                    new Obstacle('floor', 'box', [cx, cy, z0 - 0.05], [width, depth, 0.1]),
+                    new Obstacle('wall x-', 'box', [x0 - 0.05, cy, cz], [0.1, depth, height]),
+                    new Obstacle('wall x+', 'box', [x1 + 0.05, cy, cz], [0.1, depth, height]),
+                    new Obstacle('wall y-', 'box', [cx, y0 - 0.05, cz], [width, 0.1, height]),
+                    new Obstacle('wall y+', 'box', [cx, y1 + 0.05, cz], [width, 0.1, height])
+                ];
+                for (const g of sb.groups) {
+                    if (!g.flush) obstacles.push(new Obstacle(g.label, 'box', g.center, sub(g.hi, g.lo)));
+                }
+                return { prims: sb.prims, groups: sb.groups, decals: sb.decals, defects: sb.defects, obstacles };
+            }
+
+            // site: { components, decoys, defects, targets }; a part is
+            // { kind, at, n, angle }, and defects[i] is seen from targets[i]
+            function buildScene(site) {
+                const sb = new SceneBuilder();
+                for (const c of site.components) COMPONENTS[c.type](sb, c);
+                for (const p of site.decoys) PARTS[p.kind](sb, surfaceFrame(p.at, p.n, p.angle), false);
+                site.defects.forEach((p, id) => {
+                    const part = PARTS[p.kind](sb, surfaceFrame(p.at, p.n, p.angle), true);
+                    sb.defects.push({ id, kind: p.kind, owner: part.group.id, center: part.center, sparks: part.sparks || null });
+                });
+                return finishScene(sb);
+            }
+
+            // ---- ray casting ----
+            // distance along the unit ray (o, d) to the surface of a primitive, or -1
+            function intersect(p, o, d) {
+                if (p.k === SPHERE) {
+                    const ox = o[0] - p.c[0], oy = o[1] - p.c[1], oz = o[2] - p.c[2];
+                    const b = ox * d[0] + oy * d[1] + oz * d[2];
+                    const h = b * b - (ox * ox + oy * oy + oz * oz - p.r * p.r);
+                    return h < 0 ? -1 : -b - Math.sqrt(h);
+                }
+                if (p.k === CAPSULE) {
+                    const ba = p.ba, baba = p.baba;
+                    const oax = o[0] - p.a[0], oay = o[1] - p.a[1], oaz = o[2] - p.a[2];
+                    const bard = ba[0] * d[0] + ba[1] * d[1] + ba[2] * d[2];
+                    const baoa = ba[0] * oax + ba[1] * oay + ba[2] * oaz;
+                    const rdoa = d[0] * oax + d[1] * oay + d[2] * oaz;
+                    const oaoa = oax * oax + oay * oay + oaz * oaz;
+                    const a = baba - bard * bard;
+                    let b = baba * rdoa - baoa * bard;
+                    let c = baba * oaoa - baoa * baoa - p.r * p.r * baba;
+                    let h = b * b - a * c;
+                    if (h < 0) return -1;
+                    const t = (-b - Math.sqrt(h)) / a;
+                    const y = baoa + t * bard;
+                    if (y > 0 && y < baba) return t;
+                    // spherical caps
+                    const ox = y <= 0 ? oax : o[0] - p.b[0], oy = y <= 0 ? oay : o[1] - p.b[1], oz = y <= 0 ? oaz : o[2] - p.b[2];
+                    b = d[0] * ox + d[1] * oy + d[2] * oz;
+                    c = ox * ox + oy * oy + oz * oz - p.r * p.r;
+                    h = b * b - c;
+                    return h > 0 ? -b - Math.sqrt(h) : -1;
+                }
+                // oriented box: slabs in the box frame
+                const rx = o[0] - p.c[0], ry = o[1] - p.c[1], rz = o[2] - p.c[2];
+                let near = -Infinity, far = Infinity;
+                for (let i = 0; i < 3; i++) {
+                    const e = i === 0 ? p.u : i === 1 ? p.v : p.w;
+                    const oo = rx * e[0] + ry * e[1] + rz * e[2], dd = d[0] * e[0] + d[1] * e[1] + d[2] * e[2];
+                    if (Math.abs(dd) < 1e-12) {
+                        if (Math.abs(oo) > p.h[i]) return -1;
+                        continue;
+                    }
+                    let t1 = (-p.h[i] - oo) / dd, t2 = (p.h[i] - oo) / dd;
+                    if (t1 > t2) { const s = t1; t1 = t2; t2 = s; }
+                    if (t1 > near) near = t1;
+                    if (t2 < far) far = t2;
+                    if (near > far || far < 0) return -1;
+                }
+                return near;
+            }
+
+            // outward normal of a primitive at a surface point x
+            function normalAt(p, x) {
+                if (p.k === SPHERE) return scale(sub(x, p.c), 1 / p.r);
+                if (p.k === CAPSULE) {
+                    const pa = sub(x, p.a), h = clamp(dot(pa, p.ba) / p.baba, 0, 1);
+                    return normalize(sub(pa, scale(p.ba, h)));
+                }
+                const r = sub(x, p.c), axes = [p.u, p.v, p.w];
+                let best = 0, ratio = -Infinity;
+                for (let i = 0; i < 3; i++) {
+                    const q = Math.abs(dot(r, axes[i])) / p.h[i];
+                    if (q > ratio) { ratio = q; best = i; }
+                }
+                return scale(axes[best], Math.sign(dot(r, axes[best])) || 1);
+            }
+
+            // exit of the ray from the room: distance and face
+            // (0 x-, 1 x+, 2 y-, 3 y+, 4 floor, 5 ceiling)
+            function roomExit(o, d) {
+                let t = Infinity, face = -1;
+                for (let i = 0; i < 3; i++) {
+                    if (Math.abs(d[i]) < 1e-12) continue;
+                    const ti = ((d[i] > 0 ? ROOM.max[i] : ROOM.min[i]) - o[i]) / d[i];
+                    if (ti < t) { t = ti; face = 2 * i + (d[i] > 0 ? 1 : 0); }
+                }
+                return { t, face };
+            }
+
+            const ROOM_NORMALS = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+
+            // first surface along the unit ray; groups whose bounding sphere the
+            // ray misses are skipped
+            function raycast(scene, o, d, groups = scene.groups) {
+                const exit = roomExit(o, d);
+                let t = exit.t, prim = null;
+                for (const g of groups) {
+                    const cx = g.center[0] - o[0], cy = g.center[1] - o[1], cz = g.center[2] - o[2];
+                    const along = cx * d[0] + cy * d[1] + cz * d[2];
+                    const miss = cx * cx + cy * cy + cz * cz - along * along;
+                    if (miss > g.radius * g.radius || along + g.radius < 0 || along - g.radius > t) continue;
+                    for (const p of g.prims) {
+                        const tp = intersect(p, o, d);
+                        if (tp > 1e-5 && tp < t) { t = tp; prim = p; }
+                    }
+                }
+                const x = add(o, scale(d, t));
+                if (prim) return { t, x, prim, owner: prim.owner, mat: prim.mat, n: normalAt(prim, x), face: -1 };
+                const inPort = exit.face === 5 && Math.hypot(x[0] - PORT_CENTER[0], x[1] - PORT_CENTER[1]) < PORT_RADIUS;
+                return { t, x, prim: null, owner: -1, mat: inPort ? MAT.port : ROOM_MATERIAL[exit.face], n: ROOM_NORMALS[exit.face], face: exit.face };
+            }
+
+            // ---- collision distances of the rod ----
+            function primDistance(p, x) {
+                if (p.k === SPHERE) return norm(sub(x, p.c)) - p.r;
+                if (p.k === CAPSULE) {
+                    const pa = sub(x, p.a), h = clamp(dot(pa, p.ba) / p.baba, 0, 1);
+                    return norm(sub(pa, scale(p.ba, h))) - p.r;
+                }
+                const r = sub(x, p.c);
+                const q = [dot(r, p.u), dot(r, p.v), dot(r, p.w)].map((v, i) => Math.abs(v) - p.h[i]);
+                return norm(q.map((v) => Math.max(v, 0))) + Math.min(Math.max(...q), 0);
+            }
+
+            // the first part of the scene that a centerline of radius ROD_RADIUS
+            // touches, or null; the rod leaves the housing through the port
+            function rodContact(scene, centerline) {
+                for (const x of centerline) {
+                    if (x[2] > ROOM.max[2] - ROD_RADIUS) {
+                        if (Math.hypot(x[0] - PORT_CENTER[0], x[1] - PORT_CENTER[1]) > PORT_RADIUS - ROD_RADIUS) return { label: 'port' };
+                        continue;
+                    }
+                    for (let i = 0; i < 3; i++) {
+                        if (x[i] - ROOM.min[i] < ROD_RADIUS || (i < 2 && ROOM.max[i] - x[i] < ROD_RADIUS)) return { label: i === 2 ? 'floor' : 'wall' };
+                    }
+                    for (const g of scene.groups) {
+                        if (norm(sub(x, g.center)) > g.radius + ROD_RADIUS) continue;
+                        for (const p of g.prims) if (primDistance(p, x) < ROD_RADIUS) return { label: g.label, owner: g.id };
+                    }
+                }
+                return null;
+            }
+
+            // ---- tip camera and reports ----
+            // optical axis along the tip tangent; image x along the tip frame x
+            const CAMERA = { fov: 74 * DEG };
+            const REPORT = { angle: 13 * DEG, range: 0.24 };
+
+            function cameraOf(state) {
+                const R = state.R_D;
+                return { p: state.p_D, right: col(R, 0), down: col(R, 1), axis: col(R, 2) };
+            }
+
+            // unreported defects whose damage point lies within REPORT.angle of
+            // the optical axis, within REPORT.range and in line of sight
+            function defectsInView(scene, camera, reported) {
+                const out = [];
+                for (const defect of scene.defects) {
+                    if (reported.has(defect.id)) continue;
+                    const v = sub(defect.center, camera.p), dist = norm(v);
+                    if (dist > REPORT.range) continue;
+                    const angle = Math.acos(clamp(dot(v, camera.axis) / dist, -1, 1));
+                    if (angle > REPORT.angle) continue;
+                    const hit = raycast(scene, camera.p, scale(v, 1 / dist));
+                    if (hit.owner !== defect.owner && hit.t < dist - 0.006) continue;
+                    out.push({ defect, angle, dist });
+                }
+                return out.sort((a, b) => a.angle - b.angle);
+            }
+
+            // ---- the world: plant, identified model and EE constraint ----
+            let PORT_CENTER = [0, 0];
+
+            function createWorld() {
+                const plant = new Plant(CONFIG);
+                const start = plant.evaluate(plant.q0);
+                PORT_CENTER = [start.p_B[0], start.p_B[1]];
+                return {
+                    plant, start,
+                    map: SpanMap.fromData(SPAN_MAP_DATA, CONFIG),
+                    constraint: new PositionConstraint(start.p_B),
+                    scene: null
+                };
+            }
+
+            // ---- joint commands of the player ----
+            // the command (one entry per joint, -1, 0 or 1) is projected onto the
+            // null space of the EE constraint (13) and scaled so that the fastest
+            // joint moves at MOTION.rate; near a limit of the identified span
+            // domain the motion slides along that limit
+            const MOTION = { rate: 0.22, minShare: 0.02, margin: 0.0002 };
+
+            function filteredRates(world, q, command, dt) {
+                const { plant, constraint, map } = world;
+                const frames = plant.arm.frames(q);
+                const JB = Arm.geometricJacobian(frames);
+                const Jc = constraint.jacobian(frames, JB);
+                const Nc = projector(Jc);
+                const raw = matvec(Nc, command);
+                const share = norm(raw) / Math.max(norm(command), 1e-12);
+                const { anchors, entries } = plant.endpoints(frames);
+                const spans = anchors.map((a, i) => norm(sub(a, entries[i])));
+                if (share < MOTION.minShare) return { qdot: null, share, spans, limited: [false, false] };
+                let qdot = scale(raw, MOTION.rate / Math.max(...raw.map(Math.abs)));
+                const Jlq = spanJacobian(plant, frames);
+                const limited = [false, false];
+                for (let pass = 0; pass < 2; pass++) {
+                    spans.forEach((s, i) => {
+                        const rate = dot(Jlq[i], qdot), next = s + rate * dt;
+                        const outward = (rate > 0 && next > map.upper[i] - MOTION.margin) || (rate < 0 && next < map.lower[i] + MOTION.margin);
+                        if (!outward) return;
+                        const g = matvec(Nc, Jlq[i]), gg = dot(Jlq[i], g);
+                        if (gg > 1e-12) qdot = sub(qdot, scale(g, rate / gg));
+                        limited[i] = true;
+                    });
+                }
+                qdot = add(qdot, matvec(pinv(Jc), scale(constraint.error(frames), CONFIG.control.k_c)));
+                return { qdot, share, spans, limited };
+            }
+
+            // one step of the player: blocked when the null space holds too little
+            // of the command, when a span would leave the domain, or when the
+            // rod would touch the housing or its contents
+            function playerStep(world, q, command, dt) {
+                const motion = filteredRates(world, q, command, dt);
+                if (!motion.qdot) return { status: 'nullspace', motion };
+                const { plant, map, scene } = world;
+                const limits = plant.arm.limits;
+                const next = q.map((v, j) => clamp(v + dt * motion.qdot[j], limits[j][0], limits[j][1]));
+                const spans = plant.spans(next);
+                if (spans.some((s, i) => s < map.lower[i] || s > map.upper[i])) return { status: 'span', motion };
+                const warm = plant.z;
+                const state = plant.evaluate(next);
+                const contact = rodContact(scene, state.centerline);
+                if (contact) {
+                    plant.z = warm;
+                    return { status: 'contact', contact, motion };
+                }
+                return { status: 'moved', q: next, state, motion };
+            }
+
+            // ---- solution: the controller of Sec. IV drives the tip to one
+            // viewpoint per defect (plant 100 Hz, measurements 20 Hz with camera
+            // noise, control 50 Hz), and the defect is reported on arrival ----
+            const SOLUTION = { tolerance: 0.004, hold: 0.4, budget: 30, seed: 0 };
+
+            class SolutionRun {
+                constructor(world, site) {
+                    this.world = world;
+                    const plant = world.plant;
+                    plant.reset();
+                    this.map = world.map.copy();
+                    this.map.reset();
+                    this.controller = new Controller(plant, world.constraint, this.map, world.scene.obstacles);
+                    this.rng = new Random(SOLUTION.seed);
+                    const sensing = CONFIG.sensing;
+                    this.dt = 1 / sensing.plant_rate;
+                    this.senseEvery = Math.round(sensing.plant_rate / sensing.rate);
+                    this.controlEvery = Math.round(sensing.plant_rate / CONFIG.control.rate);
+                    this.controlDt = this.dt * this.controlEvery;
+                    this.q = plant.q0.slice();
+                    this.qdot = vec(6);
+                    this.state = plant.evaluate(this.q);
+                    this.targets = site.targets.map((t) => t.slice());
+                    this.index = 0;
+                    this.tick = 0;
+                    this.held = 0;
+                    this.targetTicks = 0;
+                    this.events = [];
+                    this.finished = false;
+                    this.measure();
+                    this.reference = this.measured.slice();
+                    this.previous = null;
+                    this.lastCommand = null;
+                }
+
+                get time() { return this.tick * this.dt; }
+                get goal() { return this.targets[Math.min(this.index, this.targets.length - 1)]; }
+
+                measure() {
+                    this.measured = add(this.state.p_D, scale(this.rng.normals(3), CONFIG.sensing.noise));
+                }
+
+                control() {
+                    if (this.finished) { this.qdot = vec(6); return null; }
+                    const goal = this.targets[this.index], tip = this.measured, s = this.state;
+                    const local = vecmat(sub(tip, s.p_B), s.R_B);              // R_B^T (tip - p_B)
+                    if (this.previous) this.map.update(s.spans, this.previous[0], sub(local, this.previous[1]));
+                    this.previous = [s.spans.slice(), local];
+                    this.reference = advanceReference(this.reference, goal, CONFIG.control.reference_speed, this.controlDt);
+                    this.lastCommand = this.controller.command(this.q, tip, this.reference);
+                    this.qdot = this.lastCommand.qdot;
+                    this.held = norm(sub(goal, tip)) < SOLUTION.tolerance ? this.held + 1 : 0;
+                    this.targetTicks += 1;
+                    const arrived = this.held * this.controlDt >= SOLUTION.hold;
+                    if (!arrived && this.targetTicks * this.controlDt < SOLUTION.budget) return null;
+                    const seen = defectsInView(this.world.scene, cameraOf(s), new Set()).some((v) => v.defect.id === this.index);
+                    const event = { target: this.index, t: this.time, arrived, found: seen, error: norm(sub(goal, s.p_D)) };
+                    this.events.push(event);
+                    this.index += 1;
+                    this.held = 0;
+                    this.targetTicks = 0;
+                    if (this.index >= this.targets.length) this.finished = true;
+                    return event;
+                }
+
+                // one plant tick; returns the arrival event of a viewpoint, if any
+                step() {
+                    const sense = this.tick % this.senseEvery === 0, control = this.tick % this.controlEvery === 0;
+                    const plant = this.world.plant;
+                    if ((sense || control) && this.tick > 0) this.state = plant.evaluate(this.q);
+                    if (sense && this.tick > 0) this.measure();
+                    const event = control ? this.control() : null;
+                    const limits = plant.arm.limits;
+                    this.q = this.q.map((v, j) => clamp(v + this.dt * this.qdot[j], limits[j][0], limits[j][1]));
+                    this.tick += 1;
+                    return event;
+                }
+            }
+
+            // sites of the game (generated offline and replayed by integration-test.js)
+            const SITES = [
+                {
+                    name: { en: 'Junction box bay', es: 'Nicho de cajas de conexiones' },
+                    components: [
+                        { type: 'jbox', x: -0.6066, y: 0.0045, size: [0.12, 0.09, 0.075], spin: 0.168 },
+                        { type: 'jbox', x: -1.0623, y: -0.3784, size: [0.1, 0.08, 0.06], spin: 0 },
+                        { type: 'tray', wall: 'x+', from: -0.4, to: -0.06, z: 0.196 },
+                        {
+                            type: 'cable',
+                            points: [[-1.16, -0.29, -0.024], [-0.95, -0.24, -0.024], [-0.78, -0.3, -0.024], [-0.51, -0.27, -0.024]],
+                            r: 0.006,
+                            mat: 'cableBlack'
+                        },
+                        {
+                            type: 'cable',
+                            points: [[-0.66, 0.06, -0.024], [-0.7, -0.1, -0.024], [-0.67, -0.25, -0.024], [-0.72, -0.44, -0.024]],
+                            r: 0.006,
+                            mat: 'cableGrey'
+                        },
+                        { type: 'tape', a: [-1.16, 0.045], b: [-0.7, 0.045] }
+                    ],
+                    decoys: [
+                        { kind: 'bracket', at: [-0.9004, 0.07, 0.0701], n: [0, -1, 0], angle: 2.627 },
+                        { kind: 'terminal', at: [-1.0504, 0.07, 0.0804], n: [0, -1, 0], angle: 2.636 },
+                        { kind: 'connector', at: [-0.6485, -0.127, -0.03], n: [0, 0, 1], angle: -0.85 }
+                    ],
+                    defects: [
+                        { kind: 'connector', at: [-0.8187, -0.2609, -0.03], n: [0, 0, 1], angle: 0.432 },
+                        { kind: 'bracket', at: [-0.9523, -0.0436, -0.03], n: [0, 0, 1], angle: -2.241 },
+                        { kind: 'cable', at: [-0.5, -0.1931, 0.096], n: [-1, 0, 0], angle: -2.995 }
+                    ],
+                    targets: [[-0.8364, -0.229, 0.0729], [-0.9314, -0.0875, 0.0703], [-0.6543, -0.205, 0.1415]]
+                },
+                {
+                    name: { en: 'Pump housing', es: 'Carcasa de bombas' },
+                    components: [
+                        { type: 'pipe', a: [-0.5672, -0.45, 0.04], b: [-0.5604, 0.07, 0.04], r: 0.032 },
+                        { type: 'column', x: -1.0261, y: -0.0486, r: 0.035 },
+                        {
+                            type: 'cable',
+                            points: [[-1.16, -0.17, -0.024], [-0.96, -0.12, -0.024], [-0.8, -0.19, -0.024], [-0.64, -0.15, -0.024]],
+                            r: 0.006,
+                            mat: 'cableBlue'
+                        },
+                        {
+                            type: 'cable',
+                            points: [[-0.95, -0.44, -0.024], [-0.88, -0.3, -0.024], [-0.92, -0.16, -0.024], [-0.86, 0.06, -0.024]],
+                            r: 0.006,
+                            mat: 'cableBlack'
+                        },
+                        { type: 'tape', a: [-1.16, -0.43], b: [-0.62, -0.43] }
+                    ],
+                    decoys: [
+                        { kind: 'connector', at: [-0.841, -0.0487, -0.03], n: [0, 0, 1], angle: 0.427 },
+                        { kind: 'terminal', at: [-0.6407, -0.0971, -0.03], n: [0, 0, 1], angle: -1.77 }
+                    ],
+                    defects: [
+                        { kind: 'terminal', at: [-0.7335, -0.2287, -0.03], n: [0, 0, 1], angle: -0.37 },
+                        { kind: 'cable', at: [-0.5, -0.2224, 0.1893], n: [-1, 0, 0], angle: 0.359 },
+                        { kind: 'bracket', at: [-0.9593, 0.07, 0.0799], n: [0, -1, 0], angle: -0.67 }
+                    ],
+                    targets: [[-0.7855, -0.2059, 0.0608], [-0.6149, -0.234, 0.1954], [-0.9358, -0.0292, 0.1239]]
+                },
+                {
+                    name: { en: 'Cable trench', es: 'Canal de cables' },
+                    components: [
+                        { type: 'tray', wall: 'y+', from: -1.12, to: -0.56, z: 0.179 },
+                        { type: 'tray', wall: 'x+', from: -0.42, to: -0.1, z: 0.0815 },
+                        {
+                            type: 'cable',
+                            points: [
+                                [-1.16, -0.05, -0.023],
+                                [-0.98, -0.02, -0.023],
+                                [-0.82, -0.06, -0.023],
+                                [-0.66, -0.02, -0.023],
+                                [-0.51, -0.05, -0.023]
+                            ],
+                            r: 0.007,
+                            mat: 'cableBlack'
+                        },
+                        {
+                            type: 'cable',
+                            points: [
+                                [-1.16, -0.09, -0.023],
+                                [-0.98, -0.065, -0.023],
+                                [-0.82, -0.1, -0.023],
+                                [-0.66, -0.065, -0.023],
+                                [-0.51, -0.09, -0.023]
+                            ],
+                            r: 0.007,
+                            mat: 'cableGrey'
+                        },
+                        {
+                            type: 'cable',
+                            points: [[-0.84, -0.44, -0.025], [-0.8, -0.32, -0.025], [-0.86, -0.22, -0.025]],
+                            r: 0.005,
+                            mat: 'cableGreen'
+                        }
+                    ],
+                    decoys: [
+                        { kind: 'connector', at: [-0.9561, 0.07, 0.0843], n: [0, -1, 0], angle: 0.134 },
+                        { kind: 'bracket', at: [-0.6424, -0.1225, -0.03], n: [0, 0, 1], angle: -1.899 },
+                        { kind: 'cable', at: [-0.9758, -0.3259, -0.03], n: [0, 0, 1], angle: -2.12 }
+                    ],
+                    defects: [
+                        { kind: 'connector', at: [-0.6572, -0.3224, -0.03], n: [0, 0, 1], angle: 1.634 },
+                        { kind: 'bracket', at: [-0.8734, -0.1591, -0.03], n: [0, 0, 1], angle: 2.15 },
+                        { kind: 'terminal', at: [-0.5, -0.1968, 0.1568], n: [-1, 0, 0], angle: 2.919 }
+                    ],
+                    targets: [[-0.7552, -0.2314, 0.0773], [-0.8941, -0.162, 0.0548], [-0.6285, -0.2202, 0.1741]]
+                },
+                {
+                    name: { en: 'Pipe crossing', es: 'Cruce de tuberías' },
+                    components: [
+                        { type: 'pipe', a: [-1.17, -0.3773, 0.1265], b: [-0.5, -0.3773, 0.1278], r: 0.03 },
+                        { type: 'jbox', x: -0.5886, y: -0.0743, size: [0.08, 0.12, 0.07], spin: 0 },
+                        {
+                            type: 'cable',
+                            points: [
+                                [-1.16, -0.2, -0.024],
+                                [-1, -0.15, -0.024],
+                                [-0.85, -0.21, -0.024],
+                                [-0.7, -0.13, -0.024],
+                                [-0.64, -0.08, -0.024]
+                            ],
+                            r: 0.006,
+                            mat: 'cableBlack'
+                        },
+                        { type: 'tape', a: [-1, 0.045], b: [-0.52, 0.045] }
+                    ],
+                    decoys: [
+                        { kind: 'cable', at: [-0.9722, -0.208, -0.03], n: [0, 0, 1], angle: 2.279 },
+                        { kind: 'bracket', at: [-0.9702, 0.07, 0.0923], n: [0, -1, 0], angle: -2.985 },
+                        { kind: 'terminal', at: [-1.0701, -0.0504, -0.03], n: [0, 0, 1], angle: -2.852 },
+                        { kind: 'connector', at: [-0.8113, -0.288, -0.03], n: [0, 0, 1], angle: 2.757 }
+                    ],
+                    defects: [
+                        { kind: 'terminal', at: [-0.9003, -0.053, -0.03], n: [0, 0, 1], angle: -1.792 },
+                        { kind: 'cable', at: [-0.6685, -0.2327, -0.03], n: [0, 0, 1], angle: 2.807 },
+                        { kind: 'connector', at: [-0.5, -0.2681, 0.1958], n: [-1, 0, 0], angle: -3.126 }
+                    ],
+                    targets: [[-0.8961, -0.0707, 0.0671], [-0.778, -0.2225, 0.0817], [-0.6167, -0.2338, 0.1954]]
+                },
+                {
+                    name: { en: 'Switchgear base', es: 'Base de aparamenta' },
+                    components: [
+                        { type: 'jbox', x: -0.5992, y: -0.281, size: [0.09, 0.14, 0.085], spin: 0 },
+                        { type: 'column', x: -0.6019, y: 0.0054, r: 0.03 },
+                        { type: 'tray', wall: 'y+', from: -1.1, to: -0.7, z: 0.1213 },
+                        {
+                            type: 'cable',
+                            points: [[-1.16, -0.33, -0.024], [-1, -0.26, -0.024], [-0.86, -0.31, -0.024], [-0.65, -0.28, -0.024]],
+                            r: 0.006,
+                            mat: 'cableGrey'
+                        },
+                        {
+                            type: 'cable',
+                            points: [[-0.75, 0.06, -0.024], [-0.79, -0.06, -0.024], [-0.74, -0.16, -0.024], [-0.78, -0.44, -0.024]],
+                            r: 0.006,
+                            mat: 'cableBlue'
+                        },
+                        { type: 'tape', a: [-1.16, -0.43], b: [-0.75, -0.43] }
+                    ],
+                    decoys: [
+                        { kind: 'cable', at: [-0.6543, -0.1377, -0.03], n: [0, 0, 1], angle: -1.421 },
+                        { kind: 'bracket', at: [-0.5, -0.3215, 0.1286], n: [-1, 0, 0], angle: 0.058 },
+                        { kind: 'connector', at: [-0.8333, -0.044, -0.03], n: [0, 0, 1], angle: -0.75 },
+                        { kind: 'terminal', at: [-1.0445, -0.2068, -0.03], n: [0, 0, 1], angle: -1.348 }
+                    ],
+                    defects: [
+                        { kind: 'bracket', at: [-0.8252, -0.2185, -0.03], n: [0, 0, 1], angle: 1.617 },
+                        { kind: 'cable', at: [-1.0002, -0.066, -0.03], n: [0, 0, 1], angle: 2.917 },
+                        { kind: 'connector', at: [-0.5, -0.145, 0.1588], n: [-1, 0, 0], angle: -1.48 }
+                    ],
+                    targets: [[-0.8662, -0.2093, 0.0585], [-0.9667, -0.1017, 0.0849], [-0.6435, -0.1886, 0.1493]]
+                }
+            ];
+
+            return {
+                add, sub, scale, dot, norm, cross, col, clamp, Random, DEG, ROOM, PLATE, PORT_RADIUS, ROD_RADIUS,
+                MATERIALS, PATTERN, PART_KINDS, PART_CENTERS, buildScene, surfaceFrame, raycast, primDistance, rodContact,
+                CAMERA, REPORT, cameraOf, defectsInView, createWorld, playerStep, SolutionRun, SITES,
+                portCenter: () => PORT_CENTER
+            };
+        })();
+        // end of the simulation core
+
+        // ------------------------------------------------------------------
+        // page elements
+        // ------------------------------------------------------------------
+        const { add, sub, scale, dot, norm, cross, clamp, DEG } = Core;
+        const byId = (id) => document.getElementById(id);
+        const externalCanvas = byId('external');
+        const ext = externalCanvas.getContext('2d');
+        const feedCanvas = byId('feed');
+        const feedCtx = feedCanvas.getContext('2d');
+        const overlay = byId('overlay');
+        const overlayKicker = byId('overlayKicker');
+        const overlayTitle = byId('overlayTitle');
+        const overlayText = byId('overlayText');
+        const overlayBadge = byId('overlayBadge');
+        const overlayStats = byId('overlayStats');
+        const overlayButton = byId('overlayButton');
+        const overlaySecondary = byId('overlaySecondary');
+        const announcer = byId('announcer');
+        const shareValue = byId('shareValue');
+        const buttons = {
+            report: byId('reportButton'),
+            solution: byId('solutionButton'),
+            pause: byId('pauseButton'),
+            restart: byId('restartButton'),
+            next: byId('nextButton')
+        };
+        const hud = {
+            site: byId('siteValue'),
+            found: byId('foundValue'),
+            time: byId('timeValue'),
+            falseReports: byId('falseValue'),
+            contacts: byId('contactValue'),
+            deviation: byId('deviationValue')
+        };
+        const finalStats = { time: byId('statTime'), best: byId('statBest'), falseReports: byId('statFalse'), contacts: byId('statContacts') };
+
+        // ------------------------------------------------------------------
+        // game state
+        // ------------------------------------------------------------------
+        const world = Core.createWorld();
+        const Q0 = world.plant.q0.slice();
+        const P_STAR = world.start.p_B.slice();
+        const SITE_COUNT = Core.SITES.length;
+        const JOINT_KEYS = [['q', 'a'], ['w', 's'], ['e', 'd'], ['r', 'f'], ['t', 'g'], ['y', 'h']];
+        const METER_RANGE = 50 * DEG;            // joint meters span q0 +- 50 degrees
+        const SOLUTION_SPEED = 1.5;              // simulated seconds per second
+        const SOLUTION_PAUSE = 1.6;              // pause on each report of the controller
+
+        let siteIndex = clamp((Number(new URLSearchParams(window.location.search).get('site')) || 1) - 1, 0, SITE_COUNT - 1);
+        let site = null;
+        let state = 'ready';                     // ready, playing, paused, complete, solution, solved
+        let q = Q0.slice();
+        let robot = world.start;                 // plant state shown in both views
+        let elapsed = 0;
+        let falseReports = 0;
+        let contacts = 0;
+        let reported = new Map();                // defect id -> 'player' or 'controller'
+        let run = null;
+        let solutionClock = 0;
+        let solutionPause = 0;
+        let motion = null;                       // result of the last joint command
+        let inContact = false;
+        let contactFlash = 0;
+        let toast = null;                        // { text, kind, t }
+        let reportCooldown = 0;
+        let newBest = false;
+        const held = new Map();                  // input source -> [joint, direction]
+
+        const bestKey = () => `cavityInspectionBest:${siteIndex}`;
+        const readBest = () => Number(storage.get(bestKey())) || 0;
+
+        function loadSite(index) {
+            siteIndex = (index + SITE_COUNT) % SITE_COUNT;
+            site = Core.SITES[siteIndex];
+            world.scene = Core.buildScene(site);
+            feed.key = '';
+            const url = new URL(window.location.href);
+            if (siteIndex) url.searchParams.set('site', String(siteIndex + 1)); else url.searchParams.delete('site');
+            try { history.replaceState(null, '', url); } catch (error) { /* file:// or sandboxed */ }
+        }
+
+        function resetRobot() {
+            q = Q0.slice();
+            world.plant.reset();
+            robot = world.plant.evaluate(q);
+        }
+
+        function resetSite() {
+            resetRobot();
+            state = 'ready';
+            elapsed = 0;
+            falseReports = 0;
+            contacts = 0;
+            reported = new Map();
+            run = null;
+            motion = null;
+            inContact = false;
+            contactFlash = 0;
+            toast = null;
+            newBest = false;
+            held.clear();
+            syncJogButtons();
+            updateHud();
+            showOverlay('start');
+        }
+
+        function startGame() {
+            if (state === 'solved' || state === 'complete') resetSite();
+            state = 'playing';
+            showOverlay(null);
+        }
+
+        function pauseGame() {
+            if (state !== 'playing') return;
+            state = 'paused';
+            held.clear();
+            syncJogButtons();
+            showOverlay('paused');
+        }
+
+        function resumeGame() {
+            if (state !== 'paused') return;
+            state = 'playing';
+            syncJogButtons();
+            showOverlay(null);
+        }
+
+        function completeSite() {
+            state = 'complete';
+            held.clear();
+            syncJogButtons();
+            const best = readBest();
+            newBest = !best || elapsed < best;
+            if (newBest) storage.set(bestKey(), elapsed.toFixed(1));
+            announce(dict().announceComplete);
+            showOverlay('complete');
+        }
+
+        // ------------------------------------------------------------------
+        // joint commands of the player
+        // ------------------------------------------------------------------
+        function commandVector() {
+            const u = [0, 0, 0, 0, 0, 0];
+            for (const [joint, dir] of held.values()) u[joint] += dir;
+            return u.map((v) => clamp(v, -1, 1));
+        }
+
+        function movePlayer(dt) {
+            const command = commandVector();
+            if (!command.some(Boolean)) {
+                motion = null;
+                inContact = false;
+                return;
+            }
+            const result = Core.playerStep(world, q, command, dt);
+            motion = { status: result.status, share: result.motion.share, limited: result.motion.limited, qdot: result.motion.qdot };
+            if (result.status === 'moved') {
+                q = result.q;
+                robot = result.state;
+                inContact = false;
+            } else if (result.status === 'contact') {
+                if (!inContact) {
+                    contacts += 1;
+                    contactFlash = 1;
+                    const part = dict()[`part_${result.contact.label}`] || result.contact.label;
+                    showToast(dict().contactToast.replace('{part}', part), 'alert');
+                    announce(dict().announceContact.replace('{part}', part));
+                }
+                inContact = true;
+            } else if (result.status === 'span' && !toast) {
+                showToast(dict().spanToast, 'info');
+            }
+        }
+
+        function reportDamage() {
+            if (state !== 'playing' || reportCooldown > 0) return;
+            reportCooldown = 0.5;
+            const camera = Core.cameraOf(robot);
+            const seen = Core.defectsInView(world.scene, camera, new Set(reported.keys()));
+            if (!seen.length && Core.defectsInView(world.scene, camera, new Set()).length) {
+                showToast(dict().alreadyToast, 'info');
+                return;
+            }
+            if (!seen.length) {
+                falseReports += 1;
+                showToast(dict().falseToast, 'alert');
+                announce(dict().announceFalse);
+                return;
+            }
+            const defect = seen[0].defect;
+            reported.set(defect.id, 'player');
+            const label = dict()[`defect_${defect.kind}`];
+            showToast(dict().reportedToast.replace('{defect}', label), 'found');
+            announce(dict().announceReport.replace('{defect}', label).replace('{found}', String(reported.size)));
+            if (reported.size === world.scene.defects.length) completeSite();
+        }
+
+        // ------------------------------------------------------------------
+        // solution: the closed loop of the controller, replayed in real time
+        // ------------------------------------------------------------------
+        function startSolution() {
+            state = 'solution';
+            held.clear();
+            syncJogButtons();
+            reported = new Map();
+            toast = null;
+            run = new Core.SolutionRun(world, site);
+            q = run.q.slice();
+            robot = run.state;
+            solutionClock = 0;
+            solutionPause = 0.6;
+            showOverlay(null);
+        }
+
+        function stopSolution() {
+            run = null;
+            resetSite();
+        }
+
+        function stepSolution(dt) {
+            if (solutionPause > 0) {
+                solutionPause -= dt;
+                return;
+            }
+            solutionClock += dt * SOLUTION_SPEED;
+            while (!run.finished && run.time < solutionClock) {
+                const event = run.step();
+                if (event && event.found) {
+                    const defect = world.scene.defects[event.target];
+                    reported.set(defect.id, 'controller');
+                    const label = dict()[`defect_${defect.kind}`];
+                    showToast(dict().reportedToast.replace('{defect}', label), 'solver');
+                    announce(dict().announceSolution.replace('{defect}', label));
+                    solutionPause = SOLUTION_PAUSE;
+                    break;
+                }
+            }
+            q = run.q.slice();
+            robot = run.state;
+            if (run.finished && solutionPause <= 0) {
+                state = 'solved';
+                showOverlay('solved');
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // external view: orbiting perspective camera, the housing drawn opaque
+        // and the soft extension inside it drawn in X-ray
+        // ------------------------------------------------------------------
+        const { ROOM, PLATE, PORT_RADIUS, ROD_RADIUS } = Core;
+        const WALL = 0.012;
+        const HOUSING = {
+            min: [ROOM.min[0] - WALL, ROOM.min[1] - WALL, ROOM.min[2] - WALL],
+            max: [ROOM.max[0] + WALL, ROOM.max[1] + WALL, ROOM.max[2] + PLATE]
+        };
+        const GROUND = HOUSING.min[2];
+        const orbit = { yaw: 1.2, pitch: 0.4, target: [-0.55, -0.17, 0.27], distance: 3.4 };
+        const ORBIT_LIMITS = { yaw: [0.2, 2.1], pitch: [0.08, 1.25] };
+        const VIEW_BOUNDS = (() => {
+            const pts = [];
+            for (const x of [HOUSING.min[0], HOUSING.max[0]]) for (const y of [HOUSING.min[1], HOUSING.max[1]]) for (const z of [GROUND, HOUSING.max[2]]) pts.push([x, y, z]);
+            for (const x of [-0.12, 0.12]) for (const y of [-0.12, 0.12]) pts.push([x, y, GROUND], [x, y, 0.78]);
+            pts.push([-0.75, 0, 0.78], [-0.3, 0, 0.82]);
+            return pts;
+        })();
+        let view = null;
+
+        function setupView(w, h) {
+            const cp = Math.cos(orbit.pitch), sp = Math.sin(orbit.pitch);
+            const dir = [cp * Math.cos(orbit.yaw), cp * Math.sin(orbit.yaw), sp];
+            const C = add(orbit.target, scale(dir, orbit.distance));
+            const f = scale(dir, -1);
+            const side = cross(f, [0, 0, 1]);
+            const r = scale(side, 1 / norm(side));
+            view = { C, f, r, u: cross(r, f), F: 1, ox: 0, oy: 0, w, h };
+            let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+            for (const P of VIEW_BOUNDS) {
+                const c = toView(P);
+                x0 = Math.min(x0, c[0] / c[2]); x1 = Math.max(x1, c[0] / c[2]);
+                y0 = Math.min(y0, c[1] / c[2]); y1 = Math.max(y1, c[1] / c[2]);
+            }
+            const F = Math.min(w * 0.9 / (x1 - x0), h * 0.84 / (y1 - y0));
+            view.F = F;
+            view.ox = w / 2 - F * (x0 + x1) / 2;
+            view.oy = h / 2 + F * (y0 + y1) / 2 + h * 0.02;
+        }
+
+        function toView(P) {
+            const v = sub(P, view.C);
+            return [dot(v, view.r), dot(v, view.u), dot(v, view.f)];
+        }
+
+        // screen x, y, pixels per metre at that depth, depth
+        function project(P) {
+            const c = toView(P);
+            return [view.ox + view.F * c[0] / c[2], view.oy - view.F * c[1] / c[2], view.F / c[2], c[2]];
+        }
+
+        function hexToRgb(hex) {
+            const h = hex.replace('#', '');
+            return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+        }
+
+        const alpha = (hex, a) => {
+            const [r, g, b] = hexToRgb(hex);
+            return `rgba(${r}, ${g}, ${b}, ${a})`;
+        };
+
+        const font = (weight, size) => `${weight} ${size}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+
+        function palette() {
+            const dark = document.documentElement.dataset.theme === 'dark';
+            return dark ? {
+                surface: '#1a1d20', grid: '#2a2f34', ink: '#e6e9ec', text: '#949da6', shadow: 'rgba(0, 0, 0, 0.35)',
+                housing: ['#3a4148', '#323840', '#2b3137'], housingEdge: '#5b646d', top: '#454d55', port: '#0b0d0f',
+                link: '#727c86', linkEdge: '#4b535b', joint: '#5b86ad', jointEdge: '#3f6385', base: '#3d444b',
+                rod: '#c9a676', xray: '#7fd3f7', light: '#ffe9a8', tendon1: '#2dd4bf', tendon2: '#e0b23a',
+                accent: '#8dbbe8', found: '#3cc28f', solver: '#7fa8e6', alert: '#e66767'
+            } : {
+                surface: '#fafbfb', grid: '#e4e8eb', ink: '#23282d', text: '#697179', shadow: 'rgba(40, 48, 56, 0.12)',
+                housing: ['#c3cad1', '#b3bbc3', '#a7b0b9'], housingEdge: '#7d8791', top: '#d3d9de', port: '#1d2125',
+                link: '#dfe3e7', linkEdge: '#9aa3ab', joint: '#8db6d6', jointEdge: '#5d86a6', base: '#8a939b',
+                rod: '#8c6a43', xray: '#1e88c8', light: '#f5c542', tendon1: '#0d9488', tendon2: '#c99512',
+                accent: '#1d5b94', found: '#1b9e6f', solver: '#3b6fb6', alert: '#d64545'
+            };
+        }
+
+        function polygon(ctx, points) {
+            ctx.beginPath();
+            points.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+            ctx.closePath();
+        }
+
+        function drawGround(p) {
+            ext.save();
+            ext.lineWidth = 1;
+            const xs = [-1.7, 0.5], ys = [-1.0, 0.7];
+            for (let x = xs[0]; x <= xs[1] + 1e-9; x += 0.2) {
+                const a = project([x, ys[0], GROUND]), b = project([x, ys[1], GROUND]);
+                ext.strokeStyle = p.grid;
+                ext.beginPath(); ext.moveTo(a[0], a[1]); ext.lineTo(b[0], b[1]); ext.stroke();
+            }
+            for (let y = ys[0]; y <= ys[1] + 1e-9; y += 0.2) {
+                const a = project([xs[0], y, GROUND]), b = project([xs[1], y, GROUND]);
+                ext.strokeStyle = p.grid;
+                ext.beginPath(); ext.moveTo(a[0], a[1]); ext.lineTo(b[0], b[1]); ext.stroke();
+            }
+            // contact shadow of the housing and of the robot base
+            const [x0, y0] = HOUSING.min, [x1, y1] = HOUSING.max, m = 0.03;
+            polygon(ext, [[x0 - m, y0 - m], [x1 + m, y0 - m], [x1 + m, y1 + m], [x0 - m, y1 + m]].map(([x, y]) => project([x, y, GROUND])));
+            ext.fillStyle = p.shadow;
+            ext.fill();
+            ext.restore();
+        }
+
+        // the faces of the housing that face the camera; light from above-left
+        function drawHousing(p) {
+            const { min, max } = HOUSING;
+            const faces = [
+                { n: [0, 0, 1], pts: [[min[0], min[1], max[2]], [max[0], min[1], max[2]], [max[0], max[1], max[2]], [min[0], max[1], max[2]]] },
+                { n: [1, 0, 0], pts: [[max[0], min[1], min[2]], [max[0], max[1], min[2]], [max[0], max[1], max[2]], [max[0], min[1], max[2]]] },
+                { n: [-1, 0, 0], pts: [[min[0], max[1], min[2]], [min[0], min[1], min[2]], [min[0], min[1], max[2]], [min[0], max[1], max[2]]] },
+                { n: [0, 1, 0], pts: [[max[0], max[1], min[2]], [min[0], max[1], min[2]], [min[0], max[1], max[2]], [max[0], max[1], max[2]]] },
+                { n: [0, -1, 0], pts: [[min[0], min[1], min[2]], [max[0], min[1], min[2]], [max[0], min[1], max[2]], [min[0], min[1], max[2]]] }
+            ];
+            ext.save();
+            ext.lineJoin = 'round';
+            for (const face of faces) {
+                const centre = scale(face.pts.reduce((s, x) => add(s, x), [0, 0, 0]), 0.25);
+                if (dot(face.n, sub(view.C, centre)) <= 0) continue;
+                const shade = face.n[2] ? p.top : face.n[0] ? p.housing[0] : p.housing[1];
+                polygon(ext, face.pts.map(project));
+                ext.fillStyle = shade;
+                ext.fill();
+                ext.strokeStyle = p.housingEdge;
+                ext.lineWidth = 1.2;
+                ext.stroke();
+                if (!face.n[2]) {
+                    // inset access panel with four screws
+                    const inset = face.pts.map((x) => add(centre, scale(sub(x, centre), 0.82)));
+                    polygon(ext, inset.map(project));
+                    ext.strokeStyle = alpha(p.housingEdge, 0.55);
+                    ext.lineWidth = 1;
+                    ext.stroke();
+                    for (const corner of face.pts.map((x) => add(centre, scale(sub(x, centre), 0.76)))) {
+                        const [sx, sy] = project(corner);
+                        ext.fillStyle = alpha(p.housingEdge, 0.8);
+                        ext.beginPath(); ext.arc(sx, sy, 1.6, 0, Math.PI * 2); ext.fill();
+                    }
+                }
+            }
+            // inspection port and its bolt circle
+            const port = Core.portCenter(), top = max[2];
+            const ring = (radius) => Array.from({ length: 40 }, (_, i) => {
+                const a = (i / 40) * Math.PI * 2;
+                return project([port[0] + radius * Math.cos(a), port[1] + radius * Math.sin(a), top]);
+            });
+            polygon(ext, ring(PORT_RADIUS + 0.012));
+            ext.fillStyle = alpha(p.housingEdge, 0.35);
+            ext.fill();
+            polygon(ext, ring(PORT_RADIUS));
+            ext.fillStyle = p.port;
+            ext.fill();
+            for (let k = 0; k < 8; k++) {
+                const a = (k / 8) * Math.PI * 2 + 0.2;
+                const [sx, sy] = project([port[0] + (PORT_RADIUS + 0.022) * Math.cos(a), port[1] + (PORT_RADIUS + 0.022) * Math.sin(a), top]);
+                ext.fillStyle = p.housingEdge;
+                ext.beginPath(); ext.arc(sx, sy, 1.7, 0, Math.PI * 2); ext.fill();
+            }
+            ext.restore();
+        }
+
+        // a capsule of radius r between two points, with an outline
+        function strokeCapsule(a, b, r, fill, edge) {
+            const pa = project(a), pb = project(b);
+            const width = 2 * r * (pa[2] + pb[2]) / 2;
+            ext.lineCap = 'round';
+            ext.strokeStyle = edge;
+            ext.lineWidth = width + 2;
+            ext.beginPath(); ext.moveTo(pa[0], pa[1]); ext.lineTo(pb[0], pb[1]); ext.stroke();
+            ext.strokeStyle = fill;
+            ext.lineWidth = width;
+            ext.stroke();
+        }
+
+        function drawRobot(p) {
+            const o = robot.frames.map((F) => F.p);
+            const links = [
+                { a: [0, 0, GROUND], b: [0, 0, 0.02], r: 0.085, fill: p.base, edge: p.linkEdge },
+                { a: o[0], b: o[1], r: 0.075 },
+                { a: o[1], b: o[2], r: 0.06 },
+                { a: o[2], b: o[3], r: 0.048 },
+                { a: o[3], b: o[4], r: 0.045 },
+                { a: o[4], b: o[5], r: 0.045 },
+                { a: o[5], b: o[6], r: 0.042 }
+            ];
+            const joints = [1, 2, 3, 4, 5].map((k) => ({ c: o[k], r: k < 3 ? 0.07 : 0.05 }));
+            const items = [
+                ...links.map((l) => ({ kind: 'link', depth: (toView(l.a)[2] + toView(l.b)[2]) / 2, ...l })),
+                ...joints.map((j) => ({ kind: 'joint', depth: toView(j.c)[2] - 0.02, ...j }))
+            ].sort((a, b) => b.depth - a.depth);
+            ext.save();
+            for (const item of items) {
+                if (item.kind === 'link') {
+                    strokeCapsule(item.a, item.b, item.r, item.fill || p.link, item.edge || p.linkEdge);
+                } else {
+                    const [x, y, s] = project(item.c);
+                    ext.fillStyle = p.joint;
+                    ext.strokeStyle = p.jointEdge;
+                    ext.lineWidth = 1.2;
+                    ext.beginPath(); ext.arc(x, y, item.r * s, 0, Math.PI * 2); ext.fill(); ext.stroke();
+                }
+            }
+            // flange and mount of the soft extension
+            strokeCapsule(robot.p_B, add(robot.p_B, scale(Core.col(robot.R_B, 2), -0.025)), 0.03, p.base, p.linkEdge);
+            // tendons from the anchors on the arm to their entry points at the EE
+            [p.tendon1, p.tendon2].forEach((colour, i) => {
+                const a = project(robot.anchors[i]), b = project(robot.entries[i]);
+                ext.strokeStyle = colour;
+                ext.lineWidth = 1.6;
+                ext.beginPath(); ext.moveTo(a[0], a[1]); ext.lineTo(b[0], b[1]); ext.stroke();
+                ext.fillStyle = colour;
+                ext.beginPath(); ext.arc(a[0], a[1], 3, 0, Math.PI * 2); ext.fill();
+            });
+            ext.restore();
+        }
+
+        // the extension inside the housing, its tip camera and the light cone
+        function drawXray(p) {
+            const pts = robot.centerline.map(project);
+            const contact = contactFlash > 0;
+            ext.save();
+            ext.lineCap = 'round';
+            ext.lineJoin = 'round';
+            const width = 2 * ROD_RADIUS * pts[pts.length >> 1][2];
+            const path = () => {
+                ext.beginPath();
+                pts.forEach(([x, y], i) => (i ? ext.lineTo(x, y) : ext.moveTo(x, y)));
+            };
+            path();
+            ext.strokeStyle = alpha(contact ? p.alert : p.xray, contact ? 0.25 + 0.35 * contactFlash : 0.22);
+            ext.lineWidth = width + 10;
+            ext.stroke();
+            ext.strokeStyle = contact ? p.alert : p.rod;
+            ext.lineWidth = width;
+            ext.stroke();
+            ext.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+            ext.lineWidth = Math.max(1, width * 0.25);
+            ext.stroke();
+            // light cone of the tip camera
+            const cam = Core.cameraOf(robot);
+            const tan = Math.tan(Core.CAMERA.fov / 2), reach = 0.07;
+            const corners = [[-1, -0.75], [1, -0.75], [1, 0.75], [-1, 0.75]].map(([a, b]) =>
+                project(add(cam.p, scale(add(cam.axis, add(scale(cam.right, a * tan), scale(cam.down, b * tan))), reach))));
+            const apex = project(cam.p);
+            ext.fillStyle = alpha(p.light, 0.16);
+            ext.strokeStyle = alpha(p.light, 0.7);
+            ext.lineWidth = 1;
+            for (let k = 0; k < 4; k++) {
+                polygon(ext, [apex, corners[k], corners[(k + 1) % 4]]);
+                ext.fill();
+            }
+            polygon(ext, corners);
+            ext.stroke();
+            corners.forEach((c) => { ext.beginPath(); ext.moveTo(apex[0], apex[1]); ext.lineTo(c[0], c[1]); ext.stroke(); });
+            ext.fillStyle = p.ink;
+            ext.beginPath(); ext.arc(apex[0], apex[1], 3, 0, Math.PI * 2); ext.fill();
+            ext.restore();
+        }
+
+        // reported parts and, during the solution, the current viewpoint
+        function drawMarkers(p) {
+            ext.save();
+            for (const [id, by] of reported) {
+                const defect = world.scene.defects[id];
+                const [x, y] = project(defect.center);
+                const colour = by === 'player' ? p.found : p.solver;
+                ext.strokeStyle = colour;
+                ext.fillStyle = alpha(colour, 0.2);
+                ext.lineWidth = 2;
+                ext.beginPath(); ext.arc(x, y, 7, 0, Math.PI * 2); ext.fill(); ext.stroke();
+                ext.beginPath(); ext.moveTo(x - 3, y); ext.lineTo(x - 0.5, y + 2.6); ext.lineTo(x + 3.6, y - 2.6); ext.stroke();
+            }
+            if (state === 'solution' && run && !run.finished) {
+                const [x, y] = project(run.goal);
+                ext.strokeStyle = p.solver;
+                ext.setLineDash([3, 3]);
+                ext.lineWidth = 1.5;
+                ext.beginPath(); ext.arc(x, y, 9, 0, Math.PI * 2); ext.stroke();
+                ext.setLineDash([]);
+                const [rx, ry] = project(run.reference);
+                ext.fillStyle = p.solver;
+                ext.beginPath(); ext.arc(rx, ry, 2.5, 0, Math.PI * 2); ext.fill();
+            }
+            // the EE position held by the constraint
+            const [ex, ey] = project(P_STAR);
+            ext.strokeStyle = p.accent;
+            ext.lineWidth = 1.5;
+            ext.beginPath(); ext.arc(ex, ey, 8, 0, Math.PI * 2); ext.stroke();
+            ext.font = font(650, 11);
+            ext.fillStyle = p.accent;
+            ext.textBaseline = 'middle';
+            ext.fillText(dict().eeFixed, ex + 16, ey + 2);
+            ext.restore();
+        }
+
+        // tendon spans within the identified domain
+        function drawSpanGauges(p) {
+            const spans = robot.spans, map = world.map;
+            const w = Math.min(110, view.w * 0.24), x = view.w - w - 36, y0 = view.h - 40;
+            ext.save();
+            ext.font = font(650, 10);
+            ext.textBaseline = 'middle';
+            ext.fillStyle = p.text;
+            ext.fillText(dict().spanDomain, x, y0 - 12);
+            [p.tendon1, p.tendon2].forEach((colour, i) => {
+                const y = y0 + 15 * i;
+                const s = clamp((spans[i] - map.lower[i]) / (map.upper[i] - map.lower[i]), 0, 1);
+                const atLimit = motion && motion.limited && motion.limited[i];
+                ext.fillStyle = colour;
+                ext.fillText(`ℓ${i ? '₂' : '₁'}`, x, y);
+                ext.strokeStyle = alpha(p.text, 0.35);
+                ext.lineWidth = 4;
+                ext.lineCap = 'round';
+                ext.beginPath(); ext.moveTo(x + 18, y); ext.lineTo(x + 18 + w, y); ext.stroke();
+                ext.fillStyle = atLimit ? p.alert : colour;
+                ext.beginPath(); ext.arc(x + 18 + s * w, y, 4.5, 0, Math.PI * 2); ext.fill();
+            });
+            ext.restore();
+        }
+
+        function drawBanner(p, text, colour) {
+            ext.save();
+            ext.font = font(700, 12);
+            const tw = ext.measureText(text).width;
+            const bx = view.w / 2 - tw / 2 - 12, by = 30;
+            ext.fillStyle = alpha(colour, 0.14);
+            ext.strokeStyle = alpha(colour, 0.6);
+            ext.lineWidth = 1;
+            ext.beginPath();
+            if (ext.roundRect) ext.roundRect(bx, by, tw + 24, 24, 12); else ext.rect(bx, by, tw + 24, 24);
+            ext.fill();
+            ext.stroke();
+            ext.fillStyle = colour;
+            ext.textAlign = 'center';
+            ext.textBaseline = 'middle';
+            ext.fillText(text, view.w / 2, by + 12.5);
+            ext.restore();
+        }
+
+        function renderExternal() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = externalCanvas.clientWidth, h = externalCanvas.clientHeight;
+            if (!w || !h) return;
+            if (externalCanvas.width !== Math.round(w * dpr) || externalCanvas.height !== Math.round(h * dpr)) {
+                externalCanvas.width = Math.round(w * dpr);
+                externalCanvas.height = Math.round(h * dpr);
+            }
+            setupView(w, h);
+            const p = palette();
+            ext.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ext.fillStyle = p.surface;
+            ext.fillRect(0, 0, w, h);
+            drawGround(p);
+            drawHousing(p);
+            drawXray(p);
+            drawMarkers(p);
+            drawRobot(p);
+            drawSpanGauges(p);
+            if (state === 'solution' && run) {
+                const text = dict().solutionBanner.replace('{index}', String(Math.min(run.index + 1, run.targets.length))).replace('{count}', String(run.targets.length));
+                drawBanner(p, text, p.solver);
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // tip camera: ray casting of the housing, lit only by the light at
+        // the tip, whose cone is aligned with the camera frustum
+        // ------------------------------------------------------------------
+        const LIGHT = {
+            inner: Math.cos(13 * DEG), outer: Math.cos(36 * DEG), // spot cone around the optical axis
+            reference: 0.1, soft: 0.02,                          // inverse-square falloff, 1 at 10 cm
+            power: 1.3, ambient: 0.004, exposure: 1.7, gamma: 1 / 1.9
+        };
+        const feed = { image: document.createElement('canvas'), data: null, W: 0, H: 0, key: '', w: 0, h: 0 };
+        const feedImageCtx = feed.image.getContext('2d');
+        const { MATERIALS, PATTERN } = Core;
+
+        function hash2(i, j) {
+            let h = Math.imul(i, 374761393) + Math.imul(j, 668265263);
+            h = Math.imul(h ^ (h >>> 13), 1274126177);
+            return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+        }
+
+        function noise2(x, y) {
+            const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j;
+            const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+            const a = hash2(i, j), b = hash2(i + 1, j), c = hash2(i, j + 1), d = hash2(i + 1, j + 1);
+            return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
+        }
+
+        const smoothstep = (a, b, x) => {
+            const t = clamp((x - a) / (b - a), 0, 1);
+            return t * t * (3 - 2 * t);
+        };
+
+        // surface coordinates of a room face
+        function faceCoords(face, x) {
+            if (face <= 1) return [x[1], x[2]];
+            if (face <= 3) return [x[0], x[2]];
+            return [x[0], x[1]];
+        }
+
+        // albedo multiplier of the procedural patterns
+        function patternFactor(pattern, hit) {
+            const x = hit.x;
+            if (pattern === PATTERN.hazard) {
+                const s = Math.floor((x[0] + x[1] + x[2]) / 0.02);
+                return (s & 1) ? 1 : 0.06;
+            }
+            if (pattern !== PATTERN.wall && pattern !== PATTERN.floor) return 1;
+            const [s, t] = faceCoords(hit.face, x);
+            const grime = 0.82 + 0.3 * noise2(s * 9, t * 9) + 0.08 * noise2(s * 60, t * 60);
+            const size = pattern === PATTERN.wall ? 0.16 : 0.24;
+            const fs = s / size - Math.floor(s / size), ft = t / size - Math.floor(t / size);
+            const seam = Math.min(fs, 1 - fs, ft, 1 - ft) * size;
+            let k = grime * (seam < 0.0016 ? 0.45 : 1);
+            if (pattern === PATTERN.wall) {
+                // rivets 1.2 cm inside each panel edge, every 4 cm
+                const rs = Math.abs(((s + 0.02) % 0.04 + 0.04) % 0.04 - 0.02), rt = Math.min(ft, 1 - ft) * size - 0.012;
+                const rt2 = Math.min(fs, 1 - fs) * size - 0.012, rs2 = Math.abs(((t + 0.02) % 0.04 + 0.04) % 0.04 - 0.02);
+                if (Math.hypot(rs, rt) < 0.0028 || Math.hypot(rs2, rt2) < 0.0028) k *= 1.3;
+            } else {
+                // diamond tread of the floor plates
+                const a = (s + t) / 0.018, b = (s - t) / 0.018;
+                const da = Math.abs(a - Math.round(a)), db = Math.abs(b - Math.round(b));
+                if (da < 0.14 && db < 0.3) k *= 1.07;
+                if (((Math.floor(s / size) + Math.floor(t / size)) & 1) === 1) k *= 0.93;
+            }
+            return k;
+        }
+
+        // distance from a point to a polyline in 2-D
+        function polylineDistance(pts, a, b) {
+            let best = Infinity;
+            for (let i = 0; i + 1 < pts.length; i++) {
+                const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+                const dx = x1 - x0, dy = y1 - y0;
+                const t = clamp(((a - x0) * dx + (b - y0) * dy) / (dx * dx + dy * dy), 0, 1);
+                best = Math.min(best, Math.hypot(a - x0 - t * dx, b - y0 - t * dy));
+            }
+            return best;
+        }
+
+        // linear RGB of a hit seen along the unit ray d
+        function shade(hit, d, cosAxis, out) {
+            const m = MATERIALS[hit.mat];
+            let k = patternFactor(m.pattern, hit);
+            let tint = null;
+            const decal = hit.prim && hit.prim.decal;
+            if (decal) {
+                const r = sub(hit.x, decal.o);
+                const dist = polylineDistance(decal.pts, dot(r, decal.a), dot(r, decal.b));
+                if (dist < decal.width) k *= 0.05;
+                else if (dist < 2.6 * decal.width) k *= 0.55;
+            }
+            for (const scorch of world.scene.decals) {
+                const dist = norm(sub(hit.x, scorch.c)) / scorch.r;
+                if (dist >= 1) continue;
+                const n = noise2(hit.x[0] * 140 + hit.x[2] * 60, hit.x[1] * 140 - hit.x[2] * 60);
+                const soot = 1 - smoothstep(0.25, 1, dist + 0.25 * (n - 0.5));
+                k *= 1 - 0.93 * soot;
+                if (soot > 0.05 && soot < 0.6) tint = [0.35, 0.2, 0.08];
+            }
+            const cosI = Math.max(0, -(hit.n[0] * d[0] + hit.n[1] * d[1] + hit.n[2] * d[2]));
+            const spot = smoothstep(LIGHT.outer, LIGHT.inner, cosAxis);
+            const fall = (LIGHT.reference * LIGHT.reference + LIGHT.soft * LIGHT.soft) / (hit.t * hit.t + LIGHT.soft * LIGHT.soft);
+            const light = LIGHT.power * spot * fall;
+            const diffuse = LIGHT.ambient + light * cosI;
+            const specular = m.spec * light * Math.pow(cosI, m.gloss);
+            for (let c = 0; c < 3; c++) {
+                let albedo = m.rgb[c] * k;
+                if (tint) albedo = albedo * 0.7 + tint[c] * 0.3 * k;
+                out[c] = albedo * diffuse + specular * (m.name === 'copper' ? m.rgb[c] * 1.4 : 1);
+            }
+        }
+
+        function visibleGroups(camera, tanX, tanY) {
+            return world.scene.groups.filter((g) => {
+                const v = sub(g.center, camera.p);
+                const z = dot(v, camera.axis);
+                if (z + g.radius < 0) return false;
+                if (z <= g.radius) return true;
+                return Math.abs(dot(v, camera.right)) - g.radius <= tanX * (z + g.radius) &&
+                    Math.abs(dot(v, camera.down)) - g.radius <= tanY * (z + g.radius);
+            });
+        }
+
+        function renderFeedImage(camera) {
+            const { W, H } = feed;
+            const data = feed.data.data;
+            const tanX = Math.tan(Core.CAMERA.fov / 2), tanY = tanX * H / W;
+            const groups = visibleGroups(camera, tanX, tanY);
+            const { p, axis, right, down } = camera;
+            const d = [0, 0, 0], rgb = [0, 0, 0];
+            let seed = 1;
+            for (let j = 0; j < H; j++) {
+                const v = ((j + 0.5) / H * 2 - 1) * tanY;
+                for (let i = 0; i < W; i++) {
+                    const u = ((i + 0.5) / W * 2 - 1) * tanX;
+                    d[0] = axis[0] + u * right[0] + v * down[0];
+                    d[1] = axis[1] + u * right[1] + v * down[1];
+                    d[2] = axis[2] + u * right[2] + v * down[2];
+                    const inv = 1 / Math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+                    d[0] *= inv; d[1] *= inv; d[2] *= inv;
+                    const hit = Core.raycast(world.scene, p, d, groups);
+                    shade(hit, d, inv, rgb);
+                    seed = (seed * 16807) % 2147483647;
+                    const grain = (seed / 2147483647 - 0.5) * 0.035;
+                    const k = 4 * (j * W + i);
+                    for (let c = 0; c < 3; c++) {
+                        const mapped = 1 - Math.exp(-LIGHT.exposure * rgb[c]);
+                        data[k + c] = 255 * clamp(Math.pow(mapped, LIGHT.gamma) + grain, 0, 1);
+                    }
+                    data[k + 3] = 255;
+                }
+            }
+            feedImageCtx.putImageData(feed.data, 0, 0);
+        }
+
+        // image coordinates (CSS pixels) of a world point, or null behind the camera
+        function feedProject(camera, P) {
+            const v = sub(P, camera.p);
+            const z = dot(v, camera.axis);
+            if (z < 0.005) return null;
+            const f = (feed.w / 2) / Math.tan(Core.CAMERA.fov / 2);
+            return [feed.w / 2 + f * dot(v, camera.right) / z, feed.h / 2 + f * dot(v, camera.down) / z, f / z];
+        }
+
+        function inSight(camera, P, owner) {
+            const v = sub(P, camera.p), dist = norm(v);
+            const hit = Core.raycast(world.scene, camera.p, scale(v, 1 / dist));
+            return hit.owner === owner || hit.t >= dist - 0.006;
+        }
+
+        function drawFeedOverlay(camera, p) {
+            const { w, h } = feed;
+            const f = (w / 2) / Math.tan(Core.CAMERA.fov / 2);
+            const cx = w / 2, cy = h / 2;
+            const ctx = feedCtx;
+            ctx.save();
+            // live contacts of the disconnected connectors
+            const now = performance.now() / 1000;
+            for (const defect of world.scene.defects) {
+                if (!defect.sparks || (now + defect.id * 0.7) % 1.7 > 0.22) continue;
+                const s = feedProject(camera, defect.sparks);
+                if (!s || s[0] < 0 || s[0] > w || s[1] < 0 || s[1] > h || !inSight(camera, defect.sparks, defect.owner)) continue;
+                const len = clamp(0.012 * s[2], 3, 26);
+                for (let k = 0; k < 6; k++) {
+                    const a = Math.random() * Math.PI * 2, l = len * (0.4 + Math.random());
+                    ctx.strokeStyle = k % 2 ? '#fff6c8' : '#ffc94a';
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.lineTo(s[0] + Math.cos(a) * l, s[1] + Math.sin(a) * l); ctx.stroke();
+                }
+            }
+            // reported parts
+            ctx.font = font(700, 11);
+            ctx.textBaseline = 'bottom';
+            for (const [id, by] of reported) {
+                const defect = world.scene.defects[id];
+                const s = feedProject(camera, defect.center);
+                if (!s || s[0] < -20 || s[0] > w + 20 || s[1] < -20 || s[1] > h + 20 || !inSight(camera, defect.center, defect.owner)) continue;
+                const half = clamp(0.035 * s[2], 14, 90);
+                const colour = by === 'player' ? p.found : p.solver;
+                ctx.strokeStyle = colour;
+                ctx.lineWidth = 2;
+                const c = half * 0.35;
+                for (const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+                    ctx.beginPath();
+                    ctx.moveTo(s[0] + sx * half, s[1] + sy * (half - c));
+                    ctx.lineTo(s[0] + sx * half, s[1] + sy * half);
+                    ctx.lineTo(s[0] + sx * (half - c), s[1] + sy * half);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = colour;
+                ctx.fillText(dict()[`defect_${defect.kind}`], s[0] - half, s[1] - half - 4);
+            }
+            // report circle, centre cross and the direction of "up"
+            const radius = f * Math.tan(Core.REPORT.angle);
+            ctx.strokeStyle = 'rgba(235, 240, 245, 0.55)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx - 6, cy); ctx.lineTo(cx + 6, cy);
+            ctx.moveTo(cx, cy - 6); ctx.lineTo(cx, cy + 6);
+            ctx.stroke();
+            const ux = camera.right[2], uy = camera.down[2], ul = Math.hypot(ux, uy);
+            if (ul > 0.05) {
+                const ax = -ux / ul, ay = -uy / ul;   // world up in image coordinates
+                const tx = cx + ax * (radius + 9), ty = cy + ay * (radius + 9);
+                ctx.fillStyle = 'rgba(235, 240, 245, 0.75)';
+                ctx.beginPath();
+                ctx.moveTo(tx + ax * 6, ty + ay * 6);
+                ctx.lineTo(tx - ay * 4.5, ty + ax * 4.5);
+                ctx.lineTo(tx + ay * 4.5, ty - ax * 4.5);
+                ctx.closePath();
+                ctx.fill();
+            }
+            // range along the optical axis
+            const range = Core.raycast(world.scene, camera.p, camera.axis).t;
+            ctx.font = font(650, 11);
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = 'rgba(235, 240, 245, 0.75)';
+            ctx.fillText(`${dict().rangeLabel} ${(100 * range).toFixed(1)} cm`, w - 12, 10);
+            // toast
+            if (toast && toast.t < 1.8) {
+                const colour = toast.kind === 'found' ? p.found : toast.kind === 'solver' ? p.solver : toast.kind === 'alert' ? p.alert : '#c3c9cf';
+                ctx.font = font(700, 12);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const tw = ctx.measureText(toast.text).width;
+                const by = h - 34;
+                ctx.globalAlpha = clamp((1.8 - toast.t) / 0.3, 0, 1);
+                ctx.fillStyle = 'rgba(10, 12, 14, 0.72)';
+                ctx.strokeStyle = colour;
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(w / 2 - tw / 2 - 12, by - 12, tw + 24, 24, 12); else ctx.rect(w / 2 - tw / 2 - 12, by - 12, tw + 24, 24);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = colour;
+                ctx.fillText(toast.text, w / 2, by + 0.5);
+            }
+            ctx.restore();
+        }
+
+        function renderFeed() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = feedCanvas.clientWidth, h = feedCanvas.clientHeight;
+            if (!w || !h) return;
+            if (feedCanvas.width !== Math.round(w * dpr) || feedCanvas.height !== Math.round(h * dpr)) {
+                feedCanvas.width = Math.round(w * dpr);
+                feedCanvas.height = Math.round(h * dpr);
+            }
+            // the image is ray cast at about 0.45 samples per CSS pixel and
+            // only when the camera moves
+            const W = clamp(Math.round(w * 0.45), 150, 300), H = Math.round(W * h / w);
+            if (W !== feed.W || H !== feed.H) {
+                Object.assign(feed, { W, H, key: '' });
+                feed.image.width = W;
+                feed.image.height = H;
+                feed.data = feedImageCtx.createImageData(W, H);
+            }
+            feed.w = w;
+            feed.h = h;
+            const camera = Core.cameraOf(robot);
+            const key = [...camera.p, ...camera.axis, ...camera.right].map((v) => v.toFixed(5)).join() + siteIndex;
+            if (key !== feed.key) {
+                renderFeedImage(camera);
+                feed.key = key;
+            }
+            feedCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            feedCtx.imageSmoothingEnabled = true;
+            feedCtx.drawImage(feed.image, 0, 0, w, h);
+            drawFeedOverlay(camera, palette());
+        }
+
+        // ------------------------------------------------------------------
+        // simulation step
+        // ------------------------------------------------------------------
+        function update(dt) {
+            if (state === 'playing') {
+                elapsed += dt;
+                movePlayer(dt);
+            }
+            if (state === 'solution') stepSolution(dt);
+            reportCooldown = Math.max(0, reportCooldown - dt);
+            contactFlash = Math.max(0, contactFlash - dt * 1.5);
+            if (toast) {
+                toast.t += dt;
+                if (toast.t > 1.8) toast = null;
+            }
+            updateLiveHud();
+        }
+
+        let last = performance.now();
+        function frame(now) {
+            const dt = clamp((now - last) / 1000, 0, 0.05);
+            last = Math.max(last, now);
+            update(dt);
+            renderExternal();
+            renderFeed();
+            requestAnimationFrame(frame);
+        }
+
+        // ------------------------------------------------------------------
+        // interface
+        // ------------------------------------------------------------------
+        let currentLanguage = storage.get('language') || 'en';
+        if (!translations[currentLanguage]) currentLanguage = 'en';
+        const dict = () => translations[currentLanguage];
+        let overlayMode = 'start';
+
+        const formatTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+        function announce(text) {
+            announcer.textContent = text;
+        }
+
+        function showToast(text, kind) {
+            toast = { text, kind, t: 0 };
+        }
+
+        function setText(el, text) {
+            if (el.textContent !== text) el.textContent = text;
+        }
+
+        // joint rows: name, jog buttons, a meter of q - q0 and the angle
+        const jointGrid = byId('jointGrid');
+        const jointRows = Q0.map((_, j) => {
+            const row = document.createElement('div');
+            row.className = 'joint';
+            row.innerHTML = `<span><span class="joint-symbol">q${'₁₂₃₄₅₆'[j]}</span> <span class="joint-name"></span></span>` +
+                `<button class="jog" type="button" data-joint="${j}" data-dir="-1">−</button>` +
+                '<span class="joint-meter" aria-hidden="true"><span class="joint-dot"></span></span>' +
+                `<button class="jog" type="button" data-joint="${j}" data-dir="1">+</button>` +
+                `<output></output><kbd>${JOINT_KEYS[j][0].toUpperCase()}/${JOINT_KEYS[j][1].toUpperCase()}</kbd>`;
+            jointGrid.appendChild(row);
+            return {
+                name: row.querySelector('.joint-name'),
+                minus: row.querySelector('[data-dir="-1"]'),
+                plus: row.querySelector('[data-dir="1"]'),
+                dot: row.querySelector('.joint-dot'),
+                value: row.querySelector('output')
+            };
+        });
+        const jogButtons = [...jointGrid.querySelectorAll('.jog')];
+
+        function syncJogButtons() {
+            const active = new Set([...held.values()].map(([j, dir]) => `${j}:${dir}`));
+            jogButtons.forEach((button) => {
+                button.classList.toggle('held', active.has(`${button.dataset.joint}:${button.dataset.dir}`));
+                button.disabled = state === 'solution' || state === 'paused';
+            });
+        }
+
+        jogButtons.forEach((button) => {
+            const source = (event) => `pointer:${event.pointerId}`;
+            button.addEventListener('pointerdown', (event) => {
+                if (button.disabled) return;
+                event.preventDefault();
+                button.setPointerCapture(event.pointerId);
+                if (state === 'ready') startGame();
+                if (state !== 'playing') return;
+                held.set(source(event), [Number(button.dataset.joint), Number(button.dataset.dir)]);
+                syncJogButtons();
+            });
+            const release = (event) => {
+                held.delete(source(event));
+                syncJogButtons();
+            };
+            button.addEventListener('pointerup', release);
+            button.addEventListener('pointercancel', release);
+            button.addEventListener('lostpointercapture', release);
+            button.addEventListener('contextmenu', (event) => event.preventDefault());
+            // keyboard users: Enter or Space on a focused button gives a short step
+            button.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                event.stopPropagation();
+                if (state === 'ready') startGame();
+                if (state !== 'playing' || event.repeat) return;
+                held.set('focus', [Number(button.dataset.joint), Number(button.dataset.dir)]);
+                syncJogButtons();
+            });
+            button.addEventListener('keyup', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                held.delete('focus');
+                syncJogButtons();
+            });
+        });
+
+        function updateJointRows() {
+            const rates = motion && motion.status === 'moved' ? motion.qdot : null;
+            jointRows.forEach((row, j) => {
+                const offset = clamp((q[j] - Q0[j]) / METER_RANGE, -1, 1);
+                row.dot.style.left = `${50 + 50 * offset}%`;
+                row.dot.classList.toggle('moving', Boolean(rates && Math.abs(rates[j]) > 0.01) || state === 'solution' && Math.abs(run?.qdot[j] || 0) > 0.01);
+                setText(row.value, `${(q[j] / DEG).toFixed(1)}°`);
+            });
+            const share = motion ? `${dict().shareLabel}: ${Math.round(100 * motion.share)} %` : '';
+            setText(shareValue, share);
+        }
+
+        function updateHud() {
+            setText(hud.site, `${siteIndex + 1} / ${SITE_COUNT} · ${site.name[currentLanguage] || site.name.en}`);
+            setText(hud.found, `${reported.size} / ${world.scene.defects.length}`);
+            setText(hud.falseReports, String(falseReports));
+            setText(hud.contacts, String(contacts));
+        }
+
+        function updateLiveHud() {
+            updateHud();
+            setText(hud.time, formatTime(elapsed));
+            setText(hud.deviation, `${(1000 * norm(sub(robot.p_B, P_STAR))).toFixed(2)} mm`);
+            const t = dict();
+            buttons.report.disabled = state !== 'playing';
+            buttons.pause.disabled = state !== 'playing' && state !== 'paused';
+            setText(buttons.pause, state === 'paused' ? t.resume : t.pause);
+            setText(buttons.solution, state === 'solution' ? t.stopSolution : t.showSolution);
+            updateJointRows();
+        }
+
+        function showOverlay(which) {
+            if (which) overlayMode = which;
+            overlay.hidden = !which;
+            if (!which) return;
+            const t = dict();
+            const siteName = site.name[currentLanguage] || site.name.en;
+            overlayKicker.textContent = `${t.hudSite} ${siteIndex + 1} / ${SITE_COUNT}`;
+            overlayStats.hidden = which !== 'complete';
+            overlayBadge.hidden = !(which === 'complete' && newBest);
+            overlayBadge.textContent = t.newBest;
+            overlaySecondary.hidden = which !== 'complete' && which !== 'solved';
+            overlaySecondary.textContent = t.nextSite;
+            if (which === 'start') {
+                overlayTitle.textContent = siteName;
+                overlayText.textContent = t.startText;
+                overlayButton.textContent = t.start;
+            } else if (which === 'paused') {
+                overlayTitle.textContent = t.pausedTitle;
+                overlayText.textContent = t.pausedText;
+                overlayButton.textContent = t.resume;
+            } else if (which === 'complete') {
+                overlayTitle.textContent = t.completeTitle;
+                overlayText.textContent = t.completeText;
+                overlayButton.textContent = t.playAgain;
+                finalStats.time.textContent = formatTime(elapsed);
+                finalStats.best.textContent = formatTime(readBest() || elapsed);
+                finalStats.falseReports.textContent = String(falseReports);
+                finalStats.contacts.textContent = String(contacts);
+            } else {
+                overlayTitle.textContent = t.solvedTitle;
+                overlayText.textContent = t.solvedText.replace('{seconds}', run ? run.time.toFixed(1) : '–');
+                overlayButton.textContent = t.tryAgain;
+            }
+        }
+
+        overlayButton.addEventListener('click', () => {
+            if (state === 'paused') resumeGame();
+            else if (state === 'solved') resetSite();
+            else startGame();
+        });
+
+        overlaySecondary.addEventListener('click', () => {
+            loadSite(siteIndex + 1);
+            resetSite();
+        });
+
+        buttons.report.addEventListener('click', reportDamage);
+        buttons.pause.addEventListener('click', () => {
+            if (state === 'playing') pauseGame(); else resumeGame();
+        });
+        buttons.restart.addEventListener('click', resetSite);
+        buttons.next.addEventListener('click', () => {
+            loadSite(siteIndex + 1);
+            resetSite();
+        });
+        buttons.solution.addEventListener('click', () => {
+            if (state === 'solution') stopSolution(); else startSolution();
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) pauseGame();
+        });
+
+        // keyboard: joint pairs, Space or Enter reports, P pauses
+        const KEY_TO_JOINT = new Map(JOINT_KEYS.flatMap(([plus, minus], j) => [[plus, [j, 1]], [minus, [j, -1]]]));
+        window.addEventListener('keydown', (event) => {
+            if (event.ctrlKey || event.metaKey || event.altKey) return;
+            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            const onControl = Boolean(target?.closest('button, a, input'));
+            if (key === 'p' && (state === 'playing' || state === 'paused')) {
+                event.preventDefault();
+                if (state === 'playing') pauseGame(); else resumeGame();
+                return;
+            }
+            if ((key === ' ' || key === 'Enter') && !onControl && state === 'playing') {
+                event.preventDefault();
+                if (!event.repeat) reportDamage();
+                return;
+            }
+            if (!KEY_TO_JOINT.has(key)) return;
+            if (state === 'ready') startGame();
+            if (state !== 'playing') return;
+            event.preventDefault();
+            held.set(`key:${key}`, KEY_TO_JOINT.get(key));
+            syncJogButtons();
+        });
+        window.addEventListener('keyup', (event) => {
+            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+            if (held.delete(`key:${key}`)) syncJogButtons();
+        });
+        window.addEventListener('blur', () => {
+            held.clear();
+            syncJogButtons();
+        });
+
+        // drag the external view to orbit around the housing; double-click resets it
+        const ORBIT_HOME = { yaw: orbit.yaw, pitch: orbit.pitch };
+        let orbitDrag = null;
+        externalCanvas.addEventListener('pointerdown', (event) => {
+            orbitDrag = { x: event.clientX, y: event.clientY, yaw: orbit.yaw, pitch: orbit.pitch };
+            externalCanvas.setPointerCapture(event.pointerId);
+            externalCanvas.classList.add('dragging');
+        });
+        externalCanvas.addEventListener('pointermove', (event) => {
+            if (!orbitDrag) return;
+            orbit.yaw = clamp(orbitDrag.yaw - (event.clientX - orbitDrag.x) * 0.008, ...ORBIT_LIMITS.yaw);
+            orbit.pitch = clamp(orbitDrag.pitch + (event.clientY - orbitDrag.y) * 0.006, ...ORBIT_LIMITS.pitch);
+        });
+        const endOrbit = (event) => {
+            orbitDrag = null;
+            externalCanvas.classList.remove('dragging');
+            if (externalCanvas.hasPointerCapture?.(event.pointerId)) externalCanvas.releasePointerCapture(event.pointerId);
+        };
+        externalCanvas.addEventListener('pointerup', endOrbit);
+        externalCanvas.addEventListener('pointercancel', endOrbit);
+        externalCanvas.addEventListener('dblclick', () => Object.assign(orbit, ORBIT_HOME));
+
+        // language
+        function applyTranslations() {
+            const t = dict();
+            document.documentElement.lang = currentLanguage;
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const value = t[el.dataset.i18n];
+                if (typeof value === 'string') el.textContent = value;
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+                const value = t[el.getAttribute('data-i18n-aria-label')];
+                if (typeof value === 'string') el.setAttribute('aria-label', value);
+            });
+            document.querySelectorAll('.lang-btn').forEach((button) => {
+                const active = button.dataset.lang === currentLanguage;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+            jointRows.forEach((row, j) => {
+                row.name.textContent = t[`joint${j + 1}`];
+                row.minus.setAttribute('aria-label', t.jogMinus.replace('{joint}', String(j + 1)));
+                row.plus.setAttribute('aria-label', t.jogPlus.replace('{joint}', String(j + 1)));
+            });
+            updateLiveHud();
+            showOverlay(overlay.hidden ? null : overlayMode);
+        }
+
+        document.querySelectorAll('.lang-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                currentLanguage = button.dataset.lang;
+                storage.set('language', currentLanguage);
+                applyTranslations();
+            });
+        });
+
+        // ------------------------------------------------------------------
+        // start
+        // ------------------------------------------------------------------
+        loadSite(siteIndex);
+        resetSite();
+        applyTranslations();
+        requestAnimationFrame(frame);
+    </script>
+</body>
+</html>

@@ -111,12 +111,14 @@ const translations = {
         linkProject: 'Project page',
         linkCode: 'Code',
         linkPoster: 'Poster',
+        linkDemos: 'Interactive demos',
         demosPointerPrefix: 'Interactive paper companions and mini-games are available on the',
         demosPointerLink: 'Demos',
         demosPointerSuffix: ' page.',
 
         // Publications
         downloadBibtex: 'BibTeX file',
+        incomingTitle: 'Incoming papers',
         journalsTitle: 'Journal articles',
         conferencesTitle: 'Conference papers',
 
@@ -132,6 +134,8 @@ const translations = {
         miniGameRodDesc: 'Deform a rod held by two robots so that it passes through approaching gaps.',
         miniGameEggTitle: 'Dino egg incubator',
         miniGameEggDesc: 'Keep a dinosaur egg uniformly warm with a moving heat source until it hatches.',
+        miniGameCavityTitle: 'Cavity inspection',
+        miniGameCavityDesc: 'Find damaged parts inside a closed housing with the tip camera of a soft extension moved in the null space of the arm.',
 
         // Outreach
         locoCorpTitle: 'Educational robotics: LoCo CORP',
@@ -256,12 +260,14 @@ const translations = {
         linkProject: 'Página del proyecto',
         linkCode: 'Código',
         linkPoster: 'Póster',
+        linkDemos: 'Demos interactivas',
         demosPointerPrefix: 'Las páginas interactivas de artículos y los minijuegos están en la página',
         demosPointerLink: 'Demos',
         demosPointerSuffix: '.',
 
         // Publicaciones
         downloadBibtex: 'Archivo BibTeX',
+        incomingTitle: 'Próximas publicaciones',
         journalsTitle: 'Artículos en revista',
         conferencesTitle: 'Artículos en congreso',
 
@@ -277,6 +283,8 @@ const translations = {
         miniGameRodDesc: 'Deforma una varilla sujeta por dos robots para que atraviese los huecos que se aproximan.',
         miniGameEggTitle: 'Incubadora de dinosaurios',
         miniGameEggDesc: 'Mantén un huevo de dinosaurio a temperatura uniforme con una fuente de calor móvil hasta que eclosione.',
+        miniGameCavityTitle: 'Inspección de cavidades',
+        miniGameCavityDesc: 'Encuentra piezas dañadas dentro de una carcasa cerrada con la cámara de la punta de una extensión blanda que se mueve en el espacio nulo del brazo.',
 
         // Divulgación
         locoCorpTitle: 'Robótica educativa: LoCo CORP',

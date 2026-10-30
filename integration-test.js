@@ -19,7 +19,8 @@ const checks = [
     ['shape-comparison.html', 'shape-comparison.html'],
     ['shape-features-demo.html', 'shape-features-demo.html'],
     ['rod-threading.html', 'rod-threading.html'],
-    ['egg-incubator.html', 'egg-incubator.html']
+    ['egg-incubator.html', 'egg-incubator.html'],
+    ['cavity-inspection.html', 'cavity-inspection.html']
 ];
 
 for (const [htmlFile, dictionaryFile] of checks) {
@@ -56,7 +57,8 @@ const canonicalPages = new Map([
     ['shape-comparison.html', `${SITE_URL}shape-comparison.html`],
     ['shape-features-demo.html', `${SITE_URL}shape-features-demo.html`],
     ['rod-threading.html', `${SITE_URL}rod-threading.html`],
-    ['egg-incubator.html', `${SITE_URL}egg-incubator.html`]
+    ['egg-incubator.html', `${SITE_URL}egg-incubator.html`],
+    ['cavity-inspection.html', `${SITE_URL}cavity-inspection.html`]
 ]);
 
 for (const [htmlFile, expectedCanonical] of canonicalPages) {
@@ -95,3 +97,22 @@ if (!robots.includes(`Sitemap: ${SITE_URL}sitemap.xml`)) {
     throw new Error('robots.txt: sitemap URL does not match the deployed site');
 }
 console.log('sitemap.xml and robots.txt: production URLs are consistent');
+
+// The solution of every cavity-inspection site is replayed with the controller
+// of the page: each viewpoint has to be reached and its defect reported.
+const cavity = fs.readFileSync('cavity-inspection.html', 'utf8');
+const coreStart = cavity.indexOf('const Core = (() => {');
+const coreEnd = cavity.indexOf('// end of the simulation core', coreStart);
+if (coreStart < 0 || coreEnd < 0) throw new Error('cavity-inspection.html: simulation core not found');
+const Core = Function(`${cavity.slice(coreStart, coreEnd)}\nreturn Core;`)();
+const world = Core.createWorld();
+Core.SITES.forEach((site, index) => {
+    world.scene = Core.buildScene(site);
+    const run = new Core.SolutionRun(world, site);
+    while (!run.finished) run.step();
+    const failed = run.events.filter((event) => !event.arrived || !event.found);
+    if (run.events.length !== site.defects.length || failed.length) {
+        throw new Error(`cavity-inspection.html: site ${index + 1} is not solved by the controller: ${JSON.stringify(run.events)}`);
+    }
+    console.log(`cavity-inspection.html: site ${index + 1} solved by the controller in ${run.time.toFixed(1)} s`);
+});
