@@ -21,7 +21,7 @@ Then open `http://localhost:8000`.
 - English and Spanish content with a saved language preference
 - System-aware light and dark themes with a manual override
 - One page per section (News, CV, Research, Publications, Demos, Outreach), addressed by the URL hash (`#cv`, `#demos`, …); the old `#dissemination` hash opens Demos
-- Demos page with links to the interactive paper companions and four mini-games: shape comparison (`shape-comparison.html`), rod threading (`rod-threading.html`, with a joint-space hard mode at `rod-threading.html?mode=hard`), the dino egg incubator (`egg-incubator.html`) and cavity inspection (`cavity-inspection.html`, with its five sites at `?site=1` to `?site=5`)
+- Demos page with links to the interactive paper companions and four mini-games: shape comparison (`shape-comparison.html`), rod threading (`rod-threading.html`, with a joint-space hard mode at `rod-threading.html?mode=hard`), the dino egg incubator (`egg-incubator.html`) and cavity inspection (`cavity-inspection.html`, with its five sites at `?site=1` to `?site=5`). In the last three, Show solution runs the controller of the corresponding paper: the shape-servoing loop of the tutorial, ergodic heat coverage control (EHCC), and the null-space controller of the passive soft extension
 - Responsive and print-friendly layouts
 - Publication links, downloadable BibTeX, posters, and thesis flyers
 

@@ -655,7 +655,7 @@
                 </div>
             </div>
             <h1 data-i18n="title">Rod threading</h1>
-            <p class="demo-intro" data-i18n="intro">Two robots hold an elastic rod by its ends in a vertical plane. Panels with a gap shaped like a reachable rod configuration move toward that plane. Deform the rod so that it passes through each gap.</p>
+            <p class="demo-intro" data-i18n="intro">Shape control computes the robot motions that bring a deformable object to a target shape, as in cable routing, food handling or surgery. Here two robots hold an elastic rod in a vertical plane, and panels with a gap shaped like a reachable rod configuration move toward it: deform the rod so that it passes through each gap. Show solution runs the shape-servoing loop of our tutorial, which estimates how the rod responds to the grippers and corrects that estimate as it moves.</p>
         </header>
 
         <section aria-labelledby="game-title">
@@ -718,6 +718,7 @@
                         <button class="mode-btn active" type="button" data-mode="normal" aria-pressed="true" data-i18n="modeNormal">Normal</button>
                         <button class="mode-btn" type="button" data-mode="hard" aria-pressed="false" data-i18n="modeHard">Hard</button>
                     </div>
+                    <button class="button" type="button" id="solutionButton" data-i18n="showSolution">Show solution</button>
                     <button class="button" type="button" id="pauseButton" data-i18n="pause">Pause</button>
                     <button class="button" type="button" id="restartButton" data-i18n="restart">Restart</button>
                 </div>
@@ -754,7 +755,7 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Rod threading',
-                intro: 'Two robots hold an elastic rod by its ends in a vertical plane. Panels with a gap shaped like a reachable rod configuration move toward that plane. Deform the rod so that it passes through each gap.',
+                intro: 'Shape control computes the robot motions that bring a deformable object to a target shape, as in cable routing, food handling or surgery. Here two robots hold an elastic rod in a vertical plane, and panels with a gap shaped like a reachable rod configuration move toward it: deform the rod so that it passes through each gap. Show solution runs the shape-servoing loop of our tutorial, which estimates how the rod responds to the grippers and corrects that estimate as it moves.',
                 hudScore: 'Score',
                 hudClean: 'Clean',
                 hudClose: 'Close',
@@ -779,6 +780,10 @@
                 pausedText: 'The panels stop until you resume.',
                 overTitle: 'Game over',
                 overText: 'The rod collided with three panels.',
+                showSolution: 'Show solution',
+                stopSolution: 'Stop solution',
+                solutionBanner: 'Solution · shape servoing, Algorithm 1 of the tutorial',
+                solutionOverText: 'Gaps threaded by the shape-servoing loop before the third collision: {count}.',
                 statBest: 'Best',
                 newBest: 'New best score',
                 playAgain: 'Play again',
@@ -806,7 +811,7 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Enhebra la varilla',
-                intro: 'Dos robots sujetan una varilla elástica por sus extremos en un plano vertical. Hacia ese plano avanzan paneles con un hueco que tiene la forma de una configuración alcanzable de la varilla. Deforma la varilla para que atraviese cada hueco.',
+                intro: 'El control de forma calcula los movimientos de los robots que llevan un objeto deformable a una forma objetivo, como en el guiado de cables, la manipulación de alimentos o la cirugía. Aquí dos robots sujetan una varilla elástica en un plano vertical y hacia ella avanzan paneles con un hueco que tiene la forma de una configuración alcanzable de la varilla: deforma la varilla para que atraviese cada hueco. Ver solución ejecuta el bucle de servocontrol de forma de nuestro tutorial, que estima cómo responde la varilla a las pinzas y corrige esa estimación mientras se mueve.',
                 hudScore: 'Puntos',
                 hudClean: 'Limpios',
                 hudClose: 'Rozando',
@@ -831,6 +836,10 @@
                 pausedText: 'Los paneles se detienen hasta que continúes.',
                 overTitle: 'Fin de la partida',
                 overText: 'La varilla ha chocado con tres paneles.',
+                showSolution: 'Ver solución',
+                stopSolution: 'Detener solución',
+                solutionBanner: 'Solución · servocontrol de forma, algoritmo 1 del tutorial',
+                solutionOverText: 'Huecos atravesados por el bucle de servocontrol de forma antes de la tercera colisión: {count}.',
                 statBest: 'Récord',
                 newBest: 'Nuevo récord',
                 playAgain: 'Jugar de nuevo',
@@ -1343,8 +1352,135 @@
         }
 
         // ------------------------------------------------------------------
+        // solution: the shape-servoing loop of "A Tutorial on Shape Servoing of
+        // Deformable Objects" (Algorithm 1; docs/js/sim/control.js and jacobian.js
+        // of github.com/nachocz/tutorial_on_shape_servoing_of_deformable_objects).
+        // Features s: the coordinates of points tracked along the rod. Robot
+        // coordinates q: both gripper poses, or the joints of the right arm in
+        // hard mode. J_hat starts from a regression over probing motions and is
+        // corrected by Broyden's rule after every motion; the command is the
+        // damped least-squares law on the shape error e = s* - s.
+        // ------------------------------------------------------------------
+        const SERVO = {
+            points: 7,                       // tracked points
+            gain: 3,                         // alpha [1 / s]
+            damping: 0.05,                   // mu
+            fractions: [-1, -0.5, 0.5, 1],   // probing motions, per coordinate
+            minStep: 1e-6, maxResponse: 25,  // gating of Broyden's rule
+            stall: 0.6                       // s without progress before J_hat is estimated again
+        };
+        // probing amplitudes: the tutorial's (0.35 per position, 0.18 rad per
+        // angle for a rod of length 6) scaled to this rod, or a share of the joint ranges
+        const PROBE_FREE = [0.11, 0.11, 0.18, 0.11, 0.11, 0.18];
+        const PROBE_JOINTS = [0.03, 0.05, 0.12];
+        const TRACKED = Array.from({ length: SERVO.points }, (_, i) => Math.round(i * ROD.segments / (SERVO.points - 1)));
+        const featuresOf = (points) => TRACKED.flatMap((i) => [points[i][0], points[i][1]]);
+        const vsub = (a, b) => a.map((v, i) => v - b[i]);
+        const vnorm = (a) => Math.hypot(...a);
+
+        class ShapeServoing {
+            constructor() {
+                this.s = featuresOf(rodPoints);
+                this.J = this.probe();
+                this.error = 0;
+                this.best = Infinity;
+                this.stalled = 0;
+                this.panel = null;
+            }
+
+            // the setters accept q: the rod is not stretched and, in hard mode,
+            // the gripper stays in its envelope
+            valid(q) {
+                if (mode === 'hard') return jointPoseValid(poseFromJoints(q.map((v, i) => clamp(v, JOINT_LIMITS[i][0], JOINT_LIMITS[i][1]))));
+                return rodFeasible(Object.fromEntries(KEYS.map((k, i) => [k, clamp(q[i], LIMITS[k][0], LIMITS[k][1])])));
+            }
+
+            // a step that leaves the feasible set keeps only the coordinates that
+            // are feasible on their own, then shrinks until it is feasible
+            feasibleStep(q, dq) {
+                const at = (step) => q.map((v, i) => v + step[i]);
+                if (this.valid(at(dq))) return dq;
+                let out = dq.map((v, i) => (this.valid(at(dq.map((w, j) => (j === i ? w : 0)))) ? v : 0));
+                for (let k = 0; k < 8 && !this.valid(at(out)); k++) out = out.map((v) => v / 2);
+                return this.valid(at(out)) ? out : dq.map(() => 0);
+            }
+
+            coordinates() {
+                return mode === 'hard' ? [...joints] : KEYS.map((k) => pose[k]);
+            }
+
+            // features of the equilibrium at q, without moving the robot
+            measure(q) {
+                const s = mode === 'hard' ? poseFromJoints(q) : Object.fromEntries(KEYS.map((k, i) => [k, q[i]]));
+                return featuresOf(solveStableRod([s.x0, s.y0], [s.x1, s.y1], s.a0, s.a1, rodAngles).points);
+            }
+
+            // offline estimate J0 = dS dQ^T (dQ dQ^T)^-1 from one probing motion per
+            // coordinate and fraction about the current configuration
+            probe() {
+                const q0 = this.coordinates(), s0 = this.s;
+                const amplitudes = mode === 'hard' ? PROBE_JOINTS : PROBE_FREE;
+                const dQ = [], dS = [];
+                amplitudes.forEach((a, j) => SERVO.fractions.forEach((f) => {
+                    const dq = q0.map((_, i) => (i === j ? f * a : 0));
+                    dQ.push(dq);
+                    dS.push(vsub(this.measure(q0.map((v, i) => v + dq[i])), s0));
+                }));
+                const m = q0.length;
+                const G = Array.from({ length: m }, (_, a) => Array.from({ length: m }, (_, b) => dQ.reduce((sum, c) => sum + c[a] * c[b], 0)));
+                const columns = Array.from({ length: m }, (_, b) => solveDense(G, Array.from({ length: m }, (_, a) => (a === b ? 1 : 0))));
+                return s0.map((_, r) => Array.from({ length: m }, (_, b) =>
+                    dS.reduce((sum, ds, c) => sum + ds[r] * dQ[c].reduce((acc, dq, a) => acc + dq * columns[b][a], 0), 0)));
+            }
+
+            // one iteration toward the gap of the incoming panel
+            step(dt) {
+                const panel = approaching();
+                if (!panel) return;
+                const e = vsub(featuresOf(panel.gap.points), this.s);
+                this.error = vnorm(e) / Math.sqrt(SERVO.points);
+                // a new target, or no progress for a while: estimate J_hat again
+                // from probing motions about the current configuration
+                if (panel !== this.panel) { this.panel = panel; this.best = Infinity; this.stalled = 0; }
+                if (this.error < this.best * 0.99) { this.best = this.error; this.stalled = 0; }
+                else if (this.error > 0.01 && (this.stalled += dt) > SERVO.stall) {
+                    this.J = this.probe();
+                    this.best = this.error;
+                    this.stalled = 0;
+                }
+                // u = alpha (J^T J + mu^2 I)^-1 J^T e
+                const J = this.J, m = J[0].length;
+                const JtJ = Array.from({ length: m }, (_, a) => Array.from({ length: m }, (_, b) =>
+                    J.reduce((sum, row) => sum + row[a] * row[b], 0) + (a === b ? SERVO.damping ** 2 : 0)));
+                const Jte = Array.from({ length: m }, (_, a) => J.reduce((sum, row, r) => sum + row[a] * e[r], 0));
+                const u = solveDense(JtJ, Jte);
+                if (!u) return;
+                // the speed limits of the player's commands
+                const limits = mode === 'hard' ? [0, 0, 0].map(() => JOINT_SPEED) : [MOVE_SPEED, MOVE_SPEED, TURN_SPEED, MOVE_SPEED, MOVE_SPEED, TURN_SPEED];
+                let dq = u.map((v) => v * SERVO.gain * dt);
+                const over = Math.max(1, ...dq.map((v, i) => Math.abs(v) / (limits[i] * dt)));
+                dq = dq.map((v) => v / over);
+                const before = this.coordinates();
+                dq = this.feasibleStep(before, dq);
+                if (mode === 'hard') setJoints(before.map((v, i) => v + dq[i]));
+                else setPose(Object.fromEntries(KEYS.map((k, i) => [k, before[i] + dq[i]])));
+                // measure, then Broyden's rule on the motion actually made
+                const moved = vsub(this.coordinates(), before);
+                const sNext = featuresOf(rodPoints), ds = vsub(sNext, this.s);
+                const size = vnorm(moved);
+                if (size > SERVO.minStep && vnorm(ds) <= SERVO.maxResponse * size) {
+                    const r = ds.map((v, i) => v - J[i].reduce((sum, x, j) => sum + x * moved[j], 0));
+                    this.J = J.map((row, i) => row.map((x, j) => x + r[i] * moved[j] / (size * size)));
+                }
+                this.s = sNext;
+            }
+        }
+
+        // ------------------------------------------------------------------
         // game state
         // ------------------------------------------------------------------
+        let solving = false;
+        let servo = null;
         let mode = new URLSearchParams(window.location.search).get('mode') === 'hard' ? 'hard' : 'normal';
         const startPose = () => (mode === 'hard' ? poseFromJoints(Q_HOME) : { ...HOME });
         const sampler = () => (mode === 'hard' ? sampleJoints : sampleFree);
@@ -1513,9 +1649,27 @@
 
         function startGame() {
             resetGame();
+            solving = false;
             state = 'playing';
             showOverlay(null);
             canvas.focus({ preventScroll: true });
+        }
+
+        // the solution plays a new game from the start pose
+        function startSolution() {
+            resetGame();
+            keysDown.clear();
+            drag = null;
+            servo = new ShapeServoing();
+            solving = true;
+            state = 'playing';
+            showOverlay(null);
+        }
+
+        function stopSolution() {
+            solving = false;
+            servo = null;
+            setMode(mode);
         }
 
         function pauseGame() {
@@ -1537,7 +1691,7 @@
             state = 'over';
             keysDown.clear();
             const best = readBest();
-            newBest = score > best;
+            newBest = !solving && score > best;
             if (newBest) saveBest(score);
             showOverlay('over');
         }
@@ -1920,6 +2074,48 @@
             ctx.restore();
         }
 
+        // tracked points of the rod and their targets on the incoming gap
+        function drawServo(p) {
+            const panel = approaching();
+            if (!solving || !panel) return;
+            const target = TRACKED.map((i) => panel.gap.points[i]);
+            const now = TRACKED.map((i) => rodPoints[i]);
+            ctx.save();
+            ctx.lineWidth = 1.5;
+            target.forEach((t, i) => {
+                const a = project(now[i]), b = project(t);
+                ctx.strokeStyle = alpha(p.panel, 0.7);
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.beginPath(); ctx.arc(b[0], b[1], 5, 0, Math.PI * 2); ctx.stroke();
+                ctx.fillStyle = p.panel;
+                ctx.beginPath(); ctx.arc(a[0], a[1], 3.2, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.restore();
+        }
+
+        function drawSolutionBanner(p) {
+            if (!solving) return;
+            const text = dict().solutionBanner;
+            ctx.save();
+            ctx.font = '700 12px system-ui, -apple-system, "Segoe UI", sans-serif';
+            const tw = ctx.measureText(text).width;
+            const by = 12;
+            ctx.fillStyle = alpha(p.panel, 0.14);
+            ctx.strokeStyle = alpha(p.panel, 0.6);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(view.w / 2 - tw / 2 - 12, by, tw + 24, 24, 12); else ctx.rect(view.w / 2 - tw / 2 - 12, by, tw + 24, 24);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = p.panel;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, view.w / 2, by + 12.5);
+            ctx.restore();
+        }
+
         function drawPopups(p) {
             ctx.save();
             ctx.textAlign = 'center';
@@ -1994,9 +2190,11 @@
                 drawRod(p);
                 drawHandles(p);
             }
+            drawServo(p);
             ahead.forEach(panel => drawPanel(panel, p));
             drawPopups(p);
             drawProgress(p);
+            drawSolutionBanner(p);
         }
 
         // ------------------------------------------------------------------
@@ -2034,7 +2232,8 @@
         }
 
         function update(dt) {
-            if (state === 'playing' || state === 'ready') applyKeys(dt);
+            if (solving && state === 'playing') servo.step(dt);
+            else if (state === 'playing' || state === 'ready') applyKeys(dt);
             if (state === 'playing') {
                 for (const panel of panels) {
                     if (panel.phase !== 'approach') continue;
@@ -2096,6 +2295,7 @@
         const overlayStats = document.getElementById('overlayStats');
         const overlayButton = document.getElementById('overlayButton');
         const pauseButton = document.getElementById('pauseButton');
+        const solutionButton = document.getElementById('solutionButton');
         const announcer = document.getElementById('announcer');
         let overlayMode = 'start';
         const jointPanel = document.getElementById('jointPanel');
@@ -2117,6 +2317,7 @@
             input.max = (JOINT_LIMITS[i][1] * DEG).toFixed(1);
             input.step = '0.1';
             input.addEventListener('input', () => {
+                if (solving) { syncSliders(); return; }
                 activeJoint = i;
                 const next = [...joints];
                 next[i] = Number(input.value) / DEG;
@@ -2142,6 +2343,8 @@
 
         function setMode(next) {
             mode = next;
+            solving = false;
+            servo = null;
             state = 'ready';
             keysDown.clear();
             drag = null;
@@ -2203,6 +2406,7 @@
             if (which) overlayMode = which;
             overlay.hidden = !which;
             pauseButton.textContent = state === 'paused' ? dict().resume : dict().pause;
+            solutionButton.textContent = solving && state !== 'over' ? dict().stopSolution : dict().showSolution;
             jointInputs.forEach((input) => { input.disabled = state === 'paused' || state === 'over'; });
             if (!which) return;
             const t = dict();
@@ -2220,7 +2424,7 @@
                 overlayButton.textContent = t.resume;
             } else {
                 overlayTitle.textContent = t.overTitle;
-                overlayText.textContent = t.overText;
+                overlayText.textContent = solving ? t.solutionOverText.replace('{count}', String(cleanCount + closeCount)) : t.overText;
                 overlayButton.textContent = t.playAgain;
                 document.getElementById('statScore').textContent = String(score);
                 document.getElementById('statBest').textContent = String(Math.max(score, readBest()));
@@ -2240,6 +2444,11 @@
         });
 
         document.getElementById('restartButton').addEventListener('click', startGame);
+
+        solutionButton.addEventListener('click', () => {
+            if (solving && state !== 'over') stopSolution(); else startSolution();
+            showOverlay(overlay.hidden ? null : overlayMode);
+        });
 
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) pauseGame();
@@ -2267,7 +2476,7 @@
         }
 
         canvas.addEventListener('pointerdown', (event) => {
-            if (state === 'paused' || state === 'over' || mode === 'hard') return;
+            if (state === 'paused' || state === 'over' || mode === 'hard' || solving) return;
             const w = eventWorld(event);
             const hit = hitTest(w);
             if (!hit) return;
@@ -2328,7 +2537,7 @@
                 if (state === 'playing') pauseGame(); else resumeGame();
                 return;
             }
-            if (state !== 'playing' && state !== 'ready') return;
+            if ((state !== 'playing' && state !== 'ready') || solving) return;
             if (key === ' ' && !onControl && mode === 'normal') {
                 event.preventDefault();
                 selectedSide = 1 - selectedSide;
