@@ -681,7 +681,7 @@
                 </div>
             </div>
             <h1 data-i18n="title">Dino egg incubator</h1>
-            <p class="demo-intro" data-i18n="intro">A robot-mounted heat source has to keep a dinosaur egg at a uniform target temperature. Keep the average signed error and its spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
+            <p class="demo-intro" data-i18n="intro">A robot-mounted heat source has to keep a dinosaur egg at a target temperature. Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
         </header>
 
         <section aria-labelledby="game-title">
@@ -731,6 +731,14 @@
                         </div>
                         <output id="modeDescription">No cold fronts</output>
                     </div>
+                    <div class="mode-control">
+                        <strong data-i18n="incubationLabel">Incubation</strong>
+                        <div class="segment" id="incubation" role="group" aria-label="Incubation temperature" data-i18n-aria-label="incubationAria">
+                            <button type="button" class="active" data-target="30" aria-pressed="true">30 °C</button>
+                            <button type="button" data-target="25" aria-pressed="false">25 °C</button>
+                        </div>
+                        <output id="incubationDescription">Hatches a male</output>
+                    </div>
                     <div class="segment" id="mapMode" role="group" aria-label="Map" data-i18n-aria-label="mapAria">
                         <button type="button" class="active" data-view="T" aria-pressed="true" data-i18n="viewTemperature">Temperature T</button>
                         <button type="button" data-view="e" aria-pressed="false" data-i18n="viewError">Error e = T* − T</button>
@@ -751,6 +759,7 @@
                 <li><span class="legend-dot front" aria-hidden="true"></span><strong data-i18n="legendFront">Cold front</strong><span data-i18n="legendFrontDesc">In Hard mode, the outside temperature drops for a few seconds and the egg loses heat faster.</span></li>
                 <li><span class="legend-dot snow" aria-hidden="true"></span><strong data-i18n="legendSnow">Snowflake</strong><span data-i18n="legendSnowDesc">A ring marks where it will land; on impact it cools that part of the shell.</span></li>
             </ul>
+            <p class="note" data-i18n="sexNote">Temperature-dependent sex determination: in crocodilians and many turtles, the incubation temperature sets the sex of the hatchling. In the American alligator, cooler nests produce females and warmer nests males; in many turtles the relation is reversed. Whether non-avian dinosaurs had this mechanism is not known (birds, the living dinosaurs, have chromosomal sex determination). In this game, 25 °C hatches a female and 30 °C a male.</p>
             <p class="note" data-i18n="note">The temperature field follows the heat equation of the EHCC problem setup, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher Power concentrates more heat into a smaller area; lower Power spreads gentler heat over a wider area. The source cannot cool: only diffusion and losses to the air lower the temperature.</p>
 
             <section class="references" aria-labelledby="references-title">
@@ -769,7 +778,7 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Dino egg incubator',
-                intro: 'A robot-mounted heat source has to keep a dinosaur egg at a uniform target temperature. Keep the average signed error and its spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
+                intro: 'A robot-mounted heat source has to keep a dinosaur egg at a target temperature. Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
                 hudInBand: 'In band',
                 hudAverageError: 'Average error',
                 hudErrorSpread: 'Error spread',
@@ -785,6 +794,13 @@
                 hardMode: 'Hard',
                 easyModeDesc: 'No cold fronts',
                 hardModeDesc: 'Cold fronts on',
+                incubationLabel: 'Incubation',
+                incubationAria: 'Incubation temperature',
+                maleDesc: 'Hatches a male',
+                femaleDesc: 'Hatches a female',
+                sexMale: 'male',
+                sexFemale: 'female',
+                sexNote: 'Temperature-dependent sex determination: in crocodilians and many turtles, the incubation temperature sets the sex of the hatchling. In the American alligator, cooler nests produce females and warmer nests males; in many turtles the relation is reversed. Whether non-avian dinosaurs had this mechanism is not known (birds, the living dinosaurs, have chromosomal sex determination). In this game, 25 °C hatches a female and 30 °C a male.',
                 mapAria: 'Map',
                 viewTemperature: 'Temperature T',
                 viewError: 'Error e = T* − T',
@@ -801,12 +817,12 @@
                 note: 'The temperature field follows the heat equation of the EHCC problem setup, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher Power concentrates more heat into a smaller area; lower Power spreads gentler heat over a wider area. The source cannot cool: only diffusion and losses to the air lower the temperature.',
                 referencesTitle: 'Related work',
                 companionNote: 'interactive companion with simulations and code',
-                startText: 'Press and drag on the egg to heat it. Keep the error bar inside the signed ±2 °C band for {seconds} seconds.',
+                startText: 'Press and drag on the egg to heat it to {target} °C everywhere. Keep the error bar inside the signed ±2 °C band for {seconds} seconds.',
                 start: 'Start',
                 pausedTitle: 'Paused',
                 pausedText: 'The simulation stops until you resume.',
                 hatchedTitle: 'It hatched!',
-                hatchedText: 'The egg stayed uniformly warm for {seconds} seconds.',
+                hatchedText: 'A {sex} hatched: the egg stayed uniformly at {target} °C for {seconds} seconds.',
                 statSnow: 'Snowflakes',
                 statFronts: 'Cold fronts',
                 newBest: 'New best time',
@@ -820,14 +836,14 @@
                 overLabel: 'over-heated',
                 announceFront: 'A cold front is approaching.',
                 announceLeft: 'The error left the band; the count restarts.',
-                announceHatched: 'The egg hatched.'
+                announceHatched: 'The egg hatched: a {sex}.'
             },
             es: {
                 backToDemos: '← Volver a las demos',
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Incubadora de dinosaurios',
-                intro: 'Una fuente de calor montada en un robot debe mantener un huevo de dinosaurio a una temperatura objetivo uniforme. Mantén el promedio del error con signo y su dispersión dentro de la banda durante 30 segundos en Fácil o 40 segundos en Difícil.',
+                intro: 'Una fuente de calor montada en un robot debe mantener un huevo de dinosaurio a una temperatura objetivo. No basta con alcanzarla en promedio: el corchete de la barra de error es la dispersión del error, que crece cuando unas zonas de la cáscara están más calientes que otras, así que todo el huevo debe estar igual de caliente. Mantén el promedio y la dispersión dentro de la banda durante 30 segundos en Fácil o 40 segundos en Difícil.',
                 hudInBand: 'En banda',
                 hudAverageError: 'Error promedio',
                 hudErrorSpread: 'Dispersión del error',
@@ -843,6 +859,13 @@
                 hardMode: 'Difícil',
                 easyModeDesc: 'Sin frentes fríos',
                 hardModeDesc: 'Frentes fríos activos',
+                incubationLabel: 'Incubación',
+                incubationAria: 'Temperatura de incubación',
+                maleDesc: 'Nace un macho',
+                femaleDesc: 'Nace una hembra',
+                sexMale: 'un macho',
+                sexFemale: 'una hembra',
+                sexNote: 'Determinación del sexo por temperatura: en los cocodrilos y en muchas tortugas, la temperatura de incubación fija el sexo de la cría. En el aligátor americano, los nidos más frescos producen hembras y los más cálidos, machos; en muchas tortugas ocurre al revés. No se sabe si los dinosaurios no avianos tenían este mecanismo (las aves, los dinosaurios actuales, tienen determinación cromosómica del sexo). En este juego, 25 °C produce una hembra y 30 °C, un macho.',
                 mapAria: 'Mapa',
                 viewTemperature: 'Temperatura T',
                 viewError: 'Error e = T* − T',
@@ -859,12 +882,12 @@
                 note: 'El campo de temperatura sigue la ecuación del calor del planteamiento de EHCC, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), sobre el huevo con bordes aislados. Una Potencia alta concentra más calor en una zona pequeña; una Potencia baja reparte un calor más suave en un área mayor. La fuente no puede enfriar: solo la difusión y las pérdidas hacia el aire bajan la temperatura.',
                 referencesTitle: 'Trabajo relacionado',
                 companionNote: 'página interactiva con simulaciones y código',
-                startText: 'Pulsa y arrastra sobre el huevo para calentarlo. Mantén la barra de error dentro de la banda con signo de ±2 °C durante {seconds} segundos.',
+                startText: 'Pulsa y arrastra sobre el huevo para calentarlo a {target} °C en toda su superficie. Mantén la barra de error dentro de la banda con signo de ±2 °C durante {seconds} segundos.',
                 start: 'Empezar',
                 pausedTitle: 'En pausa',
                 pausedText: 'La simulación se detiene hasta que continúes.',
                 hatchedTitle: '¡Ha eclosionado!',
-                hatchedText: 'El huevo se ha mantenido a temperatura uniforme durante {seconds} segundos.',
+                hatchedText: 'Ha nacido {sex}: el huevo se ha mantenido uniformemente a {target} °C durante {seconds} segundos.',
                 statSnow: 'Copos de nieve',
                 statFronts: 'Frentes fríos',
                 newBest: 'Nuevo récord',
@@ -878,7 +901,7 @@
                 overLabel: 'sobrecalentado',
                 announceFront: 'Se acerca un frente frío.',
                 announceLeft: 'El error ha salido de la banda; la cuenta se reinicia.',
-                announceHatched: 'El huevo ha eclosionado.'
+                announceHatched: 'El huevo ha eclosionado: {sex}.'
             }
         };
 
@@ -911,6 +934,7 @@
         const pauseButton = byId('pauseButton');
         const announcer = byId('announcer');
         const modeDescription = byId('modeDescription');
+        const incubationDescription = byId('incubationDescription');
         const heatToggle = byId('heatToggle');
         const powerInput = byId('power');
         const powerValue = byId('powerValue');
@@ -939,13 +963,15 @@
             alpha: 0.0024,      // diffusivity, domain units^2 / s
             loss: 0.05,         // h * lambda, 1 / s
             power: 0.9,         // lambda * P, degC * area / s
-            target: 30,
             ambient: 18,
             start: 22,
             snowDrop: 6,
             snowSigma: 0.04,
             step: 0.02
         };
+        // incubation temperature T* and the sex of the hatchling it gives in the game
+        const INCUBATION = { 30: 'male', 25: 'female' };
+        let targetTemp = storage.get('eggIncubatorTarget') === '25' ? 25 : 30;
         const STANDOFF = { min: 4, max: 36, cutoff: 40 };
         const POWER = { min: 0, max: 100 };
         const BAND = 2;
@@ -1067,7 +1093,7 @@
             let sum = 0;
             let sq = 0;
             for (const k of cells) {
-                const e = MODEL.target - field[k];
+                const e = targetTemp - field[k];
                 sum += e;
                 sq += e * e;
             }
@@ -1110,7 +1136,7 @@
             nextSnow = 7 + 3 * Math.random();
         }
 
-        const bestKey = () => `eggIncubatorBest:${difficulty}`;
+        const bestKey = () => `eggIncubatorBest:${difficulty}${targetTemp === 30 ? '' : `:${targetTemp}`}`;
         const readBest = () => Number(storage.get(bestKey())) || 0;
         const saveBest = (value) => storage.set(bestKey(), String(value));
         const withinBand = (value) => value >= -BAND && value <= BAND;
@@ -1162,7 +1188,7 @@
             const best = readBest();
             newBest = !best || elapsed < best;
             if (newBest) saveBest(elapsed);
-            announce(dict().announceHatched);
+            announce(dict().announceHatched.replace('{sex}', sexName()));
             updateHud();
         }
 
@@ -1328,7 +1354,7 @@
         const ERROR_STOPS = [[0, '#2166ac'], [0.25, '#67a9cf'], [0.5, '#f7f7f7'], [0.75, '#ef8a62'], [1, '#b2182b']];
         const MAPS = {
             T: { lut: lut(TEMP_STOPS), stops: TEMP_STOPS, scale: (T) => (T - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]) },
-            e: { lut: lut(ERROR_STOPS), stops: ERROR_STOPS, scale: (T) => ((MODEL.target - T) / E_RANGE + 1) / 2 }
+            e: { lut: lut(ERROR_STOPS), stops: ERROR_STOPS, scale: (T) => ((targetTemp - T) / E_RANGE + 1) / 2 }
         };
 
         function paintField() {
@@ -1353,13 +1379,15 @@
                 heat: '#f08a45', band: '#3cc28f', cold: '#7fb0f0', alert: '#e66767', sun: '#f4c04e', sunRay: '#e8a33a',
                 twig: '#8a6c45', twigDark: '#6b5233', shadow: 'rgba(0, 0, 0, 0.35)',
                 shell: '#d8caa6', speck: '#5a4630',
-                dino: '#58b98b', dinoLine: '#2e6f52', belly: '#b9e3c9', spike: '#f2a541'
+                dino: '#58b98b', dinoLine: '#2e6f52', belly: '#b9e3c9', spike: '#f2a541',
+                dinoF: '#4fa9c4', dinoFLine: '#245f73', bellyF: '#c3e9f2', crest: '#ef7d57', spots: '#2f84a0'
             } : {
                 surface: '#fafbfb', grid: '#eef0f2', ink: '#23282d', text: '#697179', line: '#c9ced3',
                 heat: '#e8772e', band: '#1b9e6f', cold: '#3b7dd8', alert: '#d64545', sun: '#f4c04e', sunRay: '#e8a33a',
                 twig: '#c49a62', twigDark: '#9c7646', shadow: 'rgba(40, 30, 20, 0.14)',
                 shell: '#f3e8cc', speck: '#7a5c3c',
-                dino: '#5cbf8e', dinoLine: '#2f7656', belly: '#c7ecd6', spike: '#f2a541'
+                dino: '#5cbf8e', dinoLine: '#2f7656', belly: '#c7ecd6', spike: '#f2a541',
+                dinoF: '#56b2cc', dinoFLine: '#256579', bellyF: '#cdeef6', crest: '#ef7d57', spots: '#2f86a3'
             };
         }
 
@@ -1769,11 +1797,11 @@
                 ctx.fillText(`${T_RANGE[0]} °C`, x, y + 10);
                 ctx.textAlign = 'right';
                 ctx.fillText(`${T_RANGE[1]}`, x + w, y + 10);
-                const tx = x + w * (MODEL.target - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]);
+                const tx = x + w * (targetTemp - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]);
                 ctx.fillStyle = p.ink;
                 ctx.fillRect(tx - 0.75, y - 3, 1.5, 13);
                 ctx.textAlign = 'center';
-                ctx.fillText(`${dict().targetLabel} ${MODEL.target}`, tx, y + 10);
+                ctx.fillText(`${dict().targetLabel} ${targetTemp}`, tx, y + 10);
             } else {
                 ctx.textAlign = 'left';
                 ctx.fillText(dict().overLabel, x, y + 10);
@@ -1820,18 +1848,46 @@
             ctx.restore();
         }
 
-        function drawDino(p, rise, blink) {
+        // colours of the hatchling for the current incubation temperature
+        const sexName = () => (INCUBATION[targetTemp] === 'female' ? dict().sexFemale : dict().sexMale);
+        function hatchlingLook(p) {
+            return INCUBATION[targetTemp] === 'female'
+                ? { female: true, body: p.dinoF, line: p.dinoFLine, belly: p.bellyF, accent: p.crest }
+                : { female: false, body: p.dino, line: p.dinoLine, belly: p.belly, accent: p.spike };
+        }
+
+        function drawCrest(look, cx, cy, u, width) {
+            const crest = () => {
+                ctx.beginPath();
+                ctx.moveTo(cx - u(0.01), cy - u(0.16));
+                ctx.bezierCurveTo(cx - u(0.06), cy - u(0.25), cx - u(0.15), cy - u(0.24), cx - u(0.19), cy - u(0.17));
+            };
+            ctx.lineCap = 'round';
+            crest();
+            ctx.strokeStyle = look.line;
+            ctx.lineWidth = u(0.05) + 2 * width;
+            ctx.stroke();
+            crest();
+            ctx.strokeStyle = look.accent;
+            ctx.lineWidth = u(0.05);
+            ctx.stroke();
+            ctx.lineWidth = width;
+        }
+
+        function drawDino(p, look, rise, blink) {
             const S = layout.S;
             const [cx, cy0] = toScreen(EGG.cx, CRACK[0][1] - 0.01);
             const cy = cy0 + (1 - rise) * 0.24 * S;
             const u = (v) => v * S;
+            const width = Math.max(1.5, u(0.006));
             ctx.save();
-            ctx.lineWidth = Math.max(1.5, u(0.006));
-            ctx.strokeStyle = p.dinoLine;
+            ctx.lineWidth = width;
+            ctx.strokeStyle = look.line;
             ctx.lineJoin = 'round';
+            if (look.female) drawCrest(look, cx, cy, u, width);
             // back spikes
-            ctx.fillStyle = p.spike;
-            for (const [ax, ay, ang] of [[-0.07, -0.1, -2.3], [-0.03, -0.155, -1.95], [0.025, -0.175, -1.6]]) {
+            ctx.fillStyle = look.accent;
+            for (const [ax, ay, ang] of look.female ? [] : [[-0.07, -0.1, -2.3], [-0.03, -0.155, -1.95], [0.025, -0.175, -1.6]]) {
                 const bx = cx + u(ax);
                 const by = cy + u(ay);
                 ctx.beginPath();
@@ -1843,16 +1899,17 @@
                 ctx.stroke();
             }
             // body and head
-            ctx.fillStyle = p.dino;
+            ctx.strokeStyle = look.line;
+            ctx.fillStyle = look.body;
             ctx.beginPath();
             ctx.ellipse(cx - u(0.005), cy + u(0.06), u(0.12), u(0.12), 0, 0, TAU);
             ctx.fill();
             ctx.stroke();
-            ctx.fillStyle = p.belly;
+            ctx.fillStyle = look.belly;
             ctx.beginPath();
             ctx.ellipse(cx + u(0.03), cy + u(0.08), u(0.06), u(0.08), 0, 0, TAU);
             ctx.fill();
-            ctx.fillStyle = p.dino;
+            ctx.fillStyle = look.body;
             ctx.beginPath();
             ctx.arc(cx, cy - u(0.08), u(0.105), 0, TAU);
             ctx.fill();
@@ -1865,6 +1922,14 @@
             ctx.beginPath();
             ctx.arc(cx + u(0.02), cy - u(0.07), u(0.085), 0, TAU);
             ctx.fill();
+            if (look.female) {
+                ctx.fillStyle = p.spots;
+                for (const [sx, sy, r] of [[-0.055, -0.13, 0.014], [-0.075, -0.09, 0.011], [-0.03, -0.155, 0.009], [-0.045, -0.06, 0.008]]) {
+                    ctx.beginPath();
+                    ctx.arc(cx + u(sx), cy + u(sy), u(r), 0, TAU);
+                    ctx.fill();
+                }
+            }
             // eye, cheek, nostril and smile
             ctx.fillStyle = '#23282d';
             if (blink) {
@@ -1886,23 +1951,23 @@
             ctx.beginPath();
             ctx.ellipse(cx + u(0.04), cy - u(0.055), u(0.022), u(0.013), 0, 0, TAU);
             ctx.fill();
-            ctx.fillStyle = p.dinoLine;
+            ctx.fillStyle = look.line;
             ctx.beginPath();
             ctx.arc(cx + u(0.145), cy - u(0.065), u(0.006), 0, TAU);
             ctx.fill();
-            ctx.strokeStyle = p.dinoLine;
+            ctx.strokeStyle = look.line;
             ctx.beginPath();
             ctx.arc(cx + u(0.1), cy - u(0.045), u(0.035), 0.35, 1.25);
             ctx.stroke();
             ctx.restore();
         }
 
-        function drawArms(p, rise) {
+        function drawArms(look, rise) {
             if (rise < 0.85) return;
             const S = layout.S;
             ctx.save();
-            ctx.fillStyle = p.dino;
-            ctx.strokeStyle = p.dinoLine;
+            ctx.fillStyle = look.body;
+            ctx.strokeStyle = look.line;
             ctx.lineWidth = Math.max(1.5, 0.006 * S);
             for (const side of [-1, 1]) {
                 const [ax, ay] = toScreen(EGG.cx + side * 0.075, CRACK[0][1] + (side < 0 ? 0.012 : 0.005));
@@ -1919,9 +1984,10 @@
             const open = ease(hatchT / 0.9);
             const rise = ease((hatchT - 0.35) / 0.9);
             const blink = hatchT > 2 && (hatchT % 3.2) < 0.14;
-            drawDino(p, rise, blink);
+            const look = hatchlingLook(p);
+            drawDino(p, look, rise, blink);
             drawShellPiece(p, 1);
-            drawArms(p, rise);
+            drawArms(look, rise);
             // top shell lifts off and tumbles away
             const [hx, hy] = toScreen(EGG.cx + 0.2, CRACK[0][1]);
             ctx.save();
@@ -1939,7 +2005,7 @@
                     const dist = reach * S * ease(hatchT / 1.2);
                     const x = ox + Math.cos(angle) * dist;
                     const y = oy + Math.sin(angle) * dist * 0.8;
-                    ctx.fillStyle = i % 2 ? p.spike : p.band;
+                    ctx.fillStyle = i % 2 ? look.accent : p.band;
                     ctx.beginPath();
                     for (let k = 0; k < 8; k++) {
                         const rr = k % 2 ? 2.5 : 7;
@@ -2110,8 +2176,8 @@
             pauseButton.textContent = state === 'paused' ? dict().resume : dict().pause;
             if (!which) return;
             const t = dict();
-            const withGoal = (text) => text.replace('{seconds}', String(hatchTime()));
-            overlayKicker.textContent = `${t.kicker} · ${difficulty === 'easy' ? t.easyMode : t.hardMode}`;
+            const withGoal = (text) => text.replace('{seconds}', String(hatchTime())).replace('{target}', String(targetTemp)).replace('{sex}', sexName());
+            overlayKicker.textContent = `${t.kicker} · ${difficulty === 'easy' ? t.easyMode : t.hardMode} · ${targetTemp} °C`;
             overlayStats.hidden = which !== 'hatched';
             overlayBadge.hidden = !(which === 'hatched' && newBest);
             overlayBadge.textContent = t.newBest;
@@ -2173,11 +2239,33 @@
             showOverlay('start');
         }
 
+        function syncIncubationControl() {
+            syncSegment('data-target', String(targetTemp));
+            incubationDescription.textContent = INCUBATION[targetTemp] === 'female' ? dict().femaleDesc : dict().maleDesc;
+        }
+
+        // a new incubation temperature starts a new game
+        function setTarget(next) {
+            if (next === targetTemp) return;
+            targetTemp = next;
+            storage.set('eggIncubatorTarget', String(targetTemp));
+            state = 'ready';
+            pressing = false;
+            keysDown.clear();
+            resetGame();
+            syncIncubationControl();
+            showOverlay('start');
+        }
+
         document.querySelectorAll('[data-view]').forEach((button) => {
             button.addEventListener('click', () => {
                 viewMode = button.dataset.view;
                 syncSegment('data-view', viewMode);
             });
+        });
+
+        document.querySelectorAll('[data-target]').forEach((button) => {
+            button.addEventListener('click', () => setTarget(Number(button.dataset.target)));
         });
 
         document.querySelectorAll('[data-difficulty]').forEach((button) => {
@@ -2205,6 +2293,7 @@
                 button.setAttribute('aria-pressed', String(active));
             });
             syncDifficultyControl();
+            syncIncubationControl();
             showOverlay(overlay.hidden ? null : overlayMode);
         }
 
