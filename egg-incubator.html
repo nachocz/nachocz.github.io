@@ -739,7 +739,7 @@
             </div>
 
             <div class="controls-row">
-                <p class="hint" data-i18n="hint">Move the pointer over the egg to aim the source and press to heat. Use the Power slider or scroll on the egg: right means more power, left means less. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.</p>
+                <p class="hint" data-i18n="hint">Move the pointer over the egg to aim the source and press to heat. Drag the Power slider to the right, or scroll up over the egg, for more power. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.</p>
                 <div class="actions">
                     <button class="button" type="button" id="pauseButton" data-i18n="pause">Pause</button>
                     <button class="button" type="button" id="restartButton" data-i18n="restart">Restart</button>
@@ -788,7 +788,7 @@
                 mapAria: 'Map',
                 viewTemperature: 'Temperature T',
                 viewError: 'Error e = T* − T',
-                hint: 'Move the pointer over the egg to aim the source and press to heat. Use the Power slider or scroll on the egg: right means more power, left means less. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.',
+                hint: 'Move the pointer over the egg to aim the source and press to heat. Drag the Power slider to the right, or scroll up over the egg, for more power. Keyboard: arrow keys aim, Space heats, W increases power, S decreases it, and P pauses.',
                 pause: 'Pause',
                 resume: 'Resume',
                 restart: 'Restart',
@@ -846,7 +846,7 @@
                 mapAria: 'Mapa',
                 viewTemperature: 'Temperatura T',
                 viewError: 'Error e = T* − T',
-                hint: 'Mueve el puntero sobre el huevo para apuntar la fuente y pulsa para calentar. Usa el deslizador de Potencia o la rueda sobre el huevo: a la derecha hay más potencia y a la izquierda, menos. Teclado: las flechas apuntan, Espacio calienta, W aumenta la potencia, S la reduce y P pausa el juego.',
+                hint: 'Mueve el puntero sobre el huevo para apuntar la fuente y pulsa para calentar. Para aumentar la potencia, arrastra el deslizador de Potencia hacia la derecha o gira la rueda hacia arriba sobre el huevo. Teclado: las flechas apuntan, Espacio calienta, W aumenta la potencia, S la reduce y P pausa el juego.',
                 pause: 'Pausa',
                 resume: 'Continuar',
                 restart: 'Reiniciar',
@@ -893,6 +893,40 @@
                 if (isEmbedded) return;
                 try { localStorage.setItem(key, value); } catch (error) { /* storage blocked */ }
             }
+        };
+
+        // ------------------------------------------------------------------
+        // page elements
+        // ------------------------------------------------------------------
+        const byId = (id) => document.getElementById(id);
+        const canvas = byId('game');
+        const ctx = canvas.getContext('2d');
+        const overlay = byId('overlay');
+        const overlayKicker = byId('overlayKicker');
+        const overlayTitle = byId('overlayTitle');
+        const overlayText = byId('overlayText');
+        const overlayBadge = byId('overlayBadge');
+        const overlayStats = byId('overlayStats');
+        const overlayButton = byId('overlayButton');
+        const pauseButton = byId('pauseButton');
+        const announcer = byId('announcer');
+        const modeDescription = byId('modeDescription');
+        const heatToggle = byId('heatToggle');
+        const powerInput = byId('power');
+        const powerValue = byId('powerValue');
+        const hud = {
+            inBand: byId('inBand'),
+            meanError: byId('meanErrorValue'),
+            stdError: byId('stdErrorValue'),
+            outside: byId('outsideValue'),
+            time: byId('timeValue'),
+            best: byId('bestValue')
+        };
+        const finalStats = {
+            time: byId('statTime'),
+            best: byId('statBest'),
+            snow: byId('statSnow'),
+            fronts: byId('statFronts')
         };
 
         // ------------------------------------------------------------------
@@ -973,6 +1007,7 @@
         const field = new Float32Array(N * N);
         const nextField = new Float32Array(N * N);
         const heatRate = new Float32Array(N * N);
+        const INV_H2 = N * N;   // 1 / h^2 for the grid spacing h = 1 / N
         let ambient = MODEL.ambient;
 
         function resetField() {
@@ -980,23 +1015,27 @@
             ambient = MODEL.ambient;
         }
 
-        function simulate(dt, source) {
+        // Gaussian heat input q_in of the source; it is constant within a frame
+        function depositHeat(source) {
             heatRate.fill(0);
-            if (source.heat) {
-                const s = sigma(source.d);
-                const amp = MODEL.power * eta(source.d) / (TAU * s * s);
-                const reach = Math.ceil(3 * s * N);
-                const ci = Math.floor(source.x * N);
-                const cj = Math.floor(source.y * N);
-                for (let j = Math.max(0, cj - reach); j <= Math.min(N - 1, cj + reach); j++) {
-                    for (let i = Math.max(0, ci - reach); i <= Math.min(N - 1, ci + reach); i++) {
-                        const dx = (i + 0.5) / N - source.x;
-                        const dy = (j + 0.5) / N - source.y;
-                        heatRate[j * N + i] = amp * Math.exp(-(dx * dx + dy * dy) / (2 * s * s));
-                    }
+            if (!source.heat) return;
+            const s = sigma(source.d);
+            const amp = MODEL.power * eta(source.d) / (TAU * s * s);
+            const reach = Math.ceil(3 * s * N);
+            const ci = Math.floor(source.x * N);
+            const cj = Math.floor(source.y * N);
+            for (let j = Math.max(0, cj - reach); j <= Math.min(N - 1, cj + reach); j++) {
+                for (let i = Math.max(0, ci - reach); i <= Math.min(N - 1, ci + reach); i++) {
+                    const dx = (i + 0.5) / N - source.x;
+                    const dy = (j + 0.5) / N - source.y;
+                    heatRate[j * N + i] = amp * Math.exp(-(dx * dx + dy * dy) / (2 * s * s));
                 }
             }
-            const inv = N * N;
+        }
+
+        // explicit Euler step of the heat equation; it is stable while
+        // 4 alpha dt / h^2 < 1, which is 0.79 at dt = MODEL.step
+        function diffuse(dt) {
             for (const k of cells) {
                 const t = field[k];
                 let lap = 0;
@@ -1004,9 +1043,15 @@
                 if (mask[k + 1]) lap += field[k + 1] - t;
                 if (mask[k - N]) lap += field[k - N] - t;
                 if (mask[k + N]) lap += field[k + N] - t;
-                nextField[k] = t + dt * (MODEL.alpha * lap * inv + heatRate[k] - MODEL.loss * (t - ambient));
+                nextField[k] = t + dt * (MODEL.alpha * lap * INV_H2 + heatRate[k] - MODEL.loss * (t - ambient));
             }
             for (const k of cells) field[k] = nextField[k];
+        }
+
+        function advanceField(dt) {
+            depositHeat(source);
+            const steps = Math.max(1, Math.ceil(dt / MODEL.step));
+            for (let s = 0; s < steps; s++) diffuse(dt / steps);
         }
 
         function coolSpot(x, y) {
@@ -1036,23 +1081,23 @@
         // ------------------------------------------------------------------
         let state = 'ready';
         let difficulty = storage.get('eggIncubatorDifficulty') === 'hard' ? 'hard' : 'easy';
-        const hatchTime = () => difficulty === 'easy' ? 30 : 40;
+        const hatchTime = () => (difficulty === 'easy' ? 30 : 40);
         let elapsed = 0;
         let inBand = 0;
-        let stats = { mean: MODEL.target - MODEL.start, std: 0 };
+        let stats = { mean: 0, std: 0 };
         let snowCount = 0;
         let frontCount = 0;
-        let snowflakes = [];
-        let frosts = [];
-        let flakes = [];
+        let snowflakes = [];        // flakes falling onto the egg
+        let impacts = [];           // rings where a flake landed
+        let backgroundSnow = [];    // decorative snowfall during a cold front
         let weather = null;
         let nextSnow = 0;
         let hatchT = 0;
         let leftFlash = 0;
+        let newBest = false;
         let viewMode = 'T';
         const source = { x: EGG.cx, y: EGG.cy, power: 50, d: distanceForPower(50), heat: false };
         let pressing = false;
-        let keyHeat = false;
         const keysDown = new Set();
 
         function resetWeather() {
@@ -1068,7 +1113,7 @@
         const bestKey = () => `eggIncubatorBest:${difficulty}`;
         const readBest = () => Number(storage.get(bestKey())) || 0;
         const saveBest = (value) => storage.set(bestKey(), String(value));
-        const statInBand = (value) => value >= -BAND && value <= BAND;
+        const withinBand = (value) => value >= -BAND && value <= BAND;
 
         function resetGame() {
             resetField();
@@ -1078,7 +1123,7 @@
             snowCount = 0;
             frontCount = 0;
             snowflakes = [];
-            frosts = [];
+            impacts = [];
             hatchT = 0;
             leftFlash = 0;
             stats = errorStats();
@@ -1107,7 +1152,6 @@
             canvas.focus({ preventScroll: true });
         }
 
-        let newBest = false;
         function hatch() {
             state = 'hatched';
             hatchT = 0;
@@ -1131,100 +1175,115 @@
             return [EGG.cx, EGG.cy];
         }
 
-        function updateWeather(dt) {
-            if (difficulty === 'hard' && weather.phase === 'calm' && elapsed >= weather.nextFront - 3) {
+        // hard mode: a cold front is announced three seconds ahead, lowers the
+        // outside temperature for a while and then clears
+        function updateFronts() {
+            if (weather.phase === 'calm' && elapsed >= weather.nextFront - 3) {
                 weather.phase = 'warning';
                 announce(dict().announceFront);
             }
-            if (difficulty === 'hard' && weather.phase === 'warning' && elapsed >= weather.nextFront) {
+            if (weather.phase === 'warning' && elapsed >= weather.nextFront) {
                 weather.phase = 'front';
                 frontCount += 1;
                 // later fronts are colder and last longer
                 weather.target = Math.max(5, 10 - 0.015 * elapsed - 3 * Math.random());
                 weather.frontEnd = elapsed + 10 + 4 * Math.random() + Math.min(3, elapsed / 30);
             }
-            if (difficulty === 'hard' && weather.phase === 'front' && elapsed >= weather.frontEnd) {
+            if (weather.phase === 'front' && elapsed >= weather.frontEnd) {
                 weather.phase = 'calm';
                 weather.target = MODEL.ambient;
                 weather.nextFront = elapsed + 16 + 10 * Math.random();
             }
-            ambient += (weather.target - ambient) * Math.min(1, dt / 2.5);
+        }
 
+        // the outside temperature follows the weather with a 2.5 s lag
+        function relaxAmbient(dt) {
+            ambient += (weather.target - ambient) * Math.min(1, dt / 2.5);
+        }
+
+        // flakes fall more often during a cold front; each one cools the
+        // shell where it lands
+        function updateSnow(dt) {
             if (elapsed >= nextSnow) {
                 const [x, y] = landingPoint();
                 snowflakes.push({ x, y, drift: (Math.random() - 0.5) * 0.25, t: 0, fall: 1.7 });
-                const front = difficulty === 'hard' && weather.phase === 'front';
-                nextSnow = elapsed + (front ? 1.8 + 2 * Math.random() : 5 + 4 * Math.random());
+                nextSnow = elapsed + (weather.phase === 'front' ? 1.8 + 2 * Math.random() : 5 + 4 * Math.random());
             }
-            for (const flake of snowflakes) {
+            snowflakes = snowflakes.filter((flake) => {
                 flake.t += dt;
-                if (flake.t >= flake.fall && !flake.landed) {
-                    flake.landed = true;
-                    coolSpot(flake.x, flake.y);
-                    snowCount += 1;
-                    frosts.push({ x: flake.x, y: flake.y, t: 0 });
-                }
+                if (flake.t < flake.fall) return true;
+                coolSpot(flake.x, flake.y);
+                snowCount += 1;
+                impacts.push({ x: flake.x, y: flake.y, t: 0 });
+                return false;
+            });
+        }
+
+        function updateWeather(dt) {
+            if (difficulty === 'hard') updateFronts();
+            relaxAmbient(dt);
+            updateSnow(dt);
+        }
+
+        // the egg hatches after hatchTime() seconds with both statistics in
+        // the band; leaving the band restarts the count
+        function updateIncubation(dt) {
+            stats = errorStats();
+            if (withinBand(stats.mean) && withinBand(stats.std)) {
+                inBand += dt;
+                if (inBand >= hatchTime()) hatch();
+                return;
             }
-            snowflakes = snowflakes.filter(flake => !flake.landed);
+            if (inBand > 3) {
+                leftFlash = 1;
+                announce(dict().announceLeft);
+            }
+            inBand = 0;
         }
 
         function update(dt) {
-            if (state === 'playing') applyKeys(dt);
-            source.heat = state === 'playing' && (pressing || keyHeat || heatToggle.checked);
             if (state === 'playing') {
+                applyKeys(dt);
+                source.heat = pressing || keysDown.has(' ') || heatToggle.checked;
                 elapsed += dt;
                 updateWeather(dt);
-                const steps = Math.max(1, Math.ceil(dt / MODEL.step));
-                for (let s = 0; s < steps; s++) simulate(dt / steps, source);
-                stats = errorStats();
-                if (statInBand(stats.mean) && statInBand(stats.std)) {
-                    inBand += dt;
-                    if (inBand >= hatchTime()) hatch();
-                } else {
-                    if (inBand > 3) {
-                        leftFlash = 1;
-                        announce(dict().announceLeft);
-                    }
-                    inBand = 0;
-                }
+                advanceField(dt);
+                updateIncubation(dt);
+            } else {
+                source.heat = false;
             }
             if (state === 'hatched') {
                 hatchT += dt;
-                ambient += (weather.target - ambient) * Math.min(1, dt / 2.5);
+                relaxAmbient(dt);
+                if (hatchT > 1.6 && overlay.hidden) showOverlay('hatched');
             }
-            if (state !== 'paused') {
-                frosts.forEach(f => { f.t += dt; });
-                frosts = frosts.filter(f => f.t < 0.8);
-                leftFlash = Math.max(0, leftFlash - dt * 1.8);
-                updateFlakes(dt);
-            }
+            if (state !== 'paused') updateEffects(dt);
             updateLiveHud();
-            if (state === 'hatched' && hatchT > 1.6 && overlay.hidden) showOverlay('hatched');
-        }
-
-        // decorative snowfall while a cold front is on
-        function updateFlakes(dt) {
-            const intensity = frontIntensity();
-            const wanted = Math.round(60 * intensity);
-            while (flakes.length < wanted) {
-                flakes.push({ x: Math.random(), y: Math.random() * -0.2, v: 0.05 + 0.05 * Math.random(), r: 0.8 + 1.4 * Math.random(), sway: Math.random() * TAU });
-            }
-            for (const f of flakes) {
-                f.y += f.v * dt;
-                f.sway += dt;
-                f.x += Math.sin(f.sway) * 0.01 * dt;
-            }
-            flakes = flakes.filter(f => f.y < 1.05);
-            if (flakes.length > wanted) flakes.splice(0, flakes.length - wanted);
         }
 
         const frontIntensity = () => clamp((MODEL.ambient - ambient) / 10, 0, 1);
 
+        // impact rings, the band-exit flash and the decorative snowfall
+        function updateEffects(dt) {
+            impacts.forEach((ring) => { ring.t += dt; });
+            impacts = impacts.filter((ring) => ring.t < 0.8);
+            leftFlash = Math.max(0, leftFlash - dt * 1.8);
+            const wanted = Math.round(60 * frontIntensity());
+            while (backgroundSnow.length < wanted) {
+                backgroundSnow.push({ x: Math.random(), y: Math.random() * -0.2, v: 0.05 + 0.05 * Math.random(), r: 0.8 + 1.4 * Math.random(), sway: Math.random() * TAU });
+            }
+            for (const f of backgroundSnow) {
+                f.y += f.v * dt;
+                f.sway += dt;
+                f.x += Math.sin(f.sway) * 0.01 * dt;
+            }
+            backgroundSnow = backgroundSnow.filter(f => f.y < 1.05);
+            if (backgroundSnow.length > wanted) backgroundSnow.splice(0, backgroundSnow.length - wanted);
+        }
+
         // ------------------------------------------------------------------
         // rendering
         // ------------------------------------------------------------------
-        const canvas = document.getElementById('game');
-        const ctx = canvas.getContext('2d');
         const fieldCanvas = document.createElement('canvas');
         fieldCanvas.width = N;
         fieldCanvas.height = N;
@@ -1234,6 +1293,7 @@
 
         const toScreen = (x, y) => [layout.x0 + x * layout.S, layout.y0 + y * layout.S];
         const toDomain = (px, py) => [(px - layout.x0) / layout.S, (py - layout.y0) / layout.S];
+        const font = (weight, size) => `${weight} ${size}px system-ui, -apple-system, "Segoe UI", sans-serif`;
 
         function hexToRgb(hex) {
             const h = hex.replace('#', '');
@@ -1262,21 +1322,22 @@
 
         // temperature: dark violet (cold) through orange (target) to pale yellow (hot)
         const T_RANGE = [12, 42];
-        const TEMP_LUT = lut([[0, '#1d1140'], [0.22, '#4b1569'], [0.42, '#a32f62'], [0.6, '#e7652f'], [0.74, '#f6a23a'], [0.88, '#f8d566'], [1, '#fdf8d0']]);
+        const TEMP_STOPS = [[0, '#1d1140'], [0.22, '#4b1569'], [0.42, '#a32f62'], [0.6, '#e7652f'], [0.74, '#f6a23a'], [0.88, '#f8d566'], [1, '#fdf8d0']];
         // error: red heat deficit, white zero, blue over-heated (as in EHCC)
         const E_RANGE = 8;
-        const ERROR_LUT = lut([[0, '#2166ac'], [0.25, '#67a9cf'], [0.5, '#f7f7f7'], [0.75, '#ef8a62'], [1, '#b2182b']]);
+        const ERROR_STOPS = [[0, '#2166ac'], [0.25, '#67a9cf'], [0.5, '#f7f7f7'], [0.75, '#ef8a62'], [1, '#b2182b']];
+        const MAPS = {
+            T: { lut: lut(TEMP_STOPS), stops: TEMP_STOPS, scale: (T) => (T - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]) },
+            e: { lut: lut(ERROR_STOPS), stops: ERROR_STOPS, scale: (T) => ((MODEL.target - T) / E_RANGE + 1) / 2 }
+        };
 
         function paintField() {
             const data = fieldImage.data;
+            const { lut: table, scale } = MAPS[viewMode];
             for (let k = 0; k < N * N; k++) {
                 const src = displayIndex[k];
                 if (src < 0) { data[4 * k + 3] = 0; continue; }
-                let t;
-                if (viewMode === 'T') t = (field[src] - T_RANGE[0]) / (T_RANGE[1] - T_RANGE[0]);
-                else t = ((MODEL.target - field[src]) / E_RANGE + 1) / 2;
-                const i = Math.round(clamp(t, 0, 1) * 255) * 3;
-                const table = viewMode === 'T' ? TEMP_LUT : ERROR_LUT;
+                const i = Math.round(clamp(scale(field[src]), 0, 1) * 255) * 3;
                 data[4 * k] = table[i];
                 data[4 * k + 1] = table[i + 1];
                 data[4 * k + 2] = table[i + 2];
@@ -1289,21 +1350,22 @@
             const dark = document.documentElement.dataset.theme === 'dark';
             return dark ? {
                 surface: '#1a1d20', grid: '#23272b', ink: '#e6e9ec', text: '#949da6', line: '#3a4046',
-                heat: '#f08a45', band: '#3cc28f', cold: '#7fb0f0', alert: '#e66767',
+                heat: '#f08a45', band: '#3cc28f', cold: '#7fb0f0', alert: '#e66767', sun: '#f4c04e', sunRay: '#e8a33a',
                 twig: '#8a6c45', twigDark: '#6b5233', shadow: 'rgba(0, 0, 0, 0.35)',
                 shell: '#d8caa6', speck: '#5a4630',
                 dino: '#58b98b', dinoLine: '#2e6f52', belly: '#b9e3c9', spike: '#f2a541'
             } : {
                 surface: '#fafbfb', grid: '#eef0f2', ink: '#23282d', text: '#697179', line: '#c9ced3',
-                heat: '#e8772e', band: '#1b9e6f', cold: '#3b7dd8', alert: '#d64545',
+                heat: '#e8772e', band: '#1b9e6f', cold: '#3b7dd8', alert: '#d64545', sun: '#f4c04e', sunRay: '#e8a33a',
                 twig: '#c49a62', twigDark: '#9c7646', shadow: 'rgba(40, 30, 20, 0.14)',
                 shell: '#f3e8cc', speck: '#7a5c3c',
                 dino: '#5cbf8e', dinoLine: '#2f7656', belly: '#c7ecd6', spike: '#f2a541'
             };
         }
 
-        function seeded(n) {
-            let s = 9;
+        // Park-Miller sequence, so the decoration is the same on every visit
+        function seeded(n, seed = 9) {
+            let s = seed;
             const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
             return Array.from({ length: n }, r);
         }
@@ -1351,6 +1413,16 @@
         }
 
         const OUTLINE = eggOutline(0);
+        // the incubation progress is drawn along a ring just outside the shell,
+        // starting at the top of the egg and running clockwise
+        const RING = eggOutline(0.03);
+        const RING_LENGTH = RING.reduce((sum, p, i) => (i ? sum + Math.hypot(p[0] - RING[i - 1][0], p[1] - RING[i - 1][1]) : 0), 0);
+
+        // direction and reach of the sparkles shown when the egg hatches
+        const SPARKLES = (() => {
+            const r = seeded(16);
+            return Array.from({ length: 8 }, (_, i) => ({ angle: r[i] * TAU, reach: 0.18 + 0.12 * r[i + 8] }));
+        })();
 
         function drawNest(p, front) {
             const S = layout.S;
@@ -1442,14 +1514,13 @@
         }
 
         function drawRing(p) {
-            const ring = eggOutline(0.03);
             const progress = clamp(inBand / hatchTime(), 0, 1);
             const S = layout.S;
             ctx.save();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.beginPath();
-            pathFrom(ring);
+            pathFrom(RING);
             ctx.strokeStyle = alpha(p.line, 0.55);
             ctx.lineWidth = Math.max(3, 0.01 * S);
             ctx.stroke();
@@ -1458,12 +1529,7 @@
                 ctx.stroke();
             }
             if (progress > 0) {
-                let length = 0;
-                for (let i = 1; i < ring.length; i++) {
-                    length += Math.hypot(ring[i][0] - ring[i - 1][0], ring[i][1] - ring[i - 1][1]);
-                }
-                length *= S;
-                // the path starts at the top of the egg and runs clockwise
+                const length = RING_LENGTH * S;
                 ctx.setLineDash([length * progress, length]);
                 ctx.strokeStyle = p.band;
                 ctx.stroke();
@@ -1560,9 +1626,9 @@
                 snowflakeShape(fx, fy, 0.03 * S, alpha(p.surface, 0.95), 4);
                 snowflakeShape(fx, fy, 0.03 * S, p.cold, 1.6);
             }
-            for (const frost of frosts) {
-                const [x, y] = toScreen(frost.x, frost.y);
-                const u = frost.t / 0.8;
+            for (const ring of impacts) {
+                const [x, y] = toScreen(ring.x, ring.y);
+                const u = ring.t / 0.8;
                 ctx.strokeStyle = alpha(p.cold, 0.8 * (1 - u));
                 ctx.lineWidth = 2;
                 ctx.beginPath();
@@ -1584,7 +1650,7 @@
             }
             ctx.save();
             ctx.fillStyle = alpha(p.cold, 0.55);
-            for (const f of flakes) {
+            for (const f of backgroundSnow) {
                 ctx.beginPath();
                 ctx.arc(f.x * w, f.y * h, f.r, 0, TAU);
                 ctx.fill();
@@ -1594,11 +1660,11 @@
             ctx.save();
             const x = 22;
             const y = 24;
-            if (weather && weather.phase === 'front') {
+            if (weather.phase === 'front') {
                 snowflakeShape(x, y, 9, p.cold, 1.6);
             } else {
-                ctx.strokeStyle = '#e8a33a';
-                ctx.fillStyle = '#f4c04e';
+                ctx.strokeStyle = p.sunRay;
+                ctx.fillStyle = p.sun;
                 ctx.lineWidth = 1.6;
                 ctx.beginPath();
                 ctx.arc(x, y, 5.5, 0, TAU);
@@ -1611,13 +1677,13 @@
                     ctx.stroke();
                 }
             }
-            ctx.font = '700 13px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.font = font(700, 13);
             ctx.textBaseline = 'middle';
             ctx.fillStyle = intensity > 0.2 ? p.cold : p.ink;
             ctx.fillText(`${ambient.toFixed(0)} °C`, x + 17, y + 1);
-            if (weather && (weather.phase === 'warning' || weather.phase === 'front')) {
+            if (weather.phase === 'warning' || weather.phase === 'front') {
                 const label = weather.phase === 'warning' ? dict().frontWarning : dict().coldFront;
-                ctx.font = '700 12px system-ui, -apple-system, "Segoe UI", sans-serif';
+                ctx.font = font(700, 12);
                 const tw = ctx.measureText(label).width;
                 const bx = layout.w / 2 - tw / 2 - 12;
                 ctx.fillStyle = alpha(p.cold, 0.14);
@@ -1644,7 +1710,7 @@
             const yOf = (v) => bottom - (bottom - top) * clamp((v - min) / (max - min), 0, 1);
             const signed = (v) => v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : '0';
             ctx.save();
-            ctx.font = '700 11px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.font = font(700, 11);
             ctx.textAlign = 'center';
             ctx.fillStyle = p.text;
             ctx.fillText(dict().errorGaugeLabel, x, top - 17);
@@ -1656,14 +1722,14 @@
             ctx.lineWidth = 10;
             ctx.beginPath(); ctx.moveTo(x, yOf(BAND)); ctx.lineTo(x, yOf(-BAND)); ctx.stroke();
             ctx.textAlign = 'left';
-            ctx.font = '600 10px system-ui, -apple-system, "Segoe UI", sans-serif';
+            ctx.font = font(600, 10);
             for (const v of [BAND, 0, -BAND]) {
                 const limit = Math.abs(v) === BAND;
                 ctx.fillStyle = limit ? p.band : p.text;
                 ctx.fillText(limit ? `${signed(v)} ${dict().bandLabel}` : signed(v), x + 18, yOf(v) + 3);
             }
 
-            const ok = statInBand(stats.mean) && statInBand(stats.std);
+            const ok = withinBand(stats.mean) && withinBand(stats.std);
             const meanY = yOf(stats.mean);
             const spreadTop = yOf(stats.mean + stats.std);
             const spreadBottom = yOf(stats.mean - stats.std);
@@ -1690,14 +1756,12 @@
             const x = 16;
             const y = layout.h - 26;
             const w = Math.min(150, layout.w * 0.24);
-            const table = viewMode === 'T' ? TEMP_LUT : ERROR_LUT;
             ctx.save();
-            for (let i = 0; i < w; i++) {
-                const k = Math.round(i / (w - 1) * 255) * 3;
-                ctx.fillStyle = `rgb(${table[k]}, ${table[k + 1]}, ${table[k + 2]})`;
-                ctx.fillRect(x + i, y, 1.5, 7);
-            }
-            ctx.font = '600 10px system-ui, -apple-system, "Segoe UI", sans-serif';
+            const bar = ctx.createLinearGradient(x, 0, x + w, 0);
+            for (const [t, hex] of MAPS[viewMode].stops) bar.addColorStop(t, hex);
+            ctx.fillStyle = bar;
+            ctx.fillRect(x, y, w, 7);
+            ctx.font = font(600, 10);
             ctx.fillStyle = p.text;
             ctx.textBaseline = 'top';
             if (viewMode === 'T') {
@@ -1867,17 +1931,14 @@
             ctx.translate(-hx, -hy);
             drawShellPiece(p, -1);
             ctx.restore();
-            // sparkles
             if (hatchT < 2.2) {
                 ctx.save();
-                const r = seeded(24);
-                for (let i = 0; i < 8; i++) {
-                    const a = r[i] * TAU;
-                    const dist = (0.18 + 0.12 * r[i + 8]) * S * ease(hatchT / 1.2);
-                    const [ox, oy] = toScreen(EGG.cx, CRACK[0][1] - 0.08);
-                    const x = ox + Math.cos(a) * dist;
-                    const y = oy + Math.sin(a) * dist * 0.8;
-                    ctx.globalAlpha = clamp(1 - (hatchT - 0.6) / 1.6, 0, 1);
+                const [ox, oy] = toScreen(EGG.cx, CRACK[0][1] - 0.08);
+                ctx.globalAlpha = clamp(1 - (hatchT - 0.6) / 1.6, 0, 1);
+                SPARKLES.forEach(({ angle, reach }, i) => {
+                    const dist = reach * S * ease(hatchT / 1.2);
+                    const x = ox + Math.cos(angle) * dist;
+                    const y = oy + Math.sin(angle) * dist * 0.8;
                     ctx.fillStyle = i % 2 ? p.spike : p.band;
                     ctx.beginPath();
                     for (let k = 0; k < 8; k++) {
@@ -1887,7 +1948,7 @@
                     }
                     ctx.closePath();
                     ctx.fill();
-                }
+                });
                 ctx.restore();
             }
         }
@@ -1901,10 +1962,11 @@
                 canvas.width = Math.round(w * dpr);
                 canvas.height = Math.round(h * dpr);
             }
+            // the egg sits left of centre; the error gauge takes the space on its right
             const S = Math.min(h * 0.94, w * 0.66);
             const centre = w * (w / h > 1.25 ? 0.44 : 0.42);
-            layout = { S, x0: centre - S / 2, y0: (h - S) / 2 + h * 0.01, w, h, gx: 0 };
-            layout.gx = Math.min(w - 72, centre + S / 2 + (w - centre - S / 2) * 0.42);
+            const eggRight = centre + S / 2;
+            layout = { S, x0: centre - S / 2, y0: (h - S) / 2 + h * 0.01, w, h, gx: Math.min(w - 72, eggRight + (w - eggRight) * 0.42) };
             const p = palette();
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.fillStyle = p.surface;
@@ -1926,14 +1988,11 @@
         // ------------------------------------------------------------------
         // input
         // ------------------------------------------------------------------
-        const heatToggle = document.getElementById('heatToggle');
-        const powerInput = document.getElementById('power');
-
         function setPower(power) {
             source.power = clamp(power, POWER.min, POWER.max);
             source.d = distanceForPower(source.power);
             powerInput.value = String(source.power);
-            document.getElementById('powerValue').textContent = `${Math.round(source.power)}%`;
+            powerValue.textContent = `${Math.round(source.power)}%`;
         }
 
         powerInput.addEventListener('input', () => setPower(Number(powerInput.value)));
@@ -1962,6 +2021,7 @@
         };
         canvas.addEventListener('pointerup', release);
         canvas.addEventListener('pointercancel', release);
+        // scrolling up increases the power
         canvas.addEventListener('wheel', (event) => {
             if (state !== 'playing') return;
             event.preventDefault();
@@ -1981,7 +2041,6 @@
             source.y = clamp(source.y + dy * AIM_SPEED * dt, 0, 1);
             if (keysDown.has('w')) setPower(source.power + POWER_SPEED * dt);
             if (keysDown.has('s')) setPower(source.power - POWER_SPEED * dt);
-            keyHeat = keysDown.has(' ');
         }
 
         const GAME_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 's', ' ']);
@@ -2015,25 +2074,6 @@
         let currentLanguage = storage.get('language') || 'en';
         if (!translations[currentLanguage]) currentLanguage = 'en';
         const dict = () => translations[currentLanguage];
-
-        const overlay = document.getElementById('overlay');
-        const overlayKicker = document.getElementById('overlayKicker');
-        const overlayTitle = document.getElementById('overlayTitle');
-        const overlayText = document.getElementById('overlayText');
-        const overlayBadge = document.getElementById('overlayBadge');
-        const overlayStats = document.getElementById('overlayStats');
-        const overlayButton = document.getElementById('overlayButton');
-        const pauseButton = document.getElementById('pauseButton');
-        const announcer = document.getElementById('announcer');
-        const modeDescription = document.getElementById('modeDescription');
-        const hud = {
-            inBand: document.getElementById('inBand'),
-            meanError: document.getElementById('meanErrorValue'),
-            stdError: document.getElementById('stdErrorValue'),
-            outside: document.getElementById('outsideValue'),
-            time: document.getElementById('timeValue'),
-            best: document.getElementById('bestValue')
-        };
         let overlayMode = 'start';
 
         const formatTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -2047,22 +2087,20 @@
             hud.best.textContent = best ? formatTime(best) : '–';
         }
 
-        const shown = {};
-        function setText(key, el, text) {
-            if (shown[key] === text) return;
-            shown[key] = text;
-            el.textContent = text;
+        // the HUD is refreshed every frame; only changed values touch the DOM
+        function setText(el, text) {
+            if (el.textContent !== text) el.textContent = text;
         }
 
         function updateLiveHud() {
             const goal = hatchTime();
-            setText('inBand', hud.inBand, `${Math.min(inBand, goal).toFixed(1)} / ${goal} s`);
             const meanSign = stats.mean > 0 ? '+' : '';
-            setText('meanError', hud.meanError, state === 'ready' ? '–' : `${meanSign}${stats.mean.toFixed(1)} °C`);
-            setText('stdError', hud.stdError, state === 'ready' ? '–' : `${stats.std.toFixed(1)} °C`);
-            setText('outside', hud.outside, `${ambient.toFixed(0)} °C`);
+            setText(hud.inBand, `${Math.min(inBand, goal).toFixed(1)} / ${goal} s`);
+            setText(hud.meanError, state === 'ready' ? '–' : `${meanSign}${stats.mean.toFixed(1)} °C`);
+            setText(hud.stdError, state === 'ready' ? '–' : `${stats.std.toFixed(1)} °C`);
+            setText(hud.outside, `${ambient.toFixed(0)} °C`);
             hud.outside.dataset.cold = String(frontIntensity() > 0.2);
-            setText('time', hud.time, formatTime(elapsed));
+            setText(hud.time, formatTime(elapsed));
         }
 
         function showOverlay(which) {
@@ -2089,10 +2127,10 @@
                 overlayTitle.textContent = t.hatchedTitle;
                 overlayText.textContent = withGoal(t.hatchedText);
                 overlayButton.textContent = t.playAgain;
-                document.getElementById('statTime').textContent = formatTime(elapsed);
-                document.getElementById('statBest').textContent = formatTime(readBest() || elapsed);
-                document.getElementById('statSnow').textContent = String(snowCount);
-                document.getElementById('statFronts').textContent = String(frontCount);
+                finalStats.time.textContent = formatTime(elapsed);
+                finalStats.best.textContent = formatTime(readBest() || elapsed);
+                finalStats.snow.textContent = String(snowCount);
+                finalStats.fronts.textContent = String(frontCount);
             }
         }
 
@@ -2106,42 +2144,44 @@
             else if (state === 'paused') resumeGame();
         });
 
-        document.getElementById('restartButton').addEventListener('click', startGame);
+        byId('restartButton').addEventListener('click', startGame);
+
+        // marks the active button of a segmented control
+        function syncSegment(attribute, value) {
+            document.querySelectorAll(`[${attribute}]`).forEach((button) => {
+                const active = button.getAttribute(attribute) === value;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+        }
+
+        function syncDifficultyControl() {
+            syncSegment('data-difficulty', difficulty);
+            modeDescription.textContent = difficulty === 'easy' ? dict().easyModeDesc : dict().hardModeDesc;
+        }
+
+        // a new difficulty starts a new game
+        function setDifficulty(next) {
+            if (next === difficulty) return;
+            difficulty = next;
+            storage.set('eggIncubatorDifficulty', difficulty);
+            state = 'ready';
+            pressing = false;
+            keysDown.clear();
+            resetGame();
+            syncDifficultyControl();
+            showOverlay('start');
+        }
 
         document.querySelectorAll('[data-view]').forEach((button) => {
             button.addEventListener('click', () => {
                 viewMode = button.dataset.view;
-                document.querySelectorAll('[data-view]').forEach((b) => {
-                    const active = b === button;
-                    b.classList.toggle('active', active);
-                    b.setAttribute('aria-pressed', String(active));
-                });
+                syncSegment('data-view', viewMode);
             });
         });
 
-        function syncDifficultyControl() {
-            const t = dict();
-            document.querySelectorAll('[data-difficulty]').forEach((button) => {
-                const active = button.dataset.difficulty === difficulty;
-                button.classList.toggle('active', active);
-                button.setAttribute('aria-pressed', String(active));
-            });
-            modeDescription.textContent = difficulty === 'easy' ? t.easyModeDesc : t.hardModeDesc;
-        }
-
         document.querySelectorAll('[data-difficulty]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const nextDifficulty = button.dataset.difficulty;
-                if (nextDifficulty === difficulty) return;
-                difficulty = nextDifficulty;
-                storage.set('eggIncubatorDifficulty', difficulty);
-                state = 'ready';
-                pressing = false;
-                keysDown.clear();
-                resetGame();
-                syncDifficultyControl();
-                showOverlay('start');
-            });
+            button.addEventListener('click', () => setDifficulty(button.dataset.difficulty));
         });
 
         document.addEventListener('visibilitychange', () => {
@@ -2188,11 +2228,8 @@
             requestAnimationFrame(frame);
         }
 
-        resetField();
-        resetWeather();
-        stats = errorStats();
         setPower(source.power);
-        updateHud();
+        resetGame();
         applyTranslations();
         showOverlay('start');
         requestAnimationFrame(frame);
