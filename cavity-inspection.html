@@ -278,6 +278,11 @@
             cursor: grabbing;
         }
 
+        #external:focus-visible {
+            outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+            outline-offset: -1px;
+        }
+
         #feed {
             background: #050607;
         }
@@ -296,6 +301,26 @@
 
         .view.camera figcaption {
             color: rgba(230, 236, 240, 0.72);
+        }
+
+        .view-toggle {
+            position: absolute;
+            top: 7px;
+            right: 8px;
+            min-height: 26px;
+            padding: 3px 10px;
+            border: 1px solid var(--line-strong);
+            border-radius: 999px;
+            color: var(--muted);
+            background: color-mix(in srgb, var(--surface) 85%, transparent);
+            font-size: 0.68rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .view-toggle.active {
+            color: var(--ink);
+            border-color: var(--accent);
         }
 
         .overlay {
@@ -485,6 +510,12 @@
             font-weight: 750;
         }
 
+        .joint.weak > span,
+        .joint.weak .joint-meter,
+        .joint.weak output {
+            opacity: 0.45;
+        }
+
         .jog {
             width: 34px;
             height: 32px;
@@ -625,19 +656,123 @@
         }
 
         .legend-dot.connector {
-            background: #d9622b;
+            background: #ff7a59;
         }
 
         .legend-dot.cable {
-            background: #c98500;
+            background: #ffc23d;
         }
 
         .legend-dot.bracket {
-            background: #b8860b;
+            background: #5ab8ff;
         }
 
         .legend-dot.terminal {
-            background: #4a3b30;
+            background: #c792ff;
+        }
+
+        .snapshots {
+            display: grid;
+            grid-column: 1 / -1;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .snapshots figure {
+            position: relative;
+            margin: 0;
+        }
+
+        .snapshots canvas {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border-radius: 7px;
+            background: #050607;
+        }
+
+        .snapshots figcaption {
+            position: absolute;
+            top: 5px;
+            left: 7px;
+            color: rgba(235, 240, 245, 0.8);
+            font-size: 0.62rem;
+            font-weight: 750;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .snapshots figure.damaged figcaption {
+            color: #ffb39e;
+        }
+
+        /* How it works */
+
+        .howto {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .howto h2,
+        .legend-title {
+            margin: 0 0 10px;
+            color: var(--ink);
+            font-size: 0.82rem;
+            font-weight: 720;
+        }
+
+        .howto ol {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px 22px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .howto li {
+            position: relative;
+            padding-left: 30px;
+            color: var(--muted);
+            font-size: 0.75rem;
+            counter-increment: step;
+        }
+
+        .howto li::before {
+            content: counter(step);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: grid;
+            place-items: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            color: var(--surface);
+            background: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 750;
+        }
+
+        .howto strong {
+            display: block;
+            color: var(--ink);
+            font-size: 0.78rem;
+        }
+
+        .legend-section {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+        }
+
+        .legend-section .legend {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: 0;
         }
 
         .note {
@@ -711,7 +846,8 @@
 
             .views,
             .controls-row,
-            .legend {
+            .legend,
+            .howto ol {
                 grid-template-columns: 1fr;
             }
 
@@ -777,6 +913,7 @@
                     <figure class="view">
                         <canvas id="external" tabindex="0" aria-label="External view of the robot and the housing, with the soft extension inside the housing drawn in X-ray" data-i18n-aria-label="externalAria"></canvas>
                         <figcaption data-i18n="externalCaption">External view · X-ray of the extension</figcaption>
+                        <button class="view-toggle active" type="button" id="labelsToggle" aria-pressed="true" data-i18n="labelsToggle">Labels</button>
                     </figure>
                     <figure class="view camera">
                         <canvas id="feed" aria-label="Image of the camera at the tip of the soft extension" data-i18n-aria-label="feedAria"></canvas>
@@ -820,12 +957,24 @@
                 </div>
             </div>
 
-            <ul class="legend">
-                <li><span class="legend-dot connector" aria-hidden="true"></span><strong data-i18n="defect_connector">Disconnected connector</strong><span data-i18n="legendConnector">The plug lies out of its socket and its pins are exposed.</span></li>
-                <li><span class="legend-dot cable" aria-hidden="true"></span><strong data-i18n="defect_cable">Damaged cable</strong><span data-i18n="legendCable">The insulation is torn: copper conductor and loose strands.</span></li>
-                <li><span class="legend-dot bracket" aria-hidden="true"></span><strong data-i18n="defect_bracket">Cracked bracket</strong><span data-i18n="legendBracket">The upright is cracked and bent; a fragment lies next to it.</span></li>
-                <li><span class="legend-dot terminal" aria-hidden="true"></span><strong data-i18n="defect_terminal">Burnt terminal</strong><span data-i18n="legendTerminal">Soot around one terminal and a charred conductor.</span></li>
-            </ul>
+            <section class="howto" aria-labelledby="howto-title">
+                <h2 id="howto-title" data-i18n="howTitle">How it works</h2>
+                <ol>
+                    <li><strong data-i18n="how1Title">The end effector stays at the port</strong><span data-i18n="how1Text">Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the port. Faded joints keep less than 25 % of their command in the current posture.</span></li>
+                    <li><strong data-i18n="how2Title">The tendons bend the extension</strong><span data-i18n="how2Text">Two tendons run from anchors on the forearm and on the first wrist link to the base of the extension. A new posture changes their spans outside the extension, hence their tensions, which bend it.</span></li>
+                    <li><strong data-i18n="how3Title">The camera sees what the tip light reaches</strong><span data-i18n="how3Text">The camera looks along the tip, with the light aligned to its field of view, so near surfaces appear bright and far ones dark. The coloured arrows on the circle point toward the damaged parts not yet reported; an arrow pointing inward means the part is inside the circle.</span></li>
+                </ol>
+            </section>
+
+            <section class="legend-section" aria-labelledby="legend-title">
+                <h2 id="legend-title" class="legend-title" data-i18n="legendTitle">Damage to look for, as the tip camera sees it</h2>
+                <ul class="legend">
+                <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="connector" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="connector" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot connector" aria-hidden="true"></span><strong data-i18n="defect_connector">Disconnected connector</strong><span data-i18n="legendConnector">The plug lies out of its socket and its pins are exposed.</span></li>
+                <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="cable" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="cable" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot cable" aria-hidden="true"></span><strong data-i18n="defect_cable">Damaged cable</strong><span data-i18n="legendCable">The insulation is torn: copper conductor and loose strands.</span></li>
+                <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="bracket" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="bracket" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot bracket" aria-hidden="true"></span><strong data-i18n="defect_bracket">Cracked bracket</strong><span data-i18n="legendBracket">The upright is cracked and bent; a fragment lies next to it.</span></li>
+                <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="terminal" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="terminal" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot terminal" aria-hidden="true"></span><strong data-i18n="defect_terminal">Burnt terminal</strong><span data-i18n="legendTerminal">Soot around one terminal and a charred conductor.</span></li>
+                </ul>
+            </section>
             <p class="note" data-i18n="note">Intact parts of the same four kinds are installed elsewhere in the housing. The arm, the soft extension and the controller are those of the simulations of the paper: a UR10 with a Cosserat-rod extension and two elastic tendons, whose spans set the tensions that bend the extension. A joint command u is applied as q̇ = N_c u + J_c⁺ k_c e_c, with the null-space projector N_c = I − J_c⁺ J_c of the EE position constraint, and the motion stops at the limits of the span domain identified from probing motions and at any contact. The solution runs the controller of the paper from the start configuration: the damped least-squares law in the null space of the constraint and a quadratic program with control barrier functions for the walls, the contents of the housing and the span domain drive the tip to one viewpoint per damaged part. A report is accepted when the damaged part lies within 13° of the optical axis, closer than 24 cm and in line of sight.</p>
 
             <section class="references" aria-labelledby="references-title">
@@ -886,7 +1035,7 @@
                 note: 'Intact parts of the same four kinds are installed elsewhere in the housing. The arm, the soft extension and the controller are those of the simulations of the paper: a UR10 with a Cosserat-rod extension and two elastic tendons, whose spans set the tensions that bend the extension. A joint command u is applied as q̇ = N_c u + J_c⁺ k_c e_c, with the null-space projector N_c = I − J_c⁺ J_c of the EE position constraint, and the motion stops at the limits of the span domain identified from probing motions and at any contact. The solution runs the controller of the paper from the start configuration: the damped least-squares law in the null space of the constraint and a quadratic program with control barrier functions for the walls, the contents of the housing and the span domain drive the tip to one viewpoint per damaged part. A report is accepted when the damaged part lies within 13° of the optical axis, closer than 24 cm and in line of sight.',
                 referencesTitle: 'Related work',
                 companionNote: 'interactive companion with simulations and code',
-                startText: 'Three parts inside this housing are damaged. Move the joints to point the tip camera at each of them and report it when it is inside the circle.',
+                startText: 'Three parts inside this housing are damaged. Move the joints to point the tip camera at each of them and report it when it is inside the circle. The coloured arrows show where the parts are; at the start, the wrist joints q₄ to q₆ turn the camera most directly.',
                 start: 'Start',
                 pausedTitle: 'Paused',
                 pausedText: 'The clock stops until you resume.',
@@ -908,7 +1057,26 @@
                 nullToast: 'This command has almost no component in the null space',
                 rangeLabel: 'range',
                 spanDomain: 'span domain',
-                eeFixed: 'p* (EE held)',
+                labelsToggle: 'Labels',
+                labelArm: 'UR10 arm',
+                labelTendons: 'Tendons',
+                labelEE: 'End effector held at the port',
+                labelExtension: 'Soft extension (X-ray)',
+                labelCamera: 'Camera and light',
+                labelHousing: 'Closed housing',
+                reportZone: 'report zone',
+                upLabel: 'up',
+                weakJoint: 'Only {share} % of this command survives the projection in this posture; the other joints move instead.',
+                intact: 'Intact',
+                damaged: 'Damaged',
+                legendTitle: 'Damage to look for, as the tip camera sees it',
+                howTitle: 'How it works',
+                how1Title: 'The end effector stays at the port',
+                how1Text: 'Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the port. Faded joints keep less than 25 % of their command in the current posture.',
+                how2Title: 'The tendons bend the extension',
+                how2Text: 'Two tendons run from anchors on the forearm and on the first wrist link to the base of the extension. A new posture changes their spans outside the extension, hence their tensions, which bend it.',
+                how3Title: 'The camera sees what the tip light reaches',
+                how3Text: 'The camera looks along the tip, with the light aligned to its field of view, so near surfaces appear bright and far ones dark. The coloured arrows on the circle point toward the damaged parts not yet reported; an arrow pointing inward means the part is inside the circle.',
                 part_pipe: 'pipe',
                 part_column: 'column',
                 part_jbox: 'junction box',
@@ -974,7 +1142,7 @@
                 note: 'En otros puntos de la carcasa hay piezas intactas de los mismos cuatro tipos. El brazo, la extensión blanda y el controlador son los de las simulaciones del artículo: un UR10 con una extensión modelada como varilla de Cosserat y dos tendones elásticos, cuyas longitudes exteriores fijan las tensiones que flexionan la extensión. Una orden articular u se aplica como q̇ = N_c u + J_c⁺ k_c e_c, con el proyector N_c = I − J_c⁺ J_c sobre el espacio nulo de la restricción de posición del EF, y el movimiento se detiene en los límites del dominio de longitudes identificado con movimientos de sondeo y ante cualquier contacto. La solución ejecuta el controlador del artículo desde la configuración inicial: la ley de mínimos cuadrados amortiguados en el espacio nulo de la restricción y un programa cuadrático con funciones barrera de control para las paredes, el contenido de la carcasa y el dominio de longitudes llevan la punta a un punto de vista por cada pieza dañada. Un aviso se acepta cuando la pieza dañada está a menos de 13° del eje óptico, a menos de 24 cm y en línea de visión.',
                 referencesTitle: 'Trabajo relacionado',
                 companionNote: 'página interactiva con simulaciones y código',
-                startText: 'Tres piezas de esta carcasa están dañadas. Mueve las articulaciones para apuntar la cámara de la punta a cada una e informa cuando esté dentro del círculo.',
+                startText: 'Tres piezas de esta carcasa están dañadas. Mueve las articulaciones para apuntar la cámara de la punta a cada una e informa cuando esté dentro del círculo. Las flechas de colores indican dónde están; al principio, las articulaciones de la muñeca q₄ a q₆ giran la cámara de forma más directa.',
                 start: 'Empezar',
                 pausedTitle: 'En pausa',
                 pausedText: 'El reloj se detiene hasta que continúes.',
@@ -996,7 +1164,26 @@
                 nullToast: 'Esta orden apenas tiene componente en el espacio nulo',
                 rangeLabel: 'distancia',
                 spanDomain: 'dominio de longitudes',
-                eeFixed: 'p* (EF fijo)',
+                labelsToggle: 'Etiquetas',
+                labelArm: 'Brazo UR10',
+                labelTendons: 'Tendones',
+                labelEE: 'Efector final fijo en el puerto',
+                labelExtension: 'Extensión blanda (rayos X)',
+                labelCamera: 'Cámara y luz',
+                labelHousing: 'Carcasa cerrada',
+                reportZone: 'zona de aviso',
+                upLabel: 'arriba',
+                weakJoint: 'En esta postura, la proyección solo conserva el {share} % de esta orden; se mueven las demás articulaciones.',
+                intact: 'Intacta',
+                damaged: 'Dañada',
+                legendTitle: 'Daños que buscar, tal como los ve la cámara de la punta',
+                howTitle: 'Cómo funciona',
+                how1Title: 'El efector final no sale del puerto',
+                how1Text: 'Cada orden articular se proyecta sobre el espacio nulo de la restricción de posición del EF: las articulaciones se mueven a la vez para que el efector final no salga del puerto. Las articulaciones atenuadas conservan menos del 25 % de su orden en la postura actual.',
+                how2Title: 'Los tendones flexionan la extensión',
+                how2Text: 'Dos tendones van desde anclajes en el antebrazo y en el primer eslabón de la muñeca hasta la base de la extensión. Una nueva postura cambia su longitud fuera de la extensión y, con ella, su tensión, que la flexiona.',
+                how3Title: 'La cámara ve lo que alcanza la luz de la punta',
+                how3Text: 'La cámara mira en la dirección de la punta, con la luz alineada con su campo de visión, así que las superficies cercanas se ven claras y las lejanas, oscuras. Las flechas de colores sobre el círculo señalan las piezas dañadas aún no informadas; una flecha que apunta hacia dentro indica que la pieza está dentro del círculo.',
                 part_pipe: 'la tubería',
                 part_column: 'la columna',
                 part_jbox: 'la caja de conexiones',
@@ -2347,6 +2534,14 @@
                 return { qdot, share, spans, limited };
             }
 
+            // share of a unit command on each joint that the projection keeps:
+            // |N_c e_j| = sqrt(N_c[j][j]), since N_c is a symmetric projector
+            function nullSpaceShares(world, q) {
+                const frames = world.plant.arm.frames(q);
+                const Nc = projector(world.constraint.jacobian(frames, Arm.geometricJacobian(frames)));
+                return Nc.map((row, j) => Math.sqrt(Math.max(row[j], 0)));
+            }
+
             // one step of the player: blocked when the null space holds too little
             // of the command, when a span would leave the domain, or when the
             // rod would touch the housing or its contents
@@ -2629,7 +2824,7 @@
             return {
                 add, sub, scale, dot, norm, cross, col, clamp, Random, DEG, ROOM, PLATE, PORT_RADIUS, ROD_RADIUS,
                 MATERIALS, PATTERN, PART_KINDS, PART_CENTERS, buildScene, surfaceFrame, raycast, primDistance, rodContact,
-                CAMERA, REPORT, cameraOf, defectsInView, createWorld, playerStep, SolutionRun, SITES,
+                CAMERA, REPORT, cameraOf, defectsInView, createWorld, nullSpaceShares, playerStep, SolutionRun, SITES,
                 portCenter: () => PORT_CENTER
             };
         })();
@@ -2703,6 +2898,13 @@
         let newBest = false;
         const held = new Map();                  // input source -> [joint, direction]
 
+        // colour code of the kinds of damage: camera arrows, markers and legend
+        const KIND_COLOURS = { connector: '#ff7a59', cable: '#ffc23d', bracket: '#5ab8ff', terminal: '#c792ff' };
+        const WEAK_SHARE = 0.25;                 // joints below this share are drawn faded
+        let showLabels = storage.get('cavityInspectionLabels') !== 'off';
+        let jointShares = Q0.map(() => 1);
+        let shareTick = 0;
+
         const bestKey = () => `cavityInspectionBest:${siteIndex}`;
         const readBest = () => Number(storage.get(bestKey())) || 0;
 
@@ -2745,6 +2947,7 @@
             if (state === 'solved' || state === 'complete') resetSite();
             state = 'playing';
             showOverlay(null);
+            externalCanvas.focus({ preventScroll: true });
         }
 
         function pauseGame() {
@@ -2760,6 +2963,7 @@
             state = 'playing';
             syncJogButtons();
             showOverlay(null);
+            externalCanvas.focus({ preventScroll: true });
         }
 
         function completeSite() {
@@ -2951,13 +3155,15 @@
                 surface: '#1a1d20', grid: '#2a2f34', ink: '#e6e9ec', text: '#949da6', shadow: 'rgba(0, 0, 0, 0.35)',
                 housing: ['#3a4148', '#323840', '#2b3137'], housingEdge: '#5b646d', top: '#454d55', port: '#0b0d0f',
                 link: '#727c86', linkEdge: '#4b535b', joint: '#5b86ad', jointEdge: '#3f6385', base: '#3d444b',
-                rod: '#c9a676', xray: '#7fd3f7', light: '#ffe9a8', tendon1: '#2dd4bf', tendon2: '#e0b23a',
+                rod: '#c9a676', xray: '#7fd3f7', xrayCore: '#e9f8ff', xrayField: '#06121f', light: '#ffe9a8',
+                tendon1: '#2dd4bf', tendon2: '#e0b23a', label: '#1e2226', labelEdge: '#434a51',
                 accent: '#8dbbe8', found: '#3cc28f', solver: '#7fa8e6', alert: '#e66767'
             } : {
                 surface: '#fafbfb', grid: '#e4e8eb', ink: '#23282d', text: '#697179', shadow: 'rgba(40, 48, 56, 0.12)',
                 housing: ['#c3cad1', '#b3bbc3', '#a7b0b9'], housingEdge: '#7d8791', top: '#d3d9de', port: '#1d2125',
                 link: '#dfe3e7', linkEdge: '#9aa3ab', joint: '#8db6d6', jointEdge: '#5d86a6', base: '#8a939b',
-                rod: '#8c6a43', xray: '#1e88c8', light: '#f5c542', tendon1: '#0d9488', tendon2: '#c99512',
+                rod: '#8c6a43', xray: '#4cc3ff', xrayCore: '#eefaff', xrayField: '#0b2236', light: '#f5c542',
+                tendon1: '#0d9488', tendon2: '#c99512', label: '#ffffff', labelEdge: '#c9ced3',
                 accent: '#1d5b94', found: '#1b9e6f', solver: '#3b6fb6', alert: '#d64545'
             };
         }
@@ -3102,27 +3308,99 @@
             ext.restore();
         }
 
-        // the extension inside the housing, its tip camera and the light cone
+        // convex hull of screen points (monotone chain)
+        function convexHull(points) {
+            const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+            const turn = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+            const half = (list) => {
+                const out = [];
+                for (const q of list) {
+                    while (out.length >= 2 && turn(out[out.length - 2], out[out.length - 1], q) <= 0) out.pop();
+                    out.push(q);
+                }
+                out.pop();
+                return out;
+            };
+            return [...half(pts), ...half(pts.reverse())];
+        }
+
+        // an X-ray field over the housing around the extension, with the
+        // cavity edges and the floor projection of the extension as depth cues
+        function drawXrayField(p) {
+            const corners = [];
+            for (const x of [HOUSING.min[0], HOUSING.max[0]]) for (const y of [HOUSING.min[1], HOUSING.max[1]]) for (const z of [HOUSING.min[2], HOUSING.max[2]]) corners.push(project([x, y, z]));
+            const line = robot.centerline;
+            const [mx, my, s] = project(line[Math.round(line.length * 0.6)]);
+            ext.save();
+            polygon(ext, convexHull(corners));
+            ext.clip();
+            const field = ext.createRadialGradient(mx, my, 0, mx, my, 0.3 * s);
+            field.addColorStop(0, alpha(p.xrayField, 0.92));
+            field.addColorStop(0.62, alpha(p.xrayField, 0.78));
+            field.addColorStop(1, alpha(p.xrayField, 0));
+            ext.fillStyle = field;
+            ext.fillRect(0, 0, view.w, view.h);
+            // edges of the cavity
+            const [x0, y0, z0] = ROOM.min, [x1, y1, z1] = ROOM.max;
+            const edges = [];
+            for (const y of [y0, y1]) for (const z of [z0, z1]) edges.push([[x0, y, z], [x1, y, z]]);
+            for (const x of [x0, x1]) for (const z of [z0, z1]) edges.push([[x, y0, z], [x, y1, z]]);
+            for (const x of [x0, x1]) for (const y of [y0, y1]) edges.push([[x, y, z0], [x, y, z1]]);
+            ext.strokeStyle = alpha(p.xray, 0.45);
+            ext.lineWidth = 1;
+            ext.setLineDash([4, 4]);
+            for (const [a, b] of edges) {
+                const pa = project(a), pb = project(b);
+                ext.beginPath(); ext.moveTo(pa[0], pa[1]); ext.lineTo(pb[0], pb[1]); ext.stroke();
+            }
+            // floor projection of the extension and the drop line of its tip
+            const floor = line.map((x) => project([x[0], x[1], z0]));
+            ext.strokeStyle = alpha(p.xray, 0.6);
+            ext.beginPath();
+            floor.forEach(([x, y], i) => (i ? ext.lineTo(x, y) : ext.moveTo(x, y)));
+            ext.stroke();
+            const tip = project(robot.p_D), below = floor[floor.length - 1];
+            ext.beginPath(); ext.moveTo(tip[0], tip[1]); ext.lineTo(below[0], below[1]); ext.stroke();
+            ext.setLineDash([]);
+            ext.beginPath();
+            ext.moveTo(below[0] - 4, below[1]); ext.lineTo(below[0] + 4, below[1]);
+            ext.moveTo(below[0], below[1] - 3); ext.lineTo(below[0], below[1] + 3);
+            ext.stroke();
+            ext.restore();
+        }
+
+        // the extension, drawn in X-ray inside the housing, its tip camera and the light cone
         function drawXray(p) {
+            drawXrayField(p);
             const pts = robot.centerline.map(project);
             const contact = contactFlash > 0;
             ext.save();
             ext.lineCap = 'round';
             ext.lineJoin = 'round';
             const width = 2 * ROD_RADIUS * pts[pts.length >> 1][2];
-            const path = () => {
+            const inside = robot.centerline.findIndex((x) => x[2] < HOUSING.max[2]);
+            const path = (from, to) => {
                 ext.beginPath();
-                pts.forEach(([x, y], i) => (i ? ext.lineTo(x, y) : ext.moveTo(x, y)));
+                pts.slice(from, to).forEach(([x, y], i) => (i ? ext.lineTo(x, y) : ext.moveTo(x, y)));
             };
-            path();
-            ext.strokeStyle = alpha(contact ? p.alert : p.xray, contact ? 0.25 + 0.35 * contactFlash : 0.22);
-            ext.lineWidth = width + 10;
-            ext.stroke();
-            ext.strokeStyle = contact ? p.alert : p.rod;
+            // the short piece above the plate in its own colour
+            path(0, inside + 1);
+            ext.strokeStyle = p.rod;
             ext.lineWidth = width;
             ext.stroke();
-            ext.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-            ext.lineWidth = Math.max(1, width * 0.25);
+            path(Math.max(inside - 1, 0));
+            const glow = contact ? p.alert : p.xray;
+            ext.strokeStyle = alpha(glow, contact ? 0.25 + 0.35 * contactFlash : 0.18);
+            ext.lineWidth = width + 14;
+            ext.stroke();
+            ext.strokeStyle = alpha(glow, 0.45);
+            ext.lineWidth = width + 5;
+            ext.stroke();
+            ext.strokeStyle = contact ? p.alert : p.xrayCore;
+            ext.lineWidth = width;
+            ext.stroke();
+            ext.strokeStyle = alpha(glow, 0.9);
+            ext.lineWidth = Math.max(1, width * 0.3);
             ext.stroke();
             // light cone of the tip camera
             const cam = Core.cameraOf(robot);
@@ -3148,10 +3426,10 @@
         // reported parts and, during the solution, the current viewpoint
         function drawMarkers(p) {
             ext.save();
-            for (const [id, by] of reported) {
+            for (const id of reported.keys()) {
                 const defect = world.scene.defects[id];
                 const [x, y] = project(defect.center);
-                const colour = by === 'player' ? p.found : p.solver;
+                const colour = KIND_COLOURS[defect.kind];
                 ext.strokeStyle = colour;
                 ext.fillStyle = alpha(colour, 0.2);
                 ext.lineWidth = 2;
@@ -3174,10 +3452,62 @@
             ext.strokeStyle = p.accent;
             ext.lineWidth = 1.5;
             ext.beginPath(); ext.arc(ex, ey, 8, 0, Math.PI * 2); ext.stroke();
+            if (!showLabels) {
+                ext.font = font(650, 11);
+                ext.fillStyle = p.accent;
+                ext.textBaseline = 'middle';
+                ext.fillText('p*', ex + 13, ey + 2);
+            }
+            ext.restore();
+        }
+
+        // a text label with a leader line from a screen anchor, offset by (dx, dy)
+        function drawLabel(p, text, anchor, dx, dy) {
+            const [ax, ay] = anchor;
+            const k = clamp(view.w / 540, 0.6, 1);      // shorter leaders in narrow views
+            dx *= k;
+            dy *= k;
             ext.font = font(650, 11);
-            ext.fillStyle = p.accent;
+            const tw = ext.measureText(text).width;
+            const tx = clamp(ax + dx, 4, view.w - 4), ty = clamp(ay + dy, 14, view.h - 14);
+            const bx = clamp(dx >= 0 ? tx : tx - tw - 14, 4, view.w - tw - 18);
+            ext.strokeStyle = alpha(p.text, 0.75);
+            ext.lineWidth = 1;
+            ext.beginPath(); ext.moveTo(ax, ay); ext.lineTo(dx >= 0 ? bx : bx + tw + 14, ty); ext.stroke();
+            ext.fillStyle = p.text;
+            ext.beginPath(); ext.arc(ax, ay, 2.2, 0, Math.PI * 2); ext.fill();
+            ext.fillStyle = alpha(p.label, 0.92);
+            ext.strokeStyle = p.labelEdge;
+            ext.beginPath();
+            if (ext.roundRect) ext.roundRect(bx, ty - 10, tw + 14, 20, 10); else ext.rect(bx, ty - 10, tw + 14, 20);
+            ext.fill();
+            ext.stroke();
+            ext.fillStyle = p.ink;
             ext.textBaseline = 'middle';
-            ext.fillText(dict().eeFixed, ex + 16, ey + 2);
+            ext.textAlign = 'left';
+            ext.fillText(text, bx + 7, ty + 0.5);
+        }
+
+        // names of the parts of the setup for readers new to it
+        function drawLabels(p) {
+            if (!showLabels) return;
+            const t = dict();
+            const o = robot.frames.map((F) => F.p);
+            const mid = (a, b) => scale(add(a, b), 0.5);
+            // the housing face that faces the camera most
+            const faces = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([nx, ny]) => {
+                const c = [nx > 0 ? HOUSING.max[0] : nx < 0 ? HOUSING.min[0] : (HOUSING.min[0] + HOUSING.max[0]) / 2,
+                    ny > 0 ? HOUSING.max[1] : ny < 0 ? HOUSING.min[1] : (HOUSING.min[1] + HOUSING.max[1]) / 2, 0.02];
+                const v = sub(view.C, c);
+                return { c, facing: (nx * v[0] + ny * v[1]) / norm(v) };
+            }).sort((a, b) => b.facing - a.facing);
+            ext.save();
+            drawLabel(p, t.labelArm, project(mid(o[1], o[2])), -70, -8);
+            drawLabel(p, t.labelTendons, project(mid(robot.anchors[1], robot.entries[1])), -10, -34);
+            drawLabel(p, t.labelEE, project(P_STAR), 46, -30);
+            drawLabel(p, t.labelExtension, project(robot.centerline[Math.round(robot.centerline.length * 0.55)]), 72, -6);
+            drawLabel(p, t.labelCamera, project(robot.p_D), 58, 34);
+            drawLabel(p, t.labelHousing, project(faces[0].c), -40, 30);
             ext.restore();
         }
 
@@ -3243,6 +3573,7 @@
             drawXray(p);
             drawMarkers(p);
             drawRobot(p);
+            drawLabels(p);
             drawSpanGauges(p);
             if (state === 'solution' && run) {
                 const text = dict().solutionBanner.replace('{index}', String(Math.min(run.index + 1, run.targets.length))).replace('{count}', String(run.targets.length));
@@ -3330,7 +3661,7 @@
         }
 
         // linear RGB of a hit seen along the unit ray d
-        function shade(hit, d, cosAxis, out) {
+        function shade(scene, hit, d, cosAxis, out) {
             const m = MATERIALS[hit.mat];
             let k = patternFactor(m.pattern, hit);
             let tint = null;
@@ -3341,7 +3672,7 @@
                 if (dist < decal.width) k *= 0.05;
                 else if (dist < 2.6 * decal.width) k *= 0.55;
             }
-            for (const scorch of world.scene.decals) {
+            for (const scorch of scene.decals) {
                 const dist = norm(sub(hit.x, scorch.c)) / scorch.r;
                 if (dist >= 1) continue;
                 const n = noise2(hit.x[0] * 140 + hit.x[2] * 60, hit.x[1] * 140 - hit.x[2] * 60);
@@ -3362,8 +3693,8 @@
             }
         }
 
-        function visibleGroups(camera, tanX, tanY) {
-            return world.scene.groups.filter((g) => {
+        function visibleGroups(scene, camera, tanX, tanY) {
+            return scene.groups.filter((g) => {
                 const v = sub(g.center, camera.p);
                 const z = dot(v, camera.axis);
                 if (z + g.radius < 0) return false;
@@ -3373,11 +3704,11 @@
             });
         }
 
-        function renderFeedImage(camera) {
-            const { W, H } = feed;
-            const data = feed.data.data;
+        // the image of a camera into ImageData
+        function rayTrace(scene, camera, image) {
+            const { width: W, height: H, data } = image;
             const tanX = Math.tan(Core.CAMERA.fov / 2), tanY = tanX * H / W;
-            const groups = visibleGroups(camera, tanX, tanY);
+            const groups = visibleGroups(scene, camera, tanX, tanY);
             const { p, axis, right, down } = camera;
             const d = [0, 0, 0], rgb = [0, 0, 0];
             let seed = 1;
@@ -3390,8 +3721,8 @@
                     d[2] = axis[2] + u * right[2] + v * down[2];
                     const inv = 1 / Math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
                     d[0] *= inv; d[1] *= inv; d[2] *= inv;
-                    const hit = Core.raycast(world.scene, p, d, groups);
-                    shade(hit, d, inv, rgb);
+                    const hit = Core.raycast(scene, p, d, groups);
+                    shade(scene, hit, d, inv, rgb);
                     seed = (seed * 16807) % 2147483647;
                     const grain = (seed / 2147483647 - 0.5) * 0.035;
                     const k = 4 * (j * W + i);
@@ -3402,7 +3733,44 @@
                     data[k + 3] = 255;
                 }
             }
+        }
+
+        function renderFeedImage(camera) {
+            rayTrace(world.scene, camera, feed.data);
             feedImageCtx.putImageData(feed.data, 0, 0);
+        }
+
+        // legend snapshots: each part intact and damaged, seen by the tip camera
+        // at 38 degrees from the surface normal, from 7.5 to 12 cm
+        const SNAPSHOT_RANGE = { connector: 0.11, cable: 0.075, bracket: 0.12, terminal: 0.092 };
+        function snapshotCamera(kind) {
+            const at = [-0.84, -0.19, ROOM.min[2]], n = [0, 0, 1];
+            const F = Core.surfaceFrame(at, n, 0.5);
+            const [a, b, c] = Core.PART_CENTERS[kind];
+            const centre = add(add(add(F.o, scale(F.u, a)), scale(F.v, b)), scale(F.n, c));
+            const tilt = 38 * DEG;
+            const from = add(centre, scale(add(scale(F.n, Math.cos(tilt)), scale(F.v, -Math.sin(tilt))), SNAPSHOT_RANGE[kind]));
+            const axis = scale(sub(centre, from), 1 / norm(sub(centre, from)));
+            const side = cross(axis, [0, 0, 1]);
+            const right = scale(side, 1 / norm(side));
+            return { part: { kind, at, n, angle: 0.5 }, camera: { p: from, axis, right, down: cross(axis, right) } };
+        }
+
+        function renderSnapshots() {
+            const canvases = [...document.querySelectorAll('canvas.snapshot')];
+            const next = () => {
+                const canvas = canvases.shift();
+                if (!canvas) return;
+                const { part, camera } = snapshotCamera(canvas.dataset.kind);
+                const damaged = canvas.dataset.state === 'damaged';
+                const scene = Core.buildScene({ components: [], decoys: damaged ? [] : [part], defects: damaged ? [part] : [], targets: [] });
+                const context = canvas.getContext('2d');
+                const image = context.createImageData(canvas.width, canvas.height);
+                rayTrace(scene, camera, image);
+                context.putImageData(image, 0, 0);
+                setTimeout(next, 0);
+            };
+            setTimeout(next, 200);
         }
 
         // image coordinates (CSS pixels) of a world point, or null behind the camera
@@ -3418,6 +3786,21 @@
             const v = sub(P, camera.p), dist = norm(v);
             const hit = Core.raycast(world.scene, camera.p, scale(v, 1 / dist));
             return hit.owner === owner || hit.t >= dist - 0.006;
+        }
+
+        // a filled arrowhead with a dark outline, pointing along (dx, dy)
+        function arrowhead(ctx, x, y, dx, dy, size, colour) {
+            ctx.beginPath();
+            ctx.moveTo(x + dx * size, y + dy * size);
+            ctx.lineTo(x - dx * size * 0.4 - dy * size * 0.62, y - dy * size * 0.4 + dx * size * 0.62);
+            ctx.lineTo(x - dx * size * 0.4 + dy * size * 0.62, y - dy * size * 0.4 - dx * size * 0.62);
+            ctx.closePath();
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = 'rgba(5, 8, 12, 0.75)';
+            ctx.stroke();
+            ctx.fillStyle = colour;
+            ctx.fill();
         }
 
         function drawFeedOverlay(camera, p) {
@@ -3443,12 +3826,12 @@
             // reported parts
             ctx.font = font(700, 11);
             ctx.textBaseline = 'bottom';
-            for (const [id, by] of reported) {
+            for (const id of reported.keys()) {
                 const defect = world.scene.defects[id];
                 const s = feedProject(camera, defect.center);
                 if (!s || s[0] < -20 || s[0] > w + 20 || s[1] < -20 || s[1] > h + 20 || !inSight(camera, defect.center, defect.owner)) continue;
                 const half = clamp(0.035 * s[2], 14, 90);
-                const colour = by === 'player' ? p.found : p.solver;
+                const colour = KIND_COLOURS[defect.kind];
                 ctx.strokeStyle = colour;
                 ctx.lineWidth = 2;
                 const c = half * 0.35;
@@ -3462,7 +3845,7 @@
                 ctx.fillStyle = colour;
                 ctx.fillText(dict()[`defect_${defect.kind}`], s[0] - half, s[1] - half - 4);
             }
-            // report circle, centre cross and the direction of "up"
+            // report circle and centre cross
             const radius = f * Math.tan(Core.REPORT.angle);
             ctx.strokeStyle = 'rgba(235, 240, 245, 0.55)';
             ctx.lineWidth = 1.2;
@@ -3471,17 +3854,40 @@
             ctx.moveTo(cx - 6, cy); ctx.lineTo(cx + 6, cy);
             ctx.moveTo(cx, cy - 6); ctx.lineTo(cx, cy + 6);
             ctx.stroke();
+            ctx.font = font(650, 10);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillStyle = 'rgba(235, 240, 245, 0.6)';
+            ctx.fillText(dict().reportZone, cx, cy + radius + 18);
+            // direction of every unreported damaged part in the image plane, in the
+            // colour of its kind; the arrow points inward once the part is within
+            // the report angle
+            world.scene.defects.forEach((defect) => {
+                if (reported.has(defect.id)) return;
+                const v = sub(defect.center, camera.p);
+                const x = dot(v, camera.right), y = dot(v, camera.down), z = dot(v, camera.axis);
+                const lateral = Math.hypot(x, y);
+                if (lateral < 1e-9) return;
+                const dx = x / lateral, dy = y / lateral;
+                const inside = Math.atan2(lateral, z) < Core.REPORT.angle;
+                const r = inside ? radius - 9 : radius + 10;
+                arrowhead(ctx, cx + dx * r, cy + dy * r, inside ? -dx : dx, inside ? -dy : dy, 9, KIND_COLOURS[defect.kind]);
+            });
+            // world up, as a small compass in the lower left corner
             const ux = camera.right[2], uy = camera.down[2], ul = Math.hypot(ux, uy);
             if (ul > 0.05) {
-                const ax = -ux / ul, ay = -uy / ul;   // world up in image coordinates
-                const tx = cx + ax * (radius + 9), ty = cy + ay * (radius + 9);
-                ctx.fillStyle = 'rgba(235, 240, 245, 0.75)';
-                ctx.beginPath();
-                ctx.moveTo(tx + ax * 6, ty + ay * 6);
-                ctx.lineTo(tx - ay * 4.5, ty + ax * 4.5);
-                ctx.lineTo(tx + ay * 4.5, ty - ax * 4.5);
-                ctx.closePath();
-                ctx.fill();
+                const ax = ux / ul, ay = uy / ul, ox = 26, oy = h - 26;
+                ctx.strokeStyle = 'rgba(235, 240, 245, 0.35)';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.arc(ox, oy, 14, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = 'rgba(235, 240, 245, 0.8)';
+                ctx.lineWidth = 1.6;
+                ctx.beginPath(); ctx.moveTo(ox - ax * 9, oy - ay * 9); ctx.lineTo(ox + ax * 9, oy + ay * 9); ctx.stroke();
+                arrowhead(ctx, ox + ax * 9, oy + ay * 9, ax, ay, 5, 'rgba(235, 240, 245, 0.9)');
+                ctx.fillStyle = 'rgba(235, 240, 245, 0.7)';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(dict().upLabel, ox + 20, oy);
             }
             // range along the optical axis
             const range = Core.raycast(world.scene, camera.p, camera.axis).t;
@@ -3604,6 +4010,7 @@
                 `<output></output><kbd>${JOINT_KEYS[j][0].toUpperCase()}/${JOINT_KEYS[j][1].toUpperCase()}</kbd>`;
             jointGrid.appendChild(row);
             return {
+                root: row,
                 name: row.querySelector('.joint-name'),
                 minus: row.querySelector('[data-dir="-1"]'),
                 plus: row.querySelector('[data-dir="1"]'),
@@ -3659,7 +4066,16 @@
 
         function updateJointRows() {
             const rates = motion && motion.status === 'moved' ? motion.qdot : null;
+            if (shareTick-- <= 0) {
+                jointShares = Core.nullSpaceShares(world, q);
+                shareTick = 10;
+            }
             jointRows.forEach((row, j) => {
+                const weak = jointShares[j] < WEAK_SHARE;
+                if (row.root.classList.contains('weak') !== weak) {
+                    row.root.classList.toggle('weak', weak);
+                    row.root.title = weak ? dict().weakJoint.replace('{share}', String(Math.round(100 * jointShares[j]))) : '';
+                }
                 const offset = clamp((q[j] - Q0[j]) / METER_RANGE, -1, 1);
                 row.dot.style.left = `${50 + 50 * offset}%`;
                 row.dot.classList.toggle('moving', Boolean(rates && Math.abs(rates[j]) > 0.01) || state === 'solution' && Math.abs(run?.qdot[j] || 0) > 0.01);
@@ -3806,6 +4222,17 @@
         externalCanvas.addEventListener('pointercancel', endOrbit);
         externalCanvas.addEventListener('dblclick', () => Object.assign(orbit, ORBIT_HOME));
 
+        const labelsToggle = byId('labelsToggle');
+        function syncLabelsToggle() {
+            labelsToggle.setAttribute('aria-pressed', String(showLabels));
+            labelsToggle.classList.toggle('active', showLabels);
+        }
+        labelsToggle.addEventListener('click', () => {
+            showLabels = !showLabels;
+            storage.set('cavityInspectionLabels', showLabels ? 'on' : 'off');
+            syncLabelsToggle();
+        });
+
         // language
         function applyTranslations() {
             const t = dict();
@@ -3824,6 +4251,7 @@
                 button.setAttribute('aria-pressed', String(active));
             });
             jointRows.forEach((row, j) => {
+                row.root.classList.remove('weak');                 // refreshed with the new title
                 row.name.textContent = t[`joint${j + 1}`];
                 row.minus.setAttribute('aria-label', t.jogMinus.replace('{joint}', String(j + 1)));
                 row.plus.setAttribute('aria-label', t.jogPlus.replace('{joint}', String(j + 1)));
@@ -3845,8 +4273,10 @@
         // ------------------------------------------------------------------
         loadSite(siteIndex);
         resetSite();
+        syncLabelsToggle();
         applyTranslations();
         requestAnimationFrame(frame);
+        renderSnapshots();
     </script>
 </body>
 </html>
