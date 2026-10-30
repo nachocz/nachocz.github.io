@@ -685,8 +685,8 @@
                 </div>
             </div>
             <h1 data-i18n="title">Dino egg incubator</h1>
-            <p class="demo-intro" data-i18n="intro">Many processes need a surface held at a prescribed temperature: curing composites, activating adhesives on shoe soles, drying coatings or forming plastic sheets. Automating it is hard, because the heat spreads through the material and escapes to the air, so the source has to keep moving and adjusting its power; try it yourself. Our ergodic heat coverage control (EHCC) does it without a thermal model of the material, and Show solution lets it incubate the egg.</p>
-            <p class="demo-intro" data-i18n="intro2">Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
+            <p class="demo-intro" data-i18n="intro">Many processes require a prescribed surface temperature: curing composites, activating shoe-sole adhesives, drying coatings or forming plastic sheets. Heat diffuses through the material and dissipates to the air, so a moving source must adjust its position and power. Try controlling it. Our ergodic heat coverage control (EHCC) regulates the temperature without a material thermal model; Show solution applies it to the egg.</p>
+            <p class="demo-intro" data-i18n="intro2">Average temperature alone does not ensure uniform heating. The error-bar bracket shows the spatial error spread, which increases when shell regions have different temperatures. Keep both average error and error spread inside the band for 30 seconds in Easy or 40 seconds in Hard.</p>
         </header>
 
         <section aria-labelledby="game-title">
@@ -766,7 +766,7 @@
                 <li><span class="legend-dot snow" aria-hidden="true"></span><strong data-i18n="legendSnow">Snowflake</strong><span data-i18n="legendSnowDesc">A ring marks where it will land; on impact it cools that part of the shell.</span></li>
             </ul>
             <p class="note" data-i18n="sexNote">Temperature-dependent sex determination: in crocodilians and many turtles, the incubation temperature sets the sex of the hatchling. In the American alligator, cooler nests produce females and warmer nests males; in many turtles the relation is reversed. Whether non-avian dinosaurs had this mechanism is not known (birds, the living dinosaurs, have chromosomal sex determination). In this game, 25 °C hatches a female and 30 °C a male.</p>
-            <p class="note" data-i18n="note">The temperature field follows the heat equation of the EHCC problem setup, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher Power concentrates more heat into a smaller area; lower Power spreads gentler heat over a wider area. The source cannot cool: only diffusion and losses to the air lower the temperature.</p>
+            <p class="note" data-i18n="note">The temperature field follows the EHCC heat equation, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher power concentrates more heat in a smaller area; lower power distributes less heat over a wider area. The source cannot cool the egg: only diffusion and heat loss to the air reduce its temperature.</p>
 
             <section class="references" aria-labelledby="references-title">
                 <h2 id="references-title" data-i18n="referencesTitle">Related work</h2>
@@ -784,8 +784,8 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Dino egg incubator',
-                intro: 'Many processes need a surface held at a prescribed temperature: curing composites, activating adhesives on shoe soles, drying coatings or forming plastic sheets. Automating it is hard, because the heat spreads through the material and escapes to the air, so the source has to keep moving and adjusting its power; try it yourself. Our ergodic heat coverage control (EHCC) does it without a thermal model of the material, and Show solution lets it incubate the egg.',
-                intro2: 'Reaching the target on average is not enough: the bracket on the error bar is the spread of the error, which grows when parts of the shell are warmer than others, so the whole egg has to be equally warm. Keep the average and the spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
+                intro: 'Many processes require a prescribed surface temperature: curing composites, activating shoe-sole adhesives, drying coatings or forming plastic sheets. Heat diffuses through the material and dissipates to the air, so a moving source must adjust its position and power. Try controlling it. Our ergodic heat coverage control (EHCC) regulates the temperature without a material thermal model; Show solution applies it to the egg.',
+                intro2: 'Average temperature alone does not ensure uniform heating. The error-bar bracket shows the spatial error spread, which increases when shell regions have different temperatures. Keep both average error and error spread inside the band for 30 seconds in Easy or 40 seconds in Hard.',
                 hudInBand: 'In band',
                 hudAverageError: 'Average error',
                 hudErrorSpread: 'Error spread',
@@ -821,7 +821,7 @@
                 legendFrontDesc: 'In Hard mode, the outside temperature drops for a few seconds and the egg loses heat faster.',
                 legendSnow: 'Snowflake',
                 legendSnowDesc: 'A ring marks where it will land; on impact it cools that part of the shell.',
-                note: 'The temperature field follows the heat equation of the EHCC problem setup, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher Power concentrates more heat into a smaller area; lower Power spreads gentler heat over a wider area. The source cannot cool: only diffusion and losses to the air lower the temperature.',
+                note: 'The temperature field follows the EHCC heat equation, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), on the egg with insulated edges. Higher power concentrates more heat in a smaller area; lower power distributes less heat over a wider area. The source cannot cool the egg: only diffusion and heat loss to the air reduce its temperature.',
                 referencesTitle: 'Related work',
                 companionNote: 'interactive companion with simulations and code',
                 startText: 'Press and drag on the egg to heat it to {target} °C everywhere. Keep the error bar inside the signed ±2 °C band for {seconds} seconds.',
@@ -854,8 +854,8 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Incubadora de dinosaurios',
-                intro: 'Muchos procesos necesitan mantener una superficie a una temperatura prescrita: el curado de materiales compuestos, la activación de adhesivos en suelas de calzado, el secado de recubrimientos o el conformado de láminas de plástico. Automatizarlo es difícil, porque el calor se propaga por el material y se escapa al aire, así que la fuente debe moverse y ajustar su potencia continuamente; pruébalo tú. Nuestro control ergódico de cobertura térmica (EHCC) lo consigue sin un modelo térmico del material, y Ver solución le deja incubar el huevo.',
-                intro2: 'No basta con alcanzar el objetivo en promedio: el corchete de la barra de error es la dispersión del error, que crece cuando unas zonas de la cáscara están más calientes que otras, así que todo el huevo debe estar igual de caliente. Mantén el promedio y la dispersión dentro de la banda durante 30 segundos en Fácil o 40 segundos en Difícil.',
+                intro: 'Muchos procesos requieren una temperatura superficial prescrita: curar materiales compuestos, activar adhesivos en suelas, secar recubrimientos o conformar láminas de plástico. El calor se difunde por el material y se disipa al aire, por lo que una fuente móvil debe ajustar su posición y potencia. Intenta controlarla. Nuestro control ergódico de cobertura térmica (EHCC) regula la temperatura sin un modelo térmico del material; Ver solución lo aplica al huevo.',
+                intro2: 'La temperatura promedio no garantiza un calentamiento uniforme. El corchete de la barra de error muestra la dispersión espacial, que aumenta cuando distintas zonas de la cáscara tienen temperaturas diferentes. Mantén el error promedio y su dispersión dentro de la banda durante 30 segundos en Fácil o 40 en Difícil.',
                 hudInBand: 'En banda',
                 hudAverageError: 'Error promedio',
                 hudErrorSpread: 'Dispersión del error',
@@ -891,7 +891,7 @@
                 legendFrontDesc: 'En el modo Difícil, la temperatura exterior baja durante unos segundos y el huevo pierde calor más rápido.',
                 legendSnow: 'Copo de nieve',
                 legendSnowDesc: 'Un anillo marca dónde caerá; al impactar enfría esa zona de la cáscara.',
-                note: 'El campo de temperatura sigue la ecuación del calor del planteamiento de EHCC, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), sobre el huevo con bordes aislados. Una Potencia alta concentra más calor en una zona pequeña; una Potencia baja reparte un calor más suave en un área mayor. La fuente no puede enfriar: solo la difusión y las pérdidas hacia el aire bajan la temperatura.',
+                note: 'El campo de temperatura sigue la ecuación del calor de EHCC, ∂T/∂t = α∇²T + λ(q_in − h(T − T_amb)), sobre el huevo con bordes aislados. Una potencia alta concentra más calor en una zona pequeña; una potencia baja distribuye menos calor en un área mayor. La fuente no puede enfriar el huevo: solo la difusión y las pérdidas al aire reducen su temperatura.',
                 referencesTitle: 'Trabajo relacionado',
                 companionNote: 'página interactiva con simulaciones y código',
                 startText: 'Pulsa y arrastra sobre el huevo para calentarlo a {target} °C en toda su superficie. Mantén la barra de error dentro de la banda con signo de ±2 °C durante {seconds} segundos.',
@@ -1130,7 +1130,7 @@
         // ------------------------------------------------------------------
         const EHCC = {
             K: 12, s: 1.05,          // cosine modes per axis, Sobolev exponent (11), (14)
-            Kg: 0.4, uMax: 0.5,      // gain and speed limit of the tangential law (16) [domain / s]
+            Kg: 2, uMax: 2,          // gain and speed limit of the tangential law (16) [domain / s]
             kI: 3.2, dlb0: 16,       // integral gain [STANDOFF units / (s degC)] and d_lb(0) (21)
             eMax: 1,                 // local deficit that brings the source to d_lb (18) [degC]
             p0: [0.25, 0.35],        // p(0) in the coordinates of the domain, off its symmetry axes

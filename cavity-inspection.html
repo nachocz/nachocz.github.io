@@ -226,7 +226,7 @@
         .tendon-demo canvas {
             display: block;
             width: 100%;
-            height: 170px;
+            height: 184px;
         }
 
         .tendon-demo figcaption {
@@ -933,8 +933,8 @@
             <h1 data-i18n="title">Cavity inspection</h1>
             <div class="intro-grid">
                 <div>
-                    <p class="demo-intro"><span data-i18n="introA">You control the joints of a UR10 arm that holds a passive soft extension. A tendon-driven soft robot is a flexible rod with tendons along its sides: pulling one tendon bends the rod toward it, as in the animation. Here no motor pulls the tendons; they are anchored on the arm, so every change of the arm posture stretches or slackens them (</span><a href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer" data-i18n="introLink">interactive companion of the paper</a><span data-i18n="introB">).</span></p>
-                    <p class="demo-intro" data-i18n="intro2">Which joint rotations bend the extension the way you want is hard to predict, but it can be found by trial and error, and that is the game: inspect a closed housing with the camera at the tip and report the three damaged parts. Show solution runs our controller, which computes these motions directly.</p>
+                    <p class="demo-intro"><span data-i18n="introA">You control the joints of a UR10 arm that holds a passive soft extension. The extension is a flexible rod with tendons along its sides; pulling one tendon bends it toward that tendon, as shown in the animation. The tendons have no motors. Their anchors on the arm change the external tendon spans as the arm moves, which changes tendon tension (</span><a href="https://ignaciocuiral.com/passive_soft_extension_control/player.html" target="_blank" rel="noopener noreferrer" data-i18n="introLink">interactive companion of the paper</a><span data-i18n="introB">).</span></p>
+                    <p class="demo-intro" data-i18n="intro2">The nonlinear relation between joint rotation and extension bending is difficult to predict manually. Use trial and error to inspect the closed housing with the tip camera and report its three damaged parts. Show solution runs our controller, which computes the required joint motions directly.</p>
                 </div>
                 <figure class="tendon-demo">
                     <canvas id="tendonDemo" aria-hidden="true"></canvas>
@@ -1006,14 +1006,14 @@
             <section class="howto" aria-labelledby="howto-title">
                 <h2 id="howto-title" data-i18n="howTitle">How it works</h2>
                 <ol>
-                    <li><strong data-i18n="how1Title">The end effector stays at the hole</strong><span data-i18n="how1Text">Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the hole. Faded joints keep less than 25 % of their command in the current posture.</span></li>
-                    <li><strong data-i18n="how2Title">The tendons bend the extension</strong><span data-i18n="how2Text">Two tendons run from anchors on the forearm and on the first wrist link to the base of the extension. A new posture changes their spans outside the extension, hence their tensions, which bend it.</span></li>
-                    <li><strong data-i18n="how3Title">The camera sees what the tip light reaches</strong><span data-i18n="how3Text">The camera looks along the tip, with the light aligned to its field of view, so near surfaces appear bright and far ones dark. The coloured arrows on the circle point toward the damaged parts not yet reported; an arrow pointing inward means the part is inside the circle.</span></li>
+                    <li><strong data-i18n="how1Title">The end effector stays at the hole</strong><span data-i18n="how1Text">Each joint command is projected onto the null space of the EE position constraint, so the joints move without displacing the end effector. A faded joint means that the projection retains less than 25 % of its command.</span></li>
+                    <li><strong data-i18n="how2Title">The tendons bend the extension</strong><span data-i18n="how2Text">Two tendons connect anchors on the forearm and first wrist link to the base of the extension. Changing the arm posture changes the external tendon spans and tensions, which bend the extension.</span></li>
+                    <li><strong data-i18n="how3Title">Tip lighting sets image brightness</strong><span data-i18n="how3Text">The optical axis and tip light are aligned, so near surfaces appear bright and distant surfaces dark. Coloured arrows indicate unreported damaged parts; an inward arrow means that the part lies inside the report circle.</span></li>
                 </ol>
             </section>
 
             <section class="legend-section" aria-labelledby="legend-title">
-                <h2 id="legend-title" class="legend-title" data-i18n="legendTitle">Damage to look for, as the tip camera sees it</h2>
+                <h2 id="legend-title" class="legend-title" data-i18n="legendTitle">Damage signatures in tip-camera images</h2>
                 <ul class="legend">
                 <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="connector" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="connector" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot connector" aria-hidden="true"></span><strong data-i18n="defect_connector">Disconnected connector</strong><span data-i18n="legendConnector">The plug lies out of its socket and its pins are exposed.</span></li>
                 <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="cable" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="cable" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot cable" aria-hidden="true"></span><strong data-i18n="defect_cable">Damaged cable</strong><span data-i18n="legendCable">The insulation is torn: copper conductor and loose strands.</span></li>
@@ -1021,7 +1021,7 @@
                 <li><div class="snapshots"><figure><canvas class="snapshot" data-kind="terminal" data-state="intact" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="intact">Intact</figcaption></figure><figure class="damaged"><canvas class="snapshot" data-kind="terminal" data-state="damaged" width="200" height="150" aria-hidden="true"></canvas><figcaption data-i18n="damaged">Damaged</figcaption></figure></div><span class="legend-dot terminal" aria-hidden="true"></span><strong data-i18n="defect_terminal">Burnt terminal</strong><span data-i18n="legendTerminal">Soot around one terminal and a charred conductor.</span></li>
                 </ul>
             </section>
-            <p class="note" data-i18n="note">Intact parts of the same four kinds are installed elsewhere in the housing. The arm, the soft extension and the controller are those of the simulations of the paper: a UR10 with a Cosserat-rod extension and two elastic tendons, whose spans set the tensions that bend the extension. A joint command u is applied as q̇ = N_c u + J_c⁺ k_c e_c, with the null-space projector N_c = I − J_c⁺ J_c of the EE position constraint, and the motion stops at the limits of the span domain identified from probing motions and at any contact. The solution runs the controller of the paper from the start configuration: the damped least-squares law in the null space of the constraint and a quadratic program with control barrier functions for the walls, the contents of the housing and the span domain drive the tip to one viewpoint per damaged part. A report is accepted when the damaged part lies within 13° of the optical axis, closer than 24 cm and in line of sight.</p>
+            <p class="note" data-i18n="note">Intact examples of the same four part types are installed elsewhere in the housing. The simulation uses the paper's UR10, Cosserat-rod extension, two elastic tendons and controller; the external tendon spans determine the tensions that bend the extension. A joint command u produces q̇ = N_c u + J_c⁺ k_c e_c, where N_c = I − J_c⁺ J_c projects onto the null space of the EE position constraint. Motion stops at contact or at the span-domain limits identified by probing motions. From the initial configuration, a damped least-squares law and a quadratic program with control barrier functions for the walls, housing contents and span domain move the tip to one viewpoint per damaged part. A report is accepted when the part is within 13° of the optical axis, within 24 cm and in line of sight.</p>
 
             <section class="references" aria-labelledby="references-title">
                 <h2 id="references-title" data-i18n="referencesTitle">Related work</h2>
@@ -1039,10 +1039,10 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Cavity inspection',
-                introA: 'You control the joints of a UR10 arm that holds a passive soft extension. A tendon-driven soft robot is a flexible rod with tendons along its sides: pulling one tendon bends the rod toward it, as in the animation. Here no motor pulls the tendons; they are anchored on the arm, so every change of the arm posture stretches or slackens them (',
+                introA: 'You control the joints of a UR10 arm that holds a passive soft extension. The extension is a flexible rod with tendons along its sides; pulling one tendon bends it toward that tendon, as shown in the animation. The tendons have no motors. Their anchors on the arm change the external tendon spans as the arm moves, which changes tendon tension (',
                 introLink: 'interactive companion of the paper',
                 introB: ').',
-                intro2: 'Which joint rotations bend the extension the way you want is hard to predict, but it can be found by trial and error, and that is the game: inspect a closed housing with the camera at the tip and report the three damaged parts. Show solution runs our controller, which computes these motions directly.',
+                intro2: 'The nonlinear relation between joint rotation and extension bending is difficult to predict manually. Use trial and error to inspect the closed housing with the tip camera and report its three damaged parts. Show solution runs our controller, which computes the required joint motions directly.',
                 tendonCaption: 'Pulling a tendon bends the rod toward it.',
                 pull: 'pull',
                 hudSite: 'Site',
@@ -1083,10 +1083,10 @@
                 legendCable: 'The insulation is torn: copper conductor and loose strands.',
                 legendBracket: 'The upright is cracked and bent; a fragment lies next to it.',
                 legendTerminal: 'Soot around one terminal and a charred conductor.',
-                note: 'Intact parts of the same four kinds are installed elsewhere in the housing. The arm, the soft extension and the controller are those of the simulations of the paper: a UR10 with a Cosserat-rod extension and two elastic tendons, whose spans set the tensions that bend the extension. A joint command u is applied as q̇ = N_c u + J_c⁺ k_c e_c, with the null-space projector N_c = I − J_c⁺ J_c of the EE position constraint, and the motion stops at the limits of the span domain identified from probing motions and at any contact. The solution runs the controller of the paper from the start configuration: the damped least-squares law in the null space of the constraint and a quadratic program with control barrier functions for the walls, the contents of the housing and the span domain drive the tip to one viewpoint per damaged part. A report is accepted when the damaged part lies within 13° of the optical axis, closer than 24 cm and in line of sight.',
+                note: 'Intact examples of the same four part types are installed elsewhere in the housing. The simulation uses the paper\'s UR10, Cosserat-rod extension, two elastic tendons and controller; the external tendon spans determine the tensions that bend the extension. A joint command u produces q̇ = N_c u + J_c⁺ k_c e_c, where N_c = I − J_c⁺ J_c projects onto the null space of the EE position constraint. Motion stops at contact or at the span-domain limits identified by probing motions. From the initial configuration, a damped least-squares law and a quadratic program with control barrier functions for the walls, housing contents and span domain move the tip to one viewpoint per damaged part. A report is accepted when the part is within 13° of the optical axis, within 24 cm and in line of sight.',
                 referencesTitle: 'Related work',
                 companionNote: 'interactive companion with simulations and code',
-                startText: 'Three parts inside this housing are damaged. Move the joints to point the tip camera at each of them and report it when it is inside the circle. The coloured arrows show where the parts are; at the start, the wrist joints q₄ to q₆ turn the camera most directly.',
+                startText: 'Three parts inside this housing are damaged. Point the tip camera at each one and report it when it lies inside the circle. The coloured arrows indicate their directions; initially, wrist joints q₄ to q₆ affect camera orientation most directly.',
                 start: 'Start',
                 pausedTitle: 'Paused',
                 pausedText: 'The clock stops until you resume.',
@@ -1119,17 +1119,17 @@
                 labelHousing: 'Closed housing',
                 reportZone: 'report zone',
                 upLabel: 'up',
-                weakJoint: 'Only {share} % of this command survives the projection in this posture; the other joints move instead.',
+                weakJoint: 'The projection retains only {share} % of this command in the current posture; the other joints provide the remaining motion.',
                 intact: 'Intact',
                 damaged: 'Damaged',
-                legendTitle: 'Damage to look for, as the tip camera sees it',
+                legendTitle: 'Damage signatures in tip-camera images',
                 howTitle: 'How it works',
                 how1Title: 'The end effector stays at the hole',
-                how1Text: 'Each joint command is projected onto the null space of the EE position constraint: the joints move together so that the end effector does not leave the hole. Faded joints keep less than 25 % of their command in the current posture.',
+                how1Text: 'Each joint command is projected onto the null space of the EE position constraint, so the joints move without displacing the end effector. A faded joint means that the projection retains less than 25 % of its command.',
                 how2Title: 'The tendons bend the extension',
-                how2Text: 'Two tendons run from anchors on the forearm and on the first wrist link to the base of the extension. A new posture changes their spans outside the extension, hence their tensions, which bend it.',
-                how3Title: 'The camera sees what the tip light reaches',
-                how3Text: 'The camera looks along the tip, with the light aligned to its field of view, so near surfaces appear bright and far ones dark. The coloured arrows on the circle point toward the damaged parts not yet reported; an arrow pointing inward means the part is inside the circle.',
+                how2Text: 'Two tendons connect anchors on the forearm and first wrist link to the base of the extension. Changing the arm posture changes the external tendon spans and tensions, which bend the extension.',
+                how3Title: 'Tip lighting sets image brightness',
+                how3Text: 'The optical axis and tip light are aligned, so near surfaces appear bright and distant surfaces dark. Coloured arrows indicate unreported damaged parts; an inward arrow means that the part lies inside the report circle.',
                 part_pipe: 'pipe',
                 part_column: 'column',
                 part_jbox: 'junction box',
@@ -1153,10 +1153,10 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Inspección de cavidades',
-                introA: 'Controlas las articulaciones de un brazo UR10 que sujeta una extensión blanda pasiva. Un robot blando accionado por tendones es una varilla flexible con tendones a lo largo de sus lados: tirar de un tendón flexiona la varilla hacia él, como en la animación. Aquí ningún motor tira de los tendones; están anclados en el brazo, de modo que cada cambio de postura del brazo los tensa o los destensa (',
+                introA: 'Controlas las articulaciones de un brazo UR10 que sujeta una extensión blanda pasiva. La extensión es una varilla flexible con tendones laterales; tirar de uno la flexiona hacia ese tendón, como muestra la animación. Los tendones no tienen motores. Sus anclajes en el brazo cambian las longitudes exteriores al moverse el brazo, lo que modifica la tensión (',
                 introLink: 'página interactiva del artículo',
                 introB: ').',
-                intro2: 'Qué giros articulares flexionan la extensión como quieres es difícil de predecir, pero se puede descubrir por ensayo y error, y ese es el juego: inspecciona una carcasa cerrada con la cámara de la punta e informa de las tres piezas dañadas. Ver solución ejecuta nuestro controlador, que calcula estos movimientos directamente.',
+                intro2: 'La relación no lineal entre el giro articular y la flexión de la extensión es difícil de predecir manualmente. Usa ensayo y error para inspeccionar la carcasa cerrada con la cámara de la punta e informa de sus tres piezas dañadas. Ver solución ejecuta nuestro controlador, que calcula directamente los movimientos articulares necesarios.',
                 tendonCaption: 'Tirar de un tendón flexiona la varilla hacia él.',
                 pull: 'tirar',
                 hudSite: 'Instalación',
@@ -1197,10 +1197,10 @@
                 legendCable: 'El aislamiento está roto: se ven el conductor de cobre y hilos sueltos.',
                 legendBracket: 'La pieza vertical está agrietada y doblada; a su lado hay un fragmento.',
                 legendTerminal: 'Hollín alrededor de un borne y un conductor carbonizado.',
-                note: 'En otros puntos de la carcasa hay piezas intactas de los mismos cuatro tipos. El brazo, la extensión blanda y el controlador son los de las simulaciones del artículo: un UR10 con una extensión modelada como varilla de Cosserat y dos tendones elásticos, cuyas longitudes exteriores fijan las tensiones que flexionan la extensión. Una orden articular u se aplica como q̇ = N_c u + J_c⁺ k_c e_c, con el proyector N_c = I − J_c⁺ J_c sobre el espacio nulo de la restricción de posición del EF, y el movimiento se detiene en los límites del dominio de longitudes identificado con movimientos de sondeo y ante cualquier contacto. La solución ejecuta el controlador del artículo desde la configuración inicial: la ley de mínimos cuadrados amortiguados en el espacio nulo de la restricción y un programa cuadrático con funciones barrera de control para las paredes, el contenido de la carcasa y el dominio de longitudes llevan la punta a un punto de vista por cada pieza dañada. Un aviso se acepta cuando la pieza dañada está a menos de 13° del eje óptico, a menos de 24 cm y en línea de visión.',
+                note: 'En otros puntos de la carcasa hay ejemplos intactos de los mismos cuatro tipos. La simulación usa el UR10, la extensión de Cosserat, los dos tendones elásticos y el controlador del artículo; las longitudes exteriores de los tendones determinan las tensiones que flexionan la extensión. Una orden u produce q̇ = N_c u + J_c⁺ k_c e_c, donde N_c = I − J_c⁺ J_c proyecta sobre el espacio nulo de la restricción de posición del EF. El movimiento se detiene ante un contacto o en los límites del dominio identificados mediante sondeos. Desde la configuración inicial, una ley de mínimos cuadrados amortiguados y un programa cuadrático con funciones barrera para las paredes, el contenido y el dominio llevan la punta a un punto de vista por cada pieza dañada. Un aviso se acepta cuando la pieza está a menos de 13° del eje óptico, a menos de 24 cm y en línea de visión.',
                 referencesTitle: 'Trabajo relacionado',
                 companionNote: 'página interactiva con simulaciones y código',
-                startText: 'Tres piezas de esta carcasa están dañadas. Mueve las articulaciones para apuntar la cámara de la punta a cada una e informa cuando esté dentro del círculo. Las flechas de colores indican dónde están; al principio, las articulaciones de la muñeca q₄ a q₆ giran la cámara de forma más directa.',
+                startText: 'Tres piezas de esta carcasa están dañadas. Apunta la cámara de la punta a cada una e informa cuando esté dentro del círculo. Las flechas de colores indican sus direcciones; al principio, las articulaciones q₄ a q₆ afectan más directamente a la orientación de la cámara.',
                 start: 'Empezar',
                 pausedTitle: 'En pausa',
                 pausedText: 'El reloj se detiene hasta que continúes.',
@@ -1236,14 +1236,14 @@
                 weakJoint: 'En esta postura, la proyección solo conserva el {share} % de esta orden; se mueven las demás articulaciones.',
                 intact: 'Intacta',
                 damaged: 'Dañada',
-                legendTitle: 'Daños que buscar, tal como los ve la cámara de la punta',
+                legendTitle: 'Indicadores de daño en imágenes de la cámara de la punta',
                 howTitle: 'Cómo funciona',
                 how1Title: 'El efector final no sale del orificio',
-                how1Text: 'Cada orden articular se proyecta sobre el espacio nulo de la restricción de posición del EF: las articulaciones se mueven a la vez para que el efector final no salga del orificio. Las articulaciones atenuadas conservan menos del 25 % de su orden en la postura actual.',
+                how1Text: 'Cada orden articular se proyecta sobre el espacio nulo de la restricción de posición del EF, por lo que las articulaciones se mueven sin desplazarlo. Una articulación atenuada indica que la proyección conserva menos del 25 % de su orden.',
                 how2Title: 'Los tendones flexionan la extensión',
-                how2Text: 'Dos tendones van desde anclajes en el antebrazo y en el primer eslabón de la muñeca hasta la base de la extensión. Una nueva postura cambia su longitud fuera de la extensión y, con ella, su tensión, que la flexiona.',
-                how3Title: 'La cámara ve lo que alcanza la luz de la punta',
-                how3Text: 'La cámara mira en la dirección de la punta, con la luz alineada con su campo de visión, así que las superficies cercanas se ven claras y las lejanas, oscuras. Las flechas de colores sobre el círculo señalan las piezas dañadas aún no informadas; una flecha que apunta hacia dentro indica que la pieza está dentro del círculo.',
+                how2Text: 'Dos tendones conectan anclajes del antebrazo y del primer eslabón de la muñeca con la base de la extensión. Cambiar la postura modifica sus longitudes y tensiones exteriores, que flexionan la extensión.',
+                how3Title: 'La luz de la punta determina el brillo',
+                how3Text: 'El eje óptico y la luz de la punta están alineados, por lo que las superficies cercanas se ven claras y las lejanas, oscuras. Las flechas de colores indican piezas dañadas aún no informadas; una flecha hacia dentro significa que la pieza está en el círculo de aviso.',
                 part_pipe: 'la tubería',
                 part_column: 'la columna',
                 part_jbox: 'la caja de conexiones',
@@ -4083,7 +4083,10 @@
             ctx.clearRect(0, 0, w, h);
             const [green, yellow] = tendonPulls(time);
             const theta = 1.25 * (green - yellow);   // bending angle, positive toward the green side
-            const L = h * 0.62, r = 8, cx = w / 2, baseY = h * 0.2, steps = 40;
+            // the pulled tendon end, its arrow and label rise up to 44 px above the
+            // base, and the bent rod reaches 0.55 L sideways
+            const baseY = 62, r = 8, cx = w / 2, steps = 40;
+            const L = Math.min(h - baseY - 14, (w / 2 - 16) / 0.55);
             // centreline of constant curvature, hanging down from the base
             const line = [];
             let x = cx, y = baseY;

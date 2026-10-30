@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Primary Meta Tags -->
-    <title>Shape Match Lab | Ignacio Cuiral-Zueco</title>
-    <meta name="title" content="Shape Match Lab | Ignacio Cuiral-Zueco">
-    <meta name="description" content="An interactive lab about measuring shape similarity for deformable-object manipulation.">
+    <title>Sculpting Workshop | Ignacio Cuiral-Zueco</title>
+    <meta name="title" content="Sculpting Workshop | Ignacio Cuiral-Zueco">
+    <meta name="description" content="A browser mini-game on shape similarity: carve five clay pieces until the overlap with each target shape reaches 95 %, the measure that closes the loop of robotic shape control.">
     <meta name="author" content="Ignacio Cuiral-Zueco">
-    <meta name="keywords" content="shape control demo, sculpting game, deformable objects, robotics research, interactive demo">
-    
+    <meta name="keywords" content="shape similarity, shape control, deformable object manipulation, robotics mini-game">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ignaciocuiral.com/shape-comparison.html">
-    <meta property="og:title" content="Shape Sculpting Demo | Ignacio Cuiral-Zueco">
-    <meta property="og:description" content="Interactive clay sculpting demo showcasing shape control and deformable object manipulation research by Ignacio Cuiral-Zueco.">
-    
+    <meta property="og:title" content="Sculpting Workshop | Ignacio Cuiral-Zueco">
+    <meta property="og:description" content="Carve five clay pieces until the overlap with each target shape reaches 95 %.">
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Shape Sculpting Demo | Ignacio Cuiral-Zueco">
-    <meta name="twitter:description" content="Interactive clay sculpting demo showcasing shape control and deformable object manipulation research by Ignacio Cuiral-Zueco.">
-    
+    <meta name="twitter:title" content="Sculpting Workshop | Ignacio Cuiral-Zueco">
+    <meta name="twitter:description" content="Carve five clay pieces until the overlap with each target shape reaches 95 %.">
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://ignaciocuiral.com/shape-comparison.html">
     <script>
         (() => {
-            const savedTheme = localStorage.getItem('theme');
+            let savedTheme = null;
+            try { savedTheme = localStorage.getItem('theme'); } catch (error) { /* storage blocked */ }
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             document.documentElement.dataset.theme = savedTheme || systemTheme;
             document.documentElement.classList.toggle('is-embedded', window.self !== window.top);
@@ -46,12 +47,10 @@
             --accent: #1d5b94;
             --accent-strong: #23282d;
             --accent-soft: #f1f3f5;
-            --target: #a65f5b;
-            --current: #60866e;
-            --clay: #2a9d8f;
             --canvas: #fafbfb;
-            --canvas-grid: #e9ecee;
-            --radius: 6px;
+            --done: #1b9e6f;
+            --excess: #d64545;
+            --missing: #3b7dd8;
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
@@ -68,11 +67,10 @@
             --accent: #8dbbe8;
             --accent-strong: #e3e6e9;
             --accent-soft: #23282d;
-            --target: #d28b86;
-            --current: #8eb29a;
-            --clay: #3bb3a2;
             --canvas: #1a1d20;
-            --canvas-grid: #2c3136;
+            --done: #3cc28f;
+            --excess: #e66767;
+            --missing: #7fb0f0;
         }
 
         *,
@@ -91,15 +89,11 @@
             font-size: 15px;
             line-height: 1.5;
             text-rendering: optimizeLegibility;
-            transition: color 160ms ease, background-color 160ms ease;
         }
 
         button,
         input {
             font: inherit;
-        }
-
-        button {
             color: inherit;
         }
 
@@ -112,19 +106,6 @@
             width: min(100%, 980px);
             margin: 0 auto;
             padding: 24px 0;
-        }
-
-        .is-embedded body {
-            min-height: 0;
-            padding: 0;
-            overflow: hidden;
-            background: transparent;
-        }
-
-        .is-embedded .demo-shell {
-            width: 100%;
-            max-width: none;
-            padding: 4px 0 8px;
         }
 
         .standalone-back {
@@ -140,19 +121,8 @@
             text-decoration: underline;
         }
 
-        .is-embedded .demo-heading {
+        .is-embedded .standalone-back {
             display: none;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
         }
 
         .demo-heading {
@@ -210,7 +180,6 @@
 
         h1,
         h2,
-        h3,
         p {
             margin-top: 0;
         }
@@ -231,181 +200,204 @@
             font-size: 0.94rem;
         }
 
-        .workspace {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            align-items: start;
-        }
+        /* Heads-up display */
 
-        .card {
-            min-width: 0;
-            overflow: hidden;
-            background: transparent;
-        }
-
-        .card-heading {
+        .hud {
             display: flex;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 42px;
-            padding: 8px 2px;
+            flex-wrap: wrap;
+            gap: 6px 22px;
+            align-items: baseline;
+            padding: 8px 2px 10px;
         }
 
-        .card-heading h2,
-        .card-heading h3 {
-            margin: 0;
-            color: var(--ink);
-            font-size: 0.86rem;
-            font-weight: 720;
-            letter-spacing: -0.01em;
-        }
-
-        .metric {
+        .hud-item {
             display: flex;
             gap: 6px;
             align-items: baseline;
             color: var(--muted);
-            font-size: 0.68rem;
+            font-size: 0.7rem;
         }
 
-        .metric output {
+        .hud-item output {
             color: var(--accent-strong);
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-variant-numeric: tabular-nums;
             font-weight: 750;
         }
 
-        .canvas-wrap {
-            padding: 0;
+        .hud-item.primary output {
+            color: var(--done);
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hud-item.order {
+            margin-right: auto;
+        }
+
+        /* Stage */
+
+        .stage {
+            position: relative;
         }
 
         canvas {
             display: block;
             width: 100%;
-            height: auto;
+            aspect-ratio: 43 / 36;
             border: 1px solid var(--line);
             border-radius: 9px;
             background: var(--canvas);
-        }
-
-        #targetCanvas,
-        #shapesCanvas {
-            aspect-ratio: 1;
-        }
-
-        #shapesCanvas {
-            cursor: crosshair;
             touch-action: none;
         }
 
-        .plot-block {
-            padding: 10px 0 0;
-        }
-
-        #errorCanvas {
-            aspect-ratio: 8 / 3;
-            border: 0;
-            border-radius: 0;
-        }
-
-        .plot-note {
-            margin-top: 6px;
-            color: var(--muted);
-            font-size: 0.68rem;
-        }
-
-        .tool-panel {
-            padding: 12px 0 0;
-        }
-
-        .tool-segment {
+        .stage-tool-panel {
+            position: absolute;
+            z-index: 1;
+            top: 61.4%;
+            left: 57.5%;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3px;
-            padding: 3px;
-            border: 0;
+            width: min(370px, calc(100% - 24px));
+            gap: 5px;
+            padding: 5px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: color-mix(in srgb, var(--surface) 96%, transparent);
+            transform: translateX(-50%);
+            box-shadow: 0 4px 14px rgba(20, 26, 32, 0.12);
+        }
+
+        .stage-tool-panel .segment {
+            justify-content: center;
+        }
+
+        .stage-tool-panel .segment button {
+            display: inline-flex;
+            gap: 7px;
+            align-items: center;
+            min-height: 28px;
+            padding: 3px 10px;
+            white-space: nowrap;
+        }
+
+        .stage-tool-settings {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .stage-tool-settings .brush-control {
+            grid-template-columns: auto minmax(70px, 1fr) 1.8rem;
+            gap: 7px;
+        }
+
+        .stage-tool-settings .button {
+            min-height: 30px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+        }
+
+        .tool-icon {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 auto;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1.8;
+        }
+
+        .overlay {
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            border-radius: 9px;
+            background: color-mix(in srgb, var(--canvas) 40%, transparent);
+        }
+
+        .overlay[hidden] {
+            display: none;
+        }
+
+        .overlay-card {
+            width: min(100%, 370px);
+            padding: 20px 22px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--surface) 93%, transparent);
+            box-shadow: 0 12px 36px rgba(20, 26, 32, 0.12);
+            text-align: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay-card h2 {
+            margin-bottom: 6px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .overlay-card p {
+            margin-bottom: 14px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .overlay-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 0 0 16px;
+        }
+
+        .overlay-stats[hidden],
+        .overlay-badge[hidden] {
+            display: none;
+        }
+
+        .overlay-stats div {
+            padding: 7px 6px;
             border-radius: 8px;
             background: var(--surface-soft);
         }
 
-        .tool-btn {
-            min-height: 36px;
-            padding: 7px 9px;
-            border: 0;
-            border-radius: 7px;
+        .overlay-stats dt {
             color: var(--muted);
-            background: transparent;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
+            font-size: 0.66rem;
         }
 
-        .tool-btn:hover {
-            color: var(--ink);
-        }
-
-        .tool-btn.active {
-            color: var(--ink);
-            background: var(--surface);
-            box-shadow: inset 0 0 0 1px var(--line);
-        }
-
-        .tool-btn::before {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            margin-right: 7px;
-            border: 1px solid currentColor;
-            border-radius: 50%;
-            content: "";
-        }
-
-        #toolClay::before {
-            background: var(--clay);
-        }
-
-        .brush-control {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 10px;
-            align-items: center;
-            margin-top: 12px;
-            color: var(--muted);
-            font-size: 0.72rem;
-        }
-
-        .brush-control output {
-            min-width: 38px;
-            color: var(--ink);
-            font-variant-numeric: tabular-nums;
-            font-weight: 700;
-            text-align: right;
-        }
-
-        input[type="range"] {
-            width: 100%;
+        .overlay-stats dd {
             margin: 0;
-            accent-color: var(--accent);
-            cursor: ew-resize;
+            color: var(--ink);
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+            font-weight: 750;
         }
 
-        .action-row {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-            margin-top: 12px;
+        .overlay-badge {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            color: var(--done);
+            background: color-mix(in srgb, var(--done) 14%, transparent);
+            font-size: 0.7rem;
+            font-weight: 750;
         }
 
         .button {
             min-height: 36px;
-            padding: 7px 10px;
+            padding: 7px 14px;
             border: 1px solid var(--line-strong);
             border-radius: 8px;
             color: var(--ink);
             background: var(--surface);
-            font-size: 0.74rem;
+            font-size: 0.76rem;
             font-weight: 700;
             cursor: pointer;
             transition: border-color 150ms ease, background-color 150ms ease;
@@ -417,6 +409,7 @@
         }
 
         .button-primary {
+            min-width: 140px;
             color: #ffffff;
             border-color: var(--accent-strong);
             background: var(--accent-strong);
@@ -436,129 +429,135 @@
             color: #15181b;
         }
 
-        .status {
+        /* Tools */
+
+        .tool-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 12px;
+            padding: 0;
+        }
+
+        .segment {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--surface);
+        }
+
+        .segment button {
+            min-height: 30px;
+            padding: 4px 12px;
+            border: 0;
+            border-radius: 7px;
+            color: var(--muted);
+            background: transparent;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .segment button:hover {
+            color: var(--ink);
+        }
+
+        .segment button.active {
+            color: var(--ink);
+            background: var(--surface-soft);
+            box-shadow: inset 0 0 0 1px var(--line);
+        }
+
+        .brush-control {
             display: grid;
-            min-height: 58px;
-            grid-template-columns: auto minmax(0, 1fr) auto;
+            grid-template-columns: auto minmax(110px, 200px) 2.6rem;
             gap: 10px;
             align-items: center;
-            margin-top: 14px;
-            padding: 11px 0 11px 14px;
-            border-left: 3px solid var(--line-strong);
-            color: var(--ink-soft);
-            font-size: 0.78rem;
+            color: var(--muted);
+            font-size: 0.74rem;
         }
 
-        .status[data-state="improving"],
-        .status[data-state="matched"] {
-            border-left-color: var(--accent);
-        }
-
-        .status-mark {
-            display: grid;
-            width: 30px;
-            height: 30px;
-            place-items: center;
-            border-radius: 50%;
-            color: var(--accent-strong);
-            background: var(--surface);
-            font-size: 0.9rem;
-            font-weight: 850;
-        }
-
-        .status-copy strong,
-        .status-copy span {
-            display: block;
-        }
-
-        .status-copy strong {
-            margin-bottom: 2px;
+        .brush-control strong {
             color: var(--ink);
-            font-size: 0.8rem;
+            font-weight: 720;
         }
 
-        .feedback-trend {
-            color: var(--accent-strong);
-            font-size: 0.72rem;
-            font-weight: 800;
+        .brush-control input {
+            width: 100%;
+            margin: 0;
+            accent-color: var(--accent);
+        }
+
+        .brush-control output {
+            color: var(--ink);
             font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            text-align: right;
         }
 
-        .lesson-takeaway {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 18px;
-            align-items: center;
-            margin-top: 14px;
-            padding: 13px 0 13px 16px;
-            border-left: 2px solid var(--line-strong);
+        .tool-panel .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .takeaway-label {
-            display: block;
-            margin-bottom: 3px;
-            color: var(--accent-strong);
-            font-size: 0.66rem;
-            font-weight: 850;
-            letter-spacing: 0.09em;
-            text-transform: uppercase;
-        }
-
-        .lesson-takeaway strong {
-            display: block;
-            color: var(--ink);
-            font-size: 0.9rem;
-        }
-
-        .lesson-takeaway p {
-            margin: 4px 0 0;
+        .hint {
+            margin: 10px 0 0;
             color: var(--muted);
             font-size: 0.75rem;
         }
 
-        .learn-more {
-            margin-top: 14px;
-            border-top: 1px solid var(--line);
-            border-bottom: 1px solid var(--line);
-        }
-
-        .learn-more summary {
-            padding: 13px 15px;
-            color: var(--ink);
-            font-size: 0.82rem;
-            font-weight: 720;
-            cursor: pointer;
-        }
-
-        .learn-content {
+        .legend {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            padding: 0 15px 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px 18px;
+            margin: 16px 0 0;
+            padding: 14px 0 0;
             border-top: 1px solid var(--line);
+            list-style: none;
+            font-size: 0.75rem;
         }
 
-        .learn-content section {
-            padding-top: 14px;
-        }
-
-        .learn-content h3 {
-            margin-bottom: 8px;
-            font-size: 0.83rem;
-        }
-
-        .learn-content p {
-            margin-bottom: 8px;
+        .legend li {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 2px 9px;
             color: var(--muted);
+        }
+
+        .legend strong {
+            color: var(--ink);
             font-size: 0.78rem;
         }
 
-        .learn-content p:last-child {
-            margin-bottom: 0;
+        .legend-dot {
+            grid-row: span 2;
+            width: 9px;
+            height: 9px;
+            margin-top: 5px;
+            border-radius: 50%;
         }
 
-        .learn-content strong {
-            color: var(--ink);
+        .legend-dot.excess {
+            background: var(--excess);
+        }
+
+        .legend-dot.missing {
+            background: var(--missing);
+        }
+
+        .legend-dot.done {
+            background: var(--done);
+        }
+
+        .note {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 0.72rem;
         }
 
         .references {
@@ -590,15 +589,19 @@
             color: var(--ink-soft);
         }
 
-        .reference-list a,
-        .references-extra a {
+        .reference-list a {
             color: var(--accent);
         }
 
-        .references-extra {
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 0.72rem;
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         @media (max-width: 720px) {
@@ -606,33 +609,22 @@
                 padding: 10px;
             }
 
-            .demo-shell,
-            .is-embedded .demo-shell {
-                padding: 16px;
+            .demo-shell {
+                padding: 16px 6px;
             }
 
-            .workspace {
+            .legend {
                 grid-template-columns: 1fr;
             }
 
-            .learn-content {
-                grid-template-columns: 1fr;
-                gap: 2px;
-            }
-        }
-
-        @media (max-width: 430px) {
-            .action-row {
-                grid-template-columns: 1fr;
+            .tool-panel .actions {
+                margin-left: 0;
             }
 
-            .status,
-            .lesson-takeaway {
-                grid-template-columns: 1fr;
-            }
-
-            .status-mark {
-                display: none;
+            .stage-tool-panel {
+                top: 57%;
+                transform: translateX(-50%) scale(0.8);
+                transform-origin: top center;
             }
         }
 
@@ -640,7 +632,6 @@
             *,
             *::before,
             *::after {
-                scroll-behavior: auto !important;
                 transition-duration: 0.01ms !important;
             }
         }
@@ -649,1420 +640,1057 @@
 <body>
     <main class="demo-shell">
         <header class="demo-heading">
-            <a class="standalone-back" href="index.html#demos" data-i18n="backToJourney">← Back to the demos</a>
+            <a class="standalone-back" href="index.html#demos" data-i18n="backToDemos">← Back to the demos</a>
             <div class="demo-topline">
-                <p class="demo-kicker" data-i18n="demoKicker">Interactive demo</p>
-                <div class="language-switcher" aria-label="Language">
-                    <button id="lang-en" class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
-                    <button id="lang-es" class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
+                <p class="demo-kicker" data-i18n="kicker">Mini-game</p>
+                <div class="language-switcher" aria-label="Language" data-i18n-aria-label="languageAria">
+                    <button class="lang-btn active" type="button" data-lang="en" aria-pressed="true">EN</button>
+                    <button class="lang-btn" type="button" data-lang="es" aria-pressed="false">ES</button>
                 </div>
             </div>
-            <h1 data-i18n="title">Shape similarity measure</h1>
-            <p class="demo-intro" data-i18n="gameInstructions">Sculpting by hand follows the same loop as shape control: measure the difference to a target, apply a correction and measure again.</p>
+            <h1 data-i18n="title">Sculpting workshop</h1>
+            <p class="demo-intro" data-i18n="intro">Shape control requires a numerical measure of the difference between the current and target shapes. This game uses the overlap between a clay block and each target. Remove or restore material until the overlap reaches 95 %. Complete all five orders; the clock records the total time.</p>
         </header>
 
-        <section class="workspace" aria-label="Shape comparison workspace">
-            <article class="card">
-                <div class="card-heading">
-                    <h2 data-i18n="targetShapeLabel">Target and comparison</h2>
-                    <span class="metric">
-                        <span data-i18n="matchLabel">Shape match</span>
-                        <output id="residualValue">—</output>
-                    </span>
-                </div>
-                <div class="canvas-wrap">
-                    <canvas id="targetCanvas" width="400" height="400" role="img" aria-label="Target shape and current contour comparison"></canvas>
-                </div>
-                <div class="plot-block">
-                    <canvas id="errorCanvas" width="400" height="150" role="img" aria-label="Shape mismatch history"></canvas>
-                    <p class="plot-note" data-i18n="shapeResidualNote">Shape match after every edit. The dashed line marks the best score reached for this target.</p>
-                </div>
-            </article>
+        <section aria-labelledby="game-title">
+            <h2 id="game-title" class="sr-only" data-i18n="title">Sculpting workshop</h2>
+            <div class="hud">
+                <div class="hud-item order"><span data-i18n="hudOrder">Order</span><output id="orderValue">1 / 5</output></div>
+                <div class="hud-item primary"><span data-i18n="hudMatch">Match</span><output id="matchValue">–</output></div>
+                <div class="hud-item"><span data-i18n="hudTime">Total time</span><output id="timeValue">0:00</output></div>
+                <div class="hud-item"><span data-i18n="hudBest">Best</span><output id="bestValue">–</output></div>
+            </div>
 
-            <article class="card">
-                <div class="card-heading">
-                    <h2 data-i18n="sculptingCanvasLabel">Sculpting workspace</h2>
-                </div>
-                <div class="canvas-wrap">
-                    <canvas id="shapesCanvas" width="400" height="400" tabindex="0" role="application" aria-label="Interactive material sculpting canvas" aria-describedby="sculptKeyboardHelp"></canvas>
-                    <p id="sculptKeyboardHelp" class="sr-only" data-i18n="keyboardHelp">Keyboard: use the arrow keys to move the tool and press Space or Enter to apply it.</p>
-                </div>
-                <div class="tool-panel">
-                    <div class="tool-segment" role="group" aria-label="Sculpting tool">
-                        <button class="tool-btn active" type="button" data-tool="chisel" id="toolChisel" aria-pressed="true">
-                            <span data-i18n="chiselBtn">Remove material</span>
+            <div class="stage">
+                <canvas id="game" tabindex="0" aria-label="Workshop with the order, the clay block and five display cases" data-i18n-aria-label="canvasAria"></canvas>
+                <div class="stage-tool-panel">
+                    <div class="segment" role="group" aria-label="Tool" data-i18n-aria-label="toolAria">
+                        <button type="button" class="active" data-tool="remove" aria-pressed="true">
+                            <svg class="tool-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"></circle><path d="M6.5 10h7"></path></svg>
+                            <span data-i18n="toolRemove">Remove material</span>
                         </button>
-                        <button class="tool-btn" type="button" data-tool="clay" id="toolClay" aria-pressed="false">
-                            <span data-i18n="clayBtn">Restore material</span>
+                        <button type="button" data-tool="restore" aria-pressed="false">
+                            <svg class="tool-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"></circle><path d="M6.5 10h7M10 6.5v7"></path></svg>
+                            <span data-i18n="toolRestore">Restore material</span>
                         </button>
                     </div>
-
-                    <label class="brush-control" for="brushSizeSlider">
-                        <span data-i18n="brushSize">Tool size</span>
-                        <input id="brushSizeSlider" type="range" min="10" max="36" step="2" value="20">
-                        <output id="brushSizeValue" for="brushSizeSlider">20 px</output>
-                    </label>
-
-                    <div class="action-row">
-                        <button id="resetBlockBtn" class="button" type="button" data-i18n="resetBlockBtn">Reset block</button>
-                        <button id="newShapeBtn" class="button button-primary" type="button" data-i18n="newShapeBtn">New target</button>
+                    <div class="stage-tool-settings">
+                        <label class="brush-control">
+                            <strong data-i18n="brushLabel">Tool size</strong>
+                            <input type="range" id="brush" min="6" max="36" step="2" value="18">
+                            <output id="brushValue">18</output>
+                        </label>
+                        <button class="button" type="button" id="resetButton" data-i18n="resetBlock">Reset block</button>
                     </div>
                 </div>
-            </article>
-        </section>
-
-        <div class="status" id="feedbackCard" data-state="start" role="status" aria-live="polite">
-            <span class="status-mark" aria-hidden="true">↗</span>
-            <span class="status-copy"><strong id="feedbackTitle" data-i18n="feedbackStartTitle">Start with the largest differences</strong><span id="statusText" data-i18n="feedbackStartDesc">Compare the two contours on the left, then remove material from the corresponding region on the right.</span></span>
-            <span class="feedback-trend" id="feedbackTrend"></span>
-        </div>
-
-        <details class="learn-more">
-            <summary data-i18n="howToPlay">How it works</summary>
-            <div class="learn-content">
-                <section>
-                    <h3 data-i18n="interactionGuide">Interaction</h3>
-                    <p><strong data-i18n="goal">Objective:</strong> <span data-i18n="goalDesc">Remove material from the block on the right until its contour matches the target on the left.</span></p>
-                    <p><strong data-i18n="sculpting">Sculpting:</strong> <span data-i18n="sculptingDesc">Remove cuts particles away and Restore adds them back. A smaller tool gives finer control near the boundary.</span></p>
-                    <p><strong data-i18n="feedback">Feedback:</strong> <span data-i18n="feedbackDesc">The green contour is the current shape. The score is the area overlap with the target and is recorded after every edit.</span></p>
-                </section>
-                <section>
-                    <h3 data-i18n="whyMatters">Research context</h3>
-                    <p data-i18n="matterText1">A person compares shapes by eye; a robot requires an explicit, computable measure of the difference.</p>
-                    <p data-i18n="matterText2">This measure is the feedback signal that indicates whether a manipulation brings the object closer to the target or further from it.</p>
-                </section>
+                <div class="overlay" id="overlay">
+                    <div class="overlay-card">
+                        <p class="demo-kicker" id="overlayKicker">Mini-game</p>
+                        <h2 id="overlayTitle">Sculpting workshop</h2>
+                        <span class="overlay-badge" id="overlayBadge" hidden>New best time</span>
+                        <p id="overlayText">Five orders are waiting.</p>
+                        <dl class="overlay-stats" id="overlayStats" hidden>
+                            <div><dt data-i18n="hudTime">Total time</dt><dd id="statTime">0:00</dd></div>
+                            <div><dt data-i18n="hudBest">Best</dt><dd id="statBest">0:00</dd></div>
+                        </dl>
+                        <button class="button button-primary" type="button" id="overlayButton">Start</button>
+                    </div>
+                </div>
             </div>
-        </details>
+            <p class="sr-only" aria-live="polite" id="announcer"></p>
 
-        <section class="lesson-takeaway">
-            <div>
-                <span class="takeaway-label" data-i18n="takeawayLabel">Takeaway</span>
-                <strong data-i18n="takeawayTitle">A correction loop requires a similarity measure.</strong>
-                <p data-i18n="takeawayDesc">The manipulators in the other demos execute the same loop of measuring, correcting and measuring again, with the area score replaced by a shape error in feature space.</p>
+            <div class="tool-panel">
+                <div class="actions">
+                    <button class="button" type="button" id="pauseButton" data-i18n="pause">Pause</button>
+                    <button class="button" type="button" id="restartButton" data-i18n="restart">Restart</button>
+                </div>
             </div>
-            <button id="nextDemoBtn" class="button button-primary" type="button" data-i18n="nextDemoBtn">Shape servoing tutorial →</button>
-        </section>
+            <p class="hint" data-i18n="hint">Drag on the block to apply the tool. Keyboard: arrow keys move the tool, Space applies it, T switches between removing and restoring, [ and ] change its size, and P pauses.</p>
 
-        <section class="references" aria-labelledby="references-title">
-            <h2 id="references-title" data-i18n="referencesTitle">Related papers</h2>
-            <ol class="reference-list">
+            <ul class="legend">
+                <li><span class="legend-dot excess" aria-hidden="true"></span><strong data-i18n="legendExcess">Excess material</strong><span data-i18n="legendExcessDesc">Clay outside the target shape, marked red in the order.</span></li>
+                <li><span class="legend-dot missing" aria-hidden="true"></span><strong data-i18n="legendMissing">Missing material</strong><span data-i18n="legendMissingDesc">Target area without clay, marked blue in the order.</span></li>
+                <li><span class="legend-dot done" aria-hidden="true"></span><strong data-i18n="legendDone">Order complete</strong><span data-i18n="legendDoneDesc">At 95 % the piece moves to its display case and the next order arrives.</span></li>
+            </ul>
+            <p class="note" data-i18n="note">The score is the Dice overlap 2|B ∩ T| / (|B| + |T|) between the clay particles B and the particles inside the target T. Particles within 0.6 spacings of the target contour are excluded, so the score does not depend on where the contour intersects a particle. A shape controller can use this measure as feedback: after each robot motion, it measures the shape and commands the next motion to reduce the difference.</p>
+
+            <section class="references" aria-labelledby="references-title">
+                <h2 id="references-title" data-i18n="referencesTitle">Related papers</h2>
+                <ol class="reference-list">
                     <li>I. Cuiral-Zueco and G. López-Nicolás, “Multi-scale elastic contour mapping for deformable object shape control,” <em>Robotics and Autonomous Systems</em>, vol. 194, p. 105134, 2025. <a href="https://doi.org/10.1016/j.robot.2025.105134" target="_blank" rel="noopener noreferrer">doi:10.1016/j.robot.2025.105134</a></li>
                     <li>I. Cuiral-Zueco and G. López-Nicolás, “Time Consistent Surface Mapping for Deformable Object Shape Control,” <em>IEEE Transactions on Automation Science and Engineering</em>, vol. 22, pp. 11099–11111, 2025. <a href="https://doi.org/10.1109/TASE.2025.3529180" target="_blank" rel="noopener noreferrer">doi:10.1109/TASE.2025.3529180</a></li>
                     <li>I. Cuiral-Zueco and G. López-Nicolás, “Elastic Contour Mapping for the Estimation of Abrupt Shape Deformations,” <em>Proc. Iberian Robotics Conf.</em>, pp. 400–408, 2023.</li>
                     <li>I. Cuiral-Zueco and G. López-Nicolás, “Multi-scale Laplacian-based FMM for deformable object elastic shape estimation,” <em>Proc. IEEE/RSJ Int. Conf. Intell. Robots Syst. (IROS)</em>, pp. 1766–1772, 2021. <a href="https://doi.org/10.1109/IROS51168.2021.9636857" target="_blank" rel="noopener noreferrer">doi:10.1109/IROS51168.2021.9636857</a></li>
-            </ol>
+                </ol>
+            </section>
         </section>
     </main>
 
     <script>
-        // i18n Translations Object
         const translations = {
             en: {
+                backToDemos: '← Back to the demos',
+                kicker: 'Mini-game',
                 languageAria: 'Language',
-                demoKicker: 'Interactive demo',
-                mismatchLabel: 'Mismatch',
-                matchLabel: 'Shape match',
-                brushSize: 'Tool size',
-                newShapeBtn: 'New target',
-                interactionGuide: 'Interaction',
-                backToJourney: '← Back to the demos',
-                title: 'Shape similarity measure',
-                gameInstructions: 'Sculpting by hand follows the same loop as shape control: measure the difference to a target, apply a correction and measure again.',
-                howToPlay: 'How it works',
-                goal: 'Objective:',
-                goalDesc: 'Remove material from the block on the right until its contour matches the target on the left.',
-                sculpting: 'Sculpting:',
-                sculptingDesc: 'Remove cuts particles away and Restore adds them back. A smaller tool gives finer control near the boundary.',
-                feedback: 'Feedback:',
-                feedbackDesc: 'The green contour is the current shape. The score is the area overlap with the target and is recorded after every edit.',
-                whyMatters: 'Research context',
-                matterText1: 'A person compares shapes by eye; a robot requires an explicit, computable measure of the difference.',
-                matterText2: 'This measure is the feedback signal that indicates whether a manipulation brings the object closer to the target or further from it.',
-                targetShapeLabel: 'Target and comparison',
-                shapeResidualNote: 'Shape match after every edit. The dashed line marks the best score reached for this target.',
-                sculptingCanvasLabel: 'Sculpting workspace',
-                chiselBtn: 'Remove material',
-                clayBtn: 'Restore material',
-                resetBlockBtn: 'Reset block',
-                keyboardHelp: 'Keyboard: use the arrow keys to move the tool and press Space or Enter to apply it.',
-                initialStatusText: 'Remove material to match the target contour. The score is recorded after each edit.',
-                statusText: 'Sculpt the block to match the target.',
-                feedbackStartTitle: 'Start with the largest differences',
-                feedbackStartDesc: 'Compare the two contours on the left, then remove material from the corresponding region on the right.',
-                feedbackImprovingTitle: 'Score increased',
-                feedbackImprovingDesc: 'Locate the largest remaining mismatch in the comparison view and make smaller edits near that part of the boundary.',
-                feedbackWrongTitle: 'Score decreased',
-                feedbackWrongDesc: 'Switch to Restore if too much material was removed, or edit a different part of the contour.',
-                feedbackCloseTitle: 'Close to the target',
-                feedbackCloseDesc: 'Reduce the tool size and correct the largest remaining gaps in the comparison view.',
-                feedbackMatchedTitle: 'Shape matched',
-                feedbackMatchedDesc: 'The area-overlap score is above the match threshold.',
-                improvedBy: 'Improved by',
-                changedBy: 'Changed by',
-                bestLabel: 'Best',
-                takeawayLabel: 'Takeaway',
-                takeawayTitle: 'A correction loop requires a similarity measure.',
-                takeawayDesc: 'A shape-servoing controller executes the same loop of measuring, correcting and measuring again, with the area score replaced by a shape error in feature space.',
-                nextDemoBtn: 'Shape servoing tutorial →',
+                title: 'Sculpting workshop',
+                intro: 'Shape control requires a numerical measure of the difference between the current and target shapes. This game uses the overlap between a clay block and each target. Remove or restore material until the overlap reaches 95 %. Complete all five orders; the clock records the total time.',
+                hudOrder: 'Order',
+                hudMatch: 'Match',
+                hudTime: 'Total time',
+                hudBest: 'Best',
+                canvasAria: 'Workshop with the order, the clay block and five display cases',
+                toolAria: 'Tool',
+                toolRemove: 'Remove material',
+                toolRestore: 'Restore material',
+                brushLabel: 'Tool size',
+                resetBlock: 'Reset block',
+                pause: 'Pause',
+                resume: 'Resume',
+                restart: 'Restart',
+                hint: 'Drag on the block to apply the tool. Keyboard: arrow keys move the tool, Space applies it, T switches between removing and restoring, [ and ] change its size, and P pauses.',
+                legendExcess: 'Excess material',
+                legendExcessDesc: 'Clay outside the target shape, marked red in the order.',
+                legendMissing: 'Missing material',
+                legendMissingDesc: 'Target area without clay, marked blue in the order.',
+                legendDone: 'Order complete',
+                legendDoneDesc: 'At 95 % the piece moves to its display case and the next order arrives.',
+                note: 'The score is the Dice overlap 2|B ∩ T| / (|B| + |T|) between the clay particles B and the particles inside the target T. Particles within 0.6 spacings of the target contour are excluded, so the score does not depend on where the contour intersects a particle. A shape controller can use this measure as feedback: after each robot motion, it measures the shape and commands the next motion to reduce the difference.',
                 referencesTitle: 'Related papers',
-                legendTargetShape: 'Target shape',
-                legendCurrentShape: 'Current shape',
-                targetCanvasAria: 'Target shape overlaid with the current contour',
-                historyCanvasAria: 'History of the shape-match score; higher values mean a closer match',
-                sculptCanvasAria: 'Interactive sculpting workspace. Use the pointer, or arrow keys and Space or Enter.',
-                matchAxisLabel: 'Shape match (%)',
-                editsAxisLabel: 'Edits'
+                startText: 'Carve each piece until its overlap with the order reaches 95 %. There is no time limit per order; the total time of the five counts.',
+                start: 'Start',
+                pausedTitle: 'Paused',
+                pausedText: 'The clock stops until you resume.',
+                doneTitle: 'Collection complete',
+                doneText: 'The five pieces are in their display cases.',
+                newBest: 'New best time',
+                playAgain: 'Play again',
+                orderLabel: 'Order {n} / 5',
+                cardMatch: 'match',
+                cardGoal: '95 % completes the order',
+                gaugeLabel: 'Match',
+                caseEmpty: 'Order {n}',
+                announceDone: '{name} complete in {time}.',
+                order_dignity: 'Dignity',
+                order_hatchling: 'Dinosaur hatchling',
+                order_arm: 'Robot arm',
+                order_rod: 'Threaded rod',
+                order_spiral: 'Spiral',
+                client_dignity: 'the target shape of the heat-coverage experiments',
+                client_hatchling: 'for the incubation lab',
+                client_arm: 'for the manipulation lab',
+                client_rod: 'for the shape-control lab',
+                client_spiral: 'for the contour-mapping lab'
             },
             es: {
+                backToDemos: '← Volver a las demos',
+                kicker: 'Minijuego',
                 languageAria: 'Idioma',
-                demoKicker: 'Demostración interactiva',
-                mismatchLabel: 'Desajuste',
-                matchLabel: 'Coincidencia',
-                brushSize: 'Tamaño',
-                newShapeBtn: 'Nuevo objetivo',
-                interactionGuide: 'Interacción',
-                backToJourney: '← Volver a las demos',
-                title: 'Medida de similitud de forma',
-                gameInstructions: 'Esculpir a mano sigue el mismo lazo que el control de forma: medir la diferencia respecto a un objetivo, aplicar una corrección y volver a medir.',
-                howToPlay: 'Cómo funciona',
-                goal: 'Objetivo:',
-                goalDesc: 'Retira material del bloque de la derecha hasta que su contorno coincida con el objetivo de la izquierda.',
-                sculpting: 'Esculpir:',
-                sculptingDesc: 'Eliminar retira partículas y Restaurar las añade de nuevo. Una herramienta más pequeña permite un control más fino cerca del borde.',
-                feedback: 'Realimentación:',
-                feedbackDesc: 'El contorno verde es la forma actual. La puntuación es el solape de áreas con el objetivo y se registra tras cada edición.',
-                whyMatters: 'Contexto de investigación',
-                matterText1: 'Una persona compara formas a simple vista; un robot necesita una medida explícita y calculable de la diferencia.',
-                matterText2: 'Esta medida es la señal de realimentación que indica si una manipulación acerca el objeto al objetivo o lo aleja de él.',
-                targetShapeLabel: 'Objetivo y comparación',
-                shapeResidualNote: 'Coincidencia de forma tras cada edición. La línea discontinua marca la mejor puntuación alcanzada para este objetivo.',
-                sculptingCanvasLabel: 'Espacio de escultura',
-                chiselBtn: 'Eliminar material',
-                clayBtn: 'Restaurar material',
-                resetBlockBtn: 'Reiniciar bloque',
-                keyboardHelp: 'Teclado: usa las flechas para mover la herramienta y pulsa Espacio o Intro para aplicarla.',
-                initialStatusText: 'Retira material para igualar el contorno objetivo. La puntuación se registra tras cada edición.',
-                statusText: 'Esculpe el bloque para que coincida con el objetivo.',
-                feedbackStartTitle: 'Empieza por las diferencias más grandes',
-                feedbackStartDesc: 'Compara los dos contornos de la izquierda y retira material de la zona correspondiente a la derecha.',
-                feedbackImprovingTitle: 'La puntuación ha aumentado',
-                feedbackImprovingDesc: 'Localiza el mayor desajuste restante en la vista de comparación y haz ediciones más pequeñas cerca de esa parte del contorno.',
-                feedbackWrongTitle: 'La puntuación ha disminuido',
-                feedbackWrongDesc: 'Usa Restaurar si se ha retirado demasiado material o edita otra zona del contorno.',
-                feedbackCloseTitle: 'Cerca del objetivo',
-                feedbackCloseDesc: 'Reduce el tamaño de la herramienta y corrige los mayores huecos restantes en la vista de comparación.',
-                feedbackMatchedTitle: 'Forma conseguida',
-                feedbackMatchedDesc: 'La puntuación de solape de áreas supera el umbral de coincidencia.',
-                improvedBy: 'Mejora',
-                changedBy: 'Cambio',
-                bestLabel: 'Mejor',
-                takeawayLabel: 'Idea clave',
-                takeawayTitle: 'Un lazo de corrección requiere una medida de similitud.',
-                takeawayDesc: 'Un controlador de forma ejecuta el mismo lazo de medir, corregir y volver a medir, con la puntuación de áreas sustituida por un error de forma en el espacio de características.',
-                nextDemoBtn: 'Tutorial de control de forma →',
+                title: 'Taller de escultura',
+                intro: 'El control de forma requiere una medida numérica de la diferencia entre la forma actual y la objetivo. Este juego usa el solapamiento entre un bloque de arcilla y cada objetivo. Retira o recupera material hasta alcanzar el 95 %. Completa los cinco encargos; el reloj registra el tiempo total.',
+                hudOrder: 'Encargo',
+                hudMatch: 'Coincidencia',
+                hudTime: 'Tiempo total',
+                hudBest: 'Récord',
+                canvasAria: 'Taller con el encargo, el bloque de arcilla y cinco vitrinas',
+                toolAria: 'Herramienta',
+                toolRemove: 'Retirar material',
+                toolRestore: 'Recuperar material',
+                brushLabel: 'Tamaño',
+                resetBlock: 'Reiniciar bloque',
+                pause: 'Pausa',
+                resume: 'Continuar',
+                restart: 'Reiniciar',
+                hint: 'Arrastra sobre el bloque para aplicar la herramienta. Teclado: las flechas mueven la herramienta, Espacio la aplica, T alterna entre retirar y recuperar, [ y ] cambian su tamaño y P pausa el juego.',
+                legendExcess: 'Material sobrante',
+                legendExcessDesc: 'Arcilla fuera de la forma objetivo, marcada en rojo en el encargo.',
+                legendMissing: 'Material que falta',
+                legendMissingDesc: 'Zona del objetivo sin arcilla, marcada en azul en el encargo.',
+                legendDone: 'Encargo completado',
+                legendDoneDesc: 'Al 95 % la pieza pasa a su vitrina y llega el siguiente encargo.',
+                note: 'La puntuación es el solapamiento de Dice 2|B ∩ T| / (|B| + |T|) entre las partículas de arcilla B y las partículas dentro del objetivo T. Se excluyen las partículas a menos de 0,6 separaciones del contorno, por lo que la puntuación no depende de dónde interseca el contorno una partícula. Un controlador de forma puede usar esta medida como realimentación: tras cada movimiento, mide la forma y ordena el siguiente para reducir la diferencia.',
                 referencesTitle: 'Artículos relacionados',
-                legendTargetShape: 'Forma objetivo',
-                legendCurrentShape: 'Forma actual',
-                targetCanvasAria: 'Forma objetivo superpuesta al contorno actual',
-                historyCanvasAria: 'Historial de la puntuación de coincidencia; los valores altos indican mayor similitud',
-                sculptCanvasAria: 'Espacio de escultura interactivo. Usa el puntero o las flechas y Espacio o Intro.',
-                matchAxisLabel: 'Coincidencia de forma (%)',
-                editsAxisLabel: 'Ediciones'
+                startText: 'Esculpe cada pieza hasta que su solapamiento con el encargo llegue al 95 %. No hay límite de tiempo por encargo; cuenta el tiempo total de los cinco.',
+                start: 'Empezar',
+                pausedTitle: 'En pausa',
+                pausedText: 'El reloj se detiene hasta que continúes.',
+                doneTitle: 'Colección completa',
+                doneText: 'Las cinco piezas están en sus vitrinas.',
+                newBest: 'Nuevo récord',
+                playAgain: 'Jugar de nuevo',
+                orderLabel: 'Encargo {n} / 5',
+                cardMatch: 'coincidencia',
+                cardGoal: 'el 95 % completa el encargo',
+                gaugeLabel: 'Coincidencia',
+                caseEmpty: 'Encargo {n}',
+                announceDone: '{name} completado en {time}.',
+                order_dignity: 'Dignity',
+                order_hatchling: 'Cría de dinosaurio',
+                order_arm: 'Brazo robótico',
+                order_rod: 'Varilla enhebrada',
+                order_spiral: 'Espiral',
+                client_dignity: 'la forma objetivo de los experimentos de cobertura térmica',
+                client_hatchling: 'para el laboratorio de incubación',
+                client_arm: 'para el laboratorio de manipulación',
+                client_rod: 'para el laboratorio de control de forma',
+                client_spiral: 'para el laboratorio de mapeo de contornos'
             }
         };
 
-        // Language, theme and parent-page integration
-        let currentLanguage = localStorage.getItem('language') || 'en';
         const isEmbedded = window.self !== window.top;
-
-        function setLanguage(lang) {
-            if (!translations[lang]) return;
-            currentLanguage = lang;
-            localStorage.setItem('language', lang);
-            applyTranslations();
-            updateLanguageButtons();
-            // Re-render canvases to update legend text
-            if (targetLoaded) {
-                drawTargetShape();
-                drawErrorPlot();
-                renderSculpt();
-                updateFeedback(lastResidual, null);
+        // embedded copies keep their preferences out of the parent's storage
+        const storage = {
+            get(key) {
+                if (isEmbedded) return null;
+                try { return localStorage.getItem(key); } catch (error) { return null; }
+            },
+            set(key, value) {
+                if (isEmbedded) return;
+                try { localStorage.setItem(key, value); } catch (error) { /* storage blocked */ }
             }
-            requestAnimationFrame(reportHeight);
+        };
+
+        // ------------------------------------------------------------------
+        // page elements
+        // ------------------------------------------------------------------
+        const byId = (id) => document.getElementById(id);
+        const canvas = byId('game');
+        const ctx = canvas.getContext('2d');
+        const overlay = byId('overlay');
+        const overlayKicker = byId('overlayKicker');
+        const overlayTitle = byId('overlayTitle');
+        const overlayText = byId('overlayText');
+        const overlayBadge = byId('overlayBadge');
+        const overlayStats = byId('overlayStats');
+        const overlayButton = byId('overlayButton');
+        const pauseButton = byId('pauseButton');
+        const announcer = byId('announcer');
+        const brushInput = byId('brush');
+        const brushValue = byId('brushValue');
+        const hud = { order: byId('orderValue'), match: byId('matchValue'), time: byId('timeValue'), best: byId('bestValue') };
+
+        // ------------------------------------------------------------------
+        // the clay block: particles on a regular grid, in block units
+        // ------------------------------------------------------------------
+        const TAU = Math.PI * 2;
+        const COLS = 40, ROWS = 45, SPACING = 7.5;
+        const BLOCK = { w: COLS * SPACING, h: ROWS * SPACING, cx: COLS * SPACING / 2, cy: ROWS * SPACING / 2 };
+        const N = COLS * ROWS;
+        const PX = new Float32Array(N), PY = new Float32Array(N);
+        for (let k = 0; k < N; k++) {
+            PX[k] = (k % COLS + 0.5) * SPACING;
+            PY[k] = (Math.floor(k / COLS) + 0.5) * SPACING;
         }
+        const MATCH_GOAL = 0.95;
+        const BAND = 0.6 * SPACING;              // particles this close to the contour are not counted
 
-        function applyTranslations() {
-            const t = translations[currentLanguage];
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (t[key]) {
-                    element.textContent = t[key];
-                }
-            });
-            document.documentElement.lang = currentLanguage;
-            document.querySelector('.language-switcher').setAttribute('aria-label', t.languageAria);
-            document.getElementById('targetCanvas').setAttribute('aria-label', t.targetCanvasAria);
-            document.getElementById('errorCanvas').setAttribute('aria-label', t.historyCanvasAria);
-            document.getElementById('shapesCanvas').setAttribute('aria-label', t.sculptCanvasAria);
-        }
+        const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
 
-        function updateLanguageButtons() {
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                const isActive = btn.getAttribute('data-lang') === currentLanguage;
-                btn.classList.toggle('active', isActive);
-                btn.setAttribute('aria-pressed', String(isActive));
-            });
-        }
-
-        function setTheme(theme) {
-            if (theme !== 'light' && theme !== 'dark') return;
-            document.documentElement.dataset.theme = theme;
-            if (!isEmbedded) localStorage.setItem('theme', theme);
-            if (targetLoaded) {
-                drawTargetShape();
-                drawErrorPlot();
-                renderSculpt();
-            }
-            requestAnimationFrame(reportHeight);
-        }
-
-        let lastReportedHeight = 0;
-
-        function reportHeight() {
-            if (!isEmbedded) return;
-            const height = Math.ceil(document.querySelector('.demo-shell').getBoundingClientRect().height);
-            if (Math.abs(height - lastReportedHeight) < 2) return;
-            lastReportedHeight = height;
-            window.parent.postMessage({
-                type: 'demoHeight',
-                demo: 'shape-comparison',
-                height
-            }, window.location.protocol === 'file:' ? '*' : window.location.origin);
-        }
-
-        // Initialize i18n on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            applyTranslations();
-            updateLanguageButtons();
-
-            // Attach language button listeners
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    setLanguage(btn.getAttribute('data-lang'));
-                });
-            });
-            const resizeObserver = new ResizeObserver(() => reportHeight());
-            resizeObserver.observe(document.querySelector('.demo-shell'));
-            reportHeight();
-        });
-
-        // Keep embedded preferences aligned with the portfolio page.
-        window.addEventListener('load', reportHeight);
-        // hidden panels get no rendering lifecycle, so poll for the moment
-        // this demo is finally laid out; reportHeight() ignores no-op changes
-        setInterval(reportHeight, 500);
-
-        window.addEventListener('message', (event) => {
-            if (window.location.protocol !== 'file:' && event.origin !== window.location.origin) return;
-            if (event.data?.type === 'setPreferences') {
-                setLanguage(event.data.language);
-                setTheme(event.data.theme);
-            } else if (event.data?.type === 'setLanguage') {
-                setLanguage(event.data.language);
-            }
-        });
-
-        const targetCanvas = document.getElementById('targetCanvas');
-        const targetCtx = targetCanvas.getContext('2d');
-        const shapesCanvas = document.getElementById('shapesCanvas');
-        const errorCanvas = document.getElementById('errorCanvas');
-        const errorCtx = errorCanvas.getContext('2d');
-        const statusText = document.getElementById('statusText');
-        const residualValue = document.getElementById('residualValue');
-        const feedbackCard = document.getElementById('feedbackCard');
-        const feedbackTitle = document.getElementById('feedbackTitle');
-        const feedbackTrend = document.getElementById('feedbackTrend');
-
-        let currentTool = 'chisel';  // 'chisel' for erasing, 'clay' for adding
-
-        function selectTool(tool) {
-            currentTool = tool;
-            document.querySelectorAll('[data-tool]').forEach(button => {
-                const isActive = button.dataset.tool === tool;
-                button.classList.toggle('active', isActive);
-                button.setAttribute('aria-pressed', String(isActive));
-            });
-            sculptCanvas.style.cursor = tool === 'chisel' ? 'crosshair' : 'cell';
-        }
-
-        const NUM_POINTS = 100;
-        let targetShape = [];
-        let targetLoaded = false;
-        let isSculpting = false;
-        let residualHistory = [];
-        let residualSampleCount = 0;
-        let lastResidual = null;
-        let currentSculptShape = [];
-        let pendingUpdate = false;
-        let bestMatch = 0;
-        let keyboardCursor = { x: 86, y: 86 };
-        let keyboardActive = false;
-
-        const sculptCanvas = shapesCanvas;
-        const sculptCtx = shapesCanvas.getContext('2d');
-        
-        // Particle grid for sculpting
-        const GRID_COLS = 40;
-        const GRID_ROWS = 45;
-        let particleGrid = [];  // 2D array of {x, y, alive}
-        let fallingParticles = [];  // Array of {x, y, vx, vy, life} for animation
-        let isAnimating = false;  // Flag to prevent multiple animation loops
-        const PARTICLE_RADIUS = 6.5;  // Larger particles for clay-like appearance
-        let brushRadius = 20;
-        const MATCH_THRESHOLD = 88;
-
-        function matchPercentage(residual) {
-            if (!Number.isFinite(residual)) return 0;
-            return Math.max(0, Math.min(100, (1 - residual / 10) * 100));
-        }
-
-        function updateFeedback(residual, previousResidual) {
-            if (!Number.isFinite(residual)) return;
-            const words = translations[currentLanguage];
-            const match = matchPercentage(residual);
-            const previousMatch = Number.isFinite(previousResidual) ? matchPercentage(previousResidual) : null;
-            const delta = previousMatch === null ? 0 : match - previousMatch;
-            bestMatch = Math.max(bestMatch, match);
-
-            let state = 'start';
-            let titleKey = 'feedbackStartTitle';
-            let descKey = 'feedbackStartDesc';
-            let mark = '↗';
-            if (match >= MATCH_THRESHOLD) {
-                state = 'matched';
-                titleKey = 'feedbackMatchedTitle';
-                descKey = 'feedbackMatchedDesc';
-                mark = '✓';
-            } else if (match >= 75) {
-                state = 'improving';
-                titleKey = 'feedbackCloseTitle';
-                descKey = 'feedbackCloseDesc';
-                mark = '◎';
-            } else if (delta > 0.01) {
-                state = 'improving';
-                titleKey = 'feedbackImprovingTitle';
-                descKey = 'feedbackImprovingDesc';
-                mark = '↑';
-            } else if (delta < -0.01) {
-                state = 'wrong';
-                titleKey = 'feedbackWrongTitle';
-                descKey = 'feedbackWrongDesc';
-                mark = '↶';
-            }
-
-            feedbackCard.dataset.state = state;
-            feedbackCard.querySelector('.status-mark').textContent = mark;
-            feedbackTitle.textContent = words[titleKey];
-            statusText.textContent = words[descKey];
-            feedbackTrend.textContent = previousMatch === null
-                ? `${words.bestLabel}: ${bestMatch.toFixed(0)}%`
-                : `${delta >= 0 ? words.improvedBy : words.changedBy}: ${delta > 0 ? '+' : ''}${delta.toFixed(0)}%`;
-            residualValue.value = `${match.toFixed(0)}%`;
-        }
-
-        // Load and parse the target SVG (embedded path data)
-        function loadTargetShape() {
-            // Path data extracted directly from the source SVG
-            const pathData = "m 760.7495,2617.5699 c 0.38246,3.9549 5.10303,31.8314 10.64711,41.2593 5.54386,9.4279 18.93547,21.0188 25.06522,21.5951 6.12975,0.5762 31.22287,-7.0403 40.34127,-13.3083 9.1184,-6.2682 16.19732,-12.3718 15.11094,-18.5306 -1.08638,-6.1587 -18.28883,-24.1643 -14.36233,-38.7585 3.92628,-14.5942 20.67115,-39.3838 19.50855,-52.6751 -1.16261,-13.2913 -14.26695,-29.8428 -33.73125,-36.6606 -19.46408,-6.8176 -28.33331,-9.0766 -39.55608,-8.7065 -11.22256,0.3701 -36.90156,16.8381 -39.55349,23.3579 -2.65193,6.5198 -14.26589,33.9295 -12.47558,42.2921 1.79052,8.3624 20.07543,32.1702 24.54446,36.5093 4.46881,4.3391 4.46118,3.6259 4.46118,3.6259 z";
-            
-            // Create a temporary SVG element to parse the path
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('width', '400');
-            svg.setAttribute('height', '400');
-            svg.style.position = 'absolute';
-            svg.style.visibility = 'hidden';
-            document.body.appendChild(svg);
-            
-            const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            pathElement.setAttribute('d', pathData);
-            svg.appendChild(pathElement);
-            
-            // Sample points along the path
-            const pathLength = pathElement.getTotalLength();
-            const points = [];
-            
-            for (let i = 0; i < 200; i++) {
-                const point = pathElement.getPointAtLength((i / 200) * pathLength);
-                points.push([point.x, point.y]);
-            }
-            
-            // Remove temporary SVG
-            document.body.removeChild(svg);
-            
-            // Normalize to canvas coordinates
-            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-            for (let p of points) {
-                minX = Math.min(minX, p[0]);
-                maxX = Math.max(maxX, p[0]);
-                minY = Math.min(minY, p[1]);
-                maxY = Math.max(maxY, p[1]);
-            }
-            
-            const width = maxX - minX;
-            const height = maxY - minY;
-            const scale = 225 / Math.max(width, height);
-            const centerX = 200;
-            const centerY = 200;
-            
-            const normalized = points.map(p => [
-                centerX + (p[0] - (minX + maxX) / 2) * scale,
-                centerY + (p[1] - (minY + maxY) / 2) * scale
-            ]);
-            
-            targetShape = sampleUniformly(normalized, NUM_POINTS);
-            targetLoaded = true;
-            console.log('Target shape loaded successfully with', targetShape.length, 'points');
-            resetSculpt();
-        }
-
-        // Fallback if SVG can't be loaded
-        function generateFallbackTarget() {
-            const points = [];
-            const centerX = 200;
-            const centerY = 200;
-            for (let i = 0; i < 50; i++) {
-                const t = i / 50;
-                const angle = t * Math.PI * 2;
-                const r = 60 + 20 * Math.sin(5 * angle);
-                points.push([
-                    centerX + r * Math.cos(angle),
-                    centerY + r * 1.3 * Math.sin(angle)
-                ]);
-            }
-            return sampleUniformly(points, NUM_POINTS);
-        }
-
-        // Generate deformed version of target
-        function generateDeformedTarget(centerX, centerY, deformationType) {
-            // Start with the target shape points (before sampling)
-            const basePoints = [...targetShape];
-            const [cx, cy] = centroid(basePoints);
-            
-            let deformed = basePoints.map((p, idx) => {
-                const dx = p[0] - cx;
-                const dy = p[1] - cy;
-                const angle = Math.atan2(dy, dx);
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                let newX, newY;
-                
-                switch (deformationType) {
-                    case 0: // Wiggly + shear
-                        const shearX = 0.15 + Math.random() * 0.2;
-                        const wiggleFreq = 3 + Math.random() * 2;
-                        const wiggleAmp = 3 + Math.random() * 4;
-                        const wiggle = wiggleAmp * Math.sin(wiggleFreq * angle);
-                        newX = dx + shearX * dy + wiggle;
-                        newY = dy + wiggle * 0.5;
-                        break;
-                    case 1: // Wavy distortion + mild shear
-                        const waveFreq = 4 + Math.random() * 3;
-                        const waveAmp = 4 + Math.random() * 5;
-                        const radialWave = waveAmp * Math.sin(waveFreq * angle);
-                        const shearY = 0.1 + Math.random() * 0.15;
-                        newX = dx + radialWave * Math.cos(angle);
-                        newY = dy + radialWave * Math.sin(angle) + shearY * dx;
-                        break;
-                    case 2: // Sinusoidal wiggle + rotation
-                        const rotAngle = (Math.random() - 0.5) * Math.PI / 4;
-                        const sinWiggle = 3 + Math.random() * 4;
-                        const wiggleX = sinWiggle * Math.sin(5 * angle);
-                        const wiggleY = sinWiggle * Math.cos(5 * angle);
-                        const rotX = dx * Math.cos(rotAngle) - dy * Math.sin(rotAngle);
-                        const rotY = dx * Math.sin(rotAngle) + dy * Math.cos(rotAngle);
-                        newX = rotX + wiggleX;
-                        newY = rotY + wiggleY;
-                        break;
-                    default:
-                        newX = dx;
-                        newY = dy;
-                }
-                
-                return [newX + centerX, newY + centerY];
-            });
-            
-            // Resample uniformly after deformation to maintain consistent point distribution
-            return sampleUniformly(deformed, NUM_POINTS);
-        }
-
-        function generateRandomShape(centerX, centerY) {
-            const shapeType = Math.floor(Math.random() * 6);
-            let points = [];
-            
-            switch (shapeType) {
-                case 0:
-                    points = generateCircle(centerX, centerY, 40 + Math.random() * 30);
-                    break;
-                case 1:
-                    points = generateEllipse(centerX, centerY, 30 + Math.random() * 40, 30 + Math.random() * 40);
-                    break;
-                case 2:
-                    points = generateRectangle(centerX, centerY, 50 + Math.random() * 40, 50 + Math.random() * 40);
-                    break;
-                case 3:
-                    points = generatePolygon(centerX, centerY, 50 + Math.random() * 30, 3);
-                    break;
-                case 4:
-                    points = generateStar(centerX, centerY, 50 + Math.random() * 30);
-                    break;
-                case 5:
-                    points = generateBlob(centerX, centerY, 50 + Math.random() * 30);
-                    break;
-            }
-            
-            return sampleUniformly(points, NUM_POINTS);
-        }
-
-        function generateCircle(cx, cy, radius) {
-            const points = [];
-            for (let i = 0; i < 50; i++) {
-                const angle = (i / 50) * Math.PI * 2;
-                points.push([cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)]);
-            }
-            return points;
-        }
-
-        function generateEllipse(cx, cy, rx, ry) {
-            const points = [];
-            for (let i = 0; i < 50; i++) {
-                const angle = (i / 50) * Math.PI * 2;
-                points.push([cx + rx * Math.cos(angle), cy + ry * Math.sin(angle)]);
-            }
-            return points;
-        }
-
-        function generateRectangle(cx, cy, width, height) {
-            const points = [];
-            const hw = width / 2, hh = height / 2;
-            const perimeter = 2 * (width + height);
-            const numPoints = 50;
-            
-            for (let i = 0; i < numPoints; i++) {
-                const dist = (i / numPoints) * perimeter;
-                let x, y;
-                if (dist < width) {
-                    x = cx - hw + dist;
-                    y = cy - hh;
-                } else if (dist < width + height) {
-                    x = cx + hw;
-                    y = cy - hh + (dist - width);
-                } else if (dist < 2 * width + height) {
-                    x = cx + hw - (dist - width - height);
-                    y = cy + hh;
-                } else {
-                    x = cx - hw;
-                    y = cy + hh - (dist - 2 * width - height);
-                }
-                points.push([x, y]);
-            }
-            return points;
-        }
-
-        function generatePolygon(cx, cy, radius, sides) {
-            const points = [];
-            for (let i = 0; i < sides; i++) {
-                const angle = (i / sides) * Math.PI * 2;
-                points.push([cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)]);
-            }
-            return points;
-        }
-
-        function generateStar(cx, cy, radius) {
-            const points = [];
-            const spikes = 5;
-            for (let i = 0; i < spikes * 2; i++) {
-                const angle = (i / (spikes * 2)) * Math.PI * 2;
-                const r = i % 2 === 0 ? radius : radius * 0.4;
-                points.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
-            }
-            return points;
-        }
-
-        function generateBlob(cx, cy, radius) {
-            const points = [];
-            const numPoints = 50;
-            for (let i = 0; i < numPoints; i++) {
-                const angle = (i / numPoints) * Math.PI * 2;
-                const r = radius * (0.7 + Math.random() * 0.6);
-                points.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
-            }
-            return points;
-        }
-
-        function sampleUniformly(points, numSamples) {
-            if (points.length === 0) return [];
-            
-            const arcLengths = [0];
-            for (let i = 1; i < points.length; i++) {
-                const dx = points[i][0] - points[i-1][0];
-                const dy = points[i][1] - points[i-1][1];
-                arcLengths.push(arcLengths[i-1] + Math.sqrt(dx*dx + dy*dy));
-            }
-            
-            const totalLength = arcLengths[arcLengths.length - 1];
-            const sampledPoints = [];
-            
-            for (let i = 0; i < numSamples; i++) {
-                const targetLength = (i / numSamples) * totalLength;
-                
-                let segmentIndex = 0;
-                for (let j = 0; j < arcLengths.length - 1; j++) {
-                    if (arcLengths[j] <= targetLength && targetLength <= arcLengths[j + 1]) {
-                        segmentIndex = j;
-                        break;
-                    }
-                }
-                
-                const segmentStart = arcLengths[segmentIndex];
-                const segmentEnd = arcLengths[segmentIndex + 1];
-                const t = (targetLength - segmentStart) / (segmentEnd - segmentStart);
-                
-                const p1 = points[segmentIndex];
-                const p2 = points[Math.min(segmentIndex + 1, points.length - 1)];
-                
-                sampledPoints.push([
-                    p1[0] + t * (p2[0] - p1[0]),
-                    p1[1] + t * (p2[1] - p1[1])
-                ]);
-            }
-            
-            return sampledPoints;
-        }
-
-        function centroid(points) {
-            const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length;
-            const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length;
-            return [cx, cy];
-        }
-
-        function centerPoints(points) {
-            const [cx, cy] = centroid(points);
-            return points.map(p => [p[0] - cx, p[1] - cy]);
-        }
-
-        function scale(points) {
-            const sumSq = points.reduce((sum, p) => sum + p[0]*p[0] + p[1]*p[1], 0);
-            const scaleFactor = Math.sqrt(sumSq);
-            return points.map(p => [p[0] / scaleFactor, p[1] / scaleFactor]);
-        }
-
-        // Ray casting algorithm to test if a point is inside a polygon
-        function pointInPolygon(point, polygon) {
-            const [x, y] = point;
+        // ------------------------------------------------------------------
+        // target shapes: unions of polygons and capsules, in block units
+        // ------------------------------------------------------------------
+        function pointInPolygon(x, y, poly) {
             let inside = false;
-            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                const [xi, yi] = polygon[i];
-                const [xj, yj] = polygon[j];
-                const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-                if (intersect) inside = !inside;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                const [xi, yi] = poly[i], [xj, yj] = poly[j];
+                if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
             }
             return inside;
         }
 
-        // Grid-based area residual: computes symmetric difference between two shapes
-        function computeAreaResidual(shape1, shape2) {
-            if (shape1.length < 3 || shape2.length < 3) return 1000;
-            
-            // Create a grid over the canvas for fast computation
-            const gridSize = 20;  // 20x20 grid
-            const cellWidth = sculptCanvas.width / gridSize;
-            const cellHeight = sculptCanvas.height / gridSize;
-            
-            let mismatchArea = 0;
-            const totalCells = gridSize * gridSize;
-            
-            for (let i = 0; i < gridSize; i++) {
-                for (let j = 0; j < gridSize; j++) {
-                    // Center of grid cell
-                    const cx = (i + 0.5) * cellWidth;
-                    const cy = (j + 0.5) * cellHeight;
-                    const point = [cx, cy];
-                    
-                    const inTarget = pointInPolygon(point, shape1);
-                    const inSculpt = pointInPolygon(point, shape2);
-                    
-                    // XOR: cost if they differ
-                    if (inTarget !== inSculpt) {
-                        mismatchArea++;
-                    }
-                }
-            }
-            
-            // Normalize to [0, 1] range, then scale for visibility
-            return (mismatchArea / totalCells) * 10;
+        function segmentDistance(x, y, a, b) {
+            const dx = b[0] - a[0], dy = b[1] - a[1];
+            const t = clamp(((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy || 1), 0, 1);
+            return Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy);
         }
 
-        function drawShape(ctx, points, color, lineWidth = 2, fill = false) {
-            if (points.length === 0) return;
-            
-            ctx.beginPath();
-            ctx.moveTo(points[0][0], points[0][1]);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i][0], points[i][1]);
+        // signed distance to the shape: negative inside
+        function signedDistance(shape, x, y) {
+            let best = Infinity;
+            for (const poly of shape.polygons) {
+                let d = Infinity;
+                for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) d = Math.min(d, segmentDistance(x, y, poly[j], poly[i]));
+                best = Math.min(best, pointInPolygon(x, y, poly) ? -d : d);
             }
-            ctx.closePath();
-            
-            if (fill) {
-                ctx.fillStyle = color + '40';
-                ctx.fill();
-            }
-            
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.stroke();
+            for (const c of shape.capsules) best = Math.min(best, segmentDistance(x, y, c.a, c.b) - c.r);
+            return best;
         }
 
-        function canvasPalette() {
-            const dark = document.documentElement.dataset.theme === 'dark';
-            return dark ? {
-                background: '#1a1d20',
-                grid: '#2c3136',
-                text: '#b2bac2',
-                target: '#d28b86',
-                current: '#8eb29a',
-                clay: '#3bb3a2',
-                curve: '#b8c0c8',
-                contour: '#646c74'
-            } : {
-                background: '#fafbfb',
-                grid: '#e9ecee',
-                text: '#555e67',
-                target: '#a65f5b',
-                current: '#60866e',
-                clay: '#2a9d8f',
-                curve: '#3d4650',
-                contour: '#b7bec5'
+        // the shape scaled uniformly to `size` and centred on the block
+        function fitted(shape, size) {
+            let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+            const grow = (x, y, r = 0) => { x0 = Math.min(x0, x - r); x1 = Math.max(x1, x + r); y0 = Math.min(y0, y - r); y1 = Math.max(y1, y + r); };
+            shape.polygons.forEach((poly) => poly.forEach(([x, y]) => grow(x, y)));
+            shape.capsules.forEach((c) => { grow(...c.a, c.r); grow(...c.b, c.r); });
+            const s = size / Math.max(x1 - x0, y1 - y0), mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+            const map = ([x, y]) => [BLOCK.cx + (x - mx) * s, BLOCK.cy + (y - my) * s];
+            return {
+                polygons: shape.polygons.map((poly) => poly.map(map)),
+                capsules: shape.capsules.map((c) => ({ a: map(c.a), b: map(c.b), r: c.r * s }))
             };
         }
 
-        function drawTargetShape() {
-            const palette = canvasPalette();
-            targetCtx.fillStyle = palette.background;
-            targetCtx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-            
-            targetCtx.strokeStyle = palette.grid;
-            targetCtx.lineWidth = 1;
-            for (let i = 0; i < targetCanvas.width; i += 50) {
-                targetCtx.beginPath();
-                targetCtx.moveTo(i, 0);
-                targetCtx.lineTo(i, targetCanvas.height);
-                targetCtx.stroke();
-            }
-            for (let i = 0; i < targetCanvas.height; i += 50) {
-                targetCtx.beginPath();
-                targetCtx.moveTo(0, i);
-                targetCtx.lineTo(targetCanvas.width, i);
-                targetCtx.stroke();
-            }
-            
-            drawShape(targetCtx, targetShape, palette.target, 3, true);
-            
-            // Overlay current sculpt shape (no alignment, just draw it)
-            if (currentSculptShape.length > 0) {
-                drawShape(targetCtx, currentSculptShape, palette.current, 3, false);
-            }
-            
-            // Draw legend in top-left corner
-            const legendX = 10;
-            const legendY = 10;
-            const lineLength = 30;
-            const lineSpacing = 20;
-            
-            targetCtx.font = '14px Arial';
-            targetCtx.textAlign = 'left';
-            targetCtx.textBaseline = 'middle';
-            
-            // Red solid line (target shape)
-            targetCtx.strokeStyle = palette.target;
-            targetCtx.lineWidth = 3;
-            targetCtx.beginPath();
-            targetCtx.moveTo(legendX, legendY);
-            targetCtx.lineTo(legendX + lineLength, legendY);
-            targetCtx.stroke();
-            targetCtx.fillStyle = palette.text;
-            targetCtx.fillText(translations[currentLanguage].legendTargetShape, legendX + lineLength + 8, legendY);
-            
-            // Green solid line (current shape)
-            targetCtx.strokeStyle = palette.current;
-            targetCtx.lineWidth = 3;
-            targetCtx.beginPath();
-            targetCtx.moveTo(legendX, legendY + lineSpacing);
-            targetCtx.lineTo(legendX + lineLength, legendY + lineSpacing);
-            targetCtx.stroke();
-            targetCtx.fillStyle = palette.text;
-            targetCtx.fillText(translations[currentLanguage].legendCurrentShape, legendX + lineLength + 8, legendY + lineSpacing);
-            
-            targetCtx.fillStyle = palette.text;
-            targetCtx.font = 'bold 14px Arial';
-        }
+        const capsuleChain = (points, radius) => points.slice(1).map((b, i) => ({ a: points[i], b, r: typeof radius === 'function' ? radius(i / (points.length - 1)) : radius }));
 
-        function drawErrorPlot() {
-            const palette = canvasPalette();
-            const words = translations[currentLanguage];
-            const width = errorCanvas.width;
-            const height = errorCanvas.height;
-            const pad = { left: 56, right: 12, top: 10, bottom: 36 };
-            const plotW = width - pad.left - pad.right;
-            const plotH = height - pad.top - pad.bottom;
-            const xEnd = Math.max(9, residualSampleCount - 1);
-            const xStart = 0;
-            const firstStoredEdit = residualSampleCount - residualHistory.length;
-            const xOf = (edit) => pad.left + (edit - xStart) / (xEnd - xStart) * plotW;
-            const yOf = (match) => pad.top + plotH - match / 100 * plotH;
-
-            errorCtx.fillStyle = palette.background;
-            errorCtx.fillRect(0, 0, width, height);
-            errorCtx.strokeStyle = palette.grid;
-            errorCtx.lineWidth = 1;
-            for (let i = 0; i <= 4; i++) {
-                const y = pad.top + i * plotH / 4;
-                errorCtx.beginPath();
-                errorCtx.moveTo(pad.left, y);
-                errorCtx.lineTo(pad.left + plotW, y);
-                errorCtx.stroke();
-            }
-
-            errorCtx.fillStyle = palette.text;
-            errorCtx.font = '10px ui-monospace, monospace';
-            errorCtx.textAlign = 'right';
-            errorCtx.textBaseline = 'middle';
-            for (let i = 0; i <= 4; i++) {
-                const value = 100 - i * 25;
-                errorCtx.fillText(String(value), pad.left - 6, pad.top + i * plotH / 4);
-            }
-            errorCtx.textBaseline = 'top';
-            for (let i = 0; i <= 2; i++) {
-                const ratio = i / 2;
-                errorCtx.textAlign = i === 0 ? 'left' : i === 2 ? 'right' : 'center';
-                errorCtx.fillText(String(Math.round(xStart + ratio * (xEnd - xStart))), pad.left + ratio * plotW, pad.top + plotH + 4);
-            }
-
-            errorCtx.font = '600 10px system-ui, sans-serif';
-            errorCtx.textAlign = 'center';
-            errorCtx.fillText(words.editsAxisLabel, pad.left + plotW / 2, height - 13);
-            errorCtx.save();
-            errorCtx.translate(11, pad.top + plotH / 2);
-            errorCtx.rotate(-Math.PI / 2);
-            errorCtx.fillText(words.matchAxisLabel, 0, 0);
-            errorCtx.restore();
-
-            // best score reached on this target: the bar the next edit has to beat
-            if (residualHistory.length && bestMatch > 0) {
-                const yBest = yOf(bestMatch);
-                errorCtx.save();
-                errorCtx.strokeStyle = palette.target;
-                errorCtx.setLineDash([5, 4]);
-                errorCtx.lineWidth = 1.4;
-                errorCtx.beginPath();
-                errorCtx.moveTo(pad.left, yBest);
-                errorCtx.lineTo(pad.left + plotW, yBest);
-                errorCtx.stroke();
-                errorCtx.setLineDash([]);
-                errorCtx.fillStyle = palette.target;
-                errorCtx.font = '600 10px system-ui, sans-serif';
-                errorCtx.textAlign = 'left';
-                errorCtx.textBaseline = yBest < pad.top + 14 ? 'top' : 'bottom';
-                errorCtx.fillText(`${words.bestLabel} ${bestMatch.toFixed(0)}%`,
-                    pad.left + 4, yBest < pad.top + 14 ? yBest + 3 : yBest - 3);
-                errorCtx.restore();
-            }
-
-            if (!residualHistory.length) return;
-            errorCtx.save();
-            errorCtx.beginPath();
-            errorCtx.rect(pad.left, pad.top, plotW, plotH);
-            errorCtx.clip();
-            errorCtx.strokeStyle = palette.curve;
-            errorCtx.lineWidth = 2.5;
-            errorCtx.lineJoin = 'round';
-            errorCtx.lineCap = 'round';
-            errorCtx.beginPath();
-            let started = false;
-            residualHistory.forEach((value, index) => {
-                const edit = firstStoredEdit + index;
-                if (edit < xStart) return;
-                const x = xOf(edit);
-                const y = yOf(matchPercentage(value));
-                if (!started) {
-                    errorCtx.moveTo(x, y);
-                    started = true;
-                } else {
-                    errorCtx.lineTo(x, y);
-                }
+        // the "dignity" contour of the heat-coverage experiments, sampled from its SVG path
+        function dignityShape() {
+            const d = 'm 760.7495,2617.5699 c 0.38246,3.9549 5.10303,31.8314 10.64711,41.2593 5.54386,9.4279 18.93547,21.0188 25.06522,21.5951 6.12975,0.5762 31.22287,-7.0403 40.34127,-13.3083 9.1184,-6.2682 16.19732,-12.3718 15.11094,-18.5306 -1.08638,-6.1587 -18.28883,-24.1643 -14.36233,-38.7585 3.92628,-14.5942 20.67115,-39.3838 19.50855,-52.6751 -1.16261,-13.2913 -14.26695,-29.8428 -33.73125,-36.6606 -19.46408,-6.8176 -28.33331,-9.0766 -39.55608,-8.7065 -11.22256,0.3701 -36.90156,16.8381 -39.55349,23.3579 -2.65193,6.5198 -14.26589,33.9295 -12.47558,42.2921 1.79052,8.3624 20.07543,32.1702 24.54446,36.5093 4.46881,4.3391 4.46118,3.6259 4.46118,3.6259 z';
+            // some browsers measure a path only while it is in the document
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.style.cssText = 'position: absolute; width: 0; height: 0; visibility: hidden';
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', d);
+            svg.appendChild(path);
+            document.body.appendChild(svg);
+            const length = path.getTotalLength();
+            const points = Array.from({ length: 160 }, (_, i) => {
+                const p = path.getPointAtLength(i / 160 * length);
+                return [p.x, p.y];
             });
-            errorCtx.stroke();
-            errorCtx.restore();
-
-            const currentMatch = matchPercentage(residualHistory[residualHistory.length - 1]);
-            const xNow = xOf(residualSampleCount - 1);
-            const yNow = yOf(currentMatch);
-            errorCtx.save();
-            errorCtx.fillStyle = palette.curve;
-            errorCtx.beginPath();
-            errorCtx.arc(xNow, yNow, 3.2, 0, Math.PI * 2);
-            errorCtx.fill();
-            errorCtx.font = '700 11px system-ui, sans-serif';
-            errorCtx.textBaseline = 'middle';
-            const room = pad.left + plotW - xNow;
-            errorCtx.textAlign = room > 38 ? 'left' : 'right';
-            errorCtx.fillText(`${currentMatch.toFixed(0)}%`,
-                xNow + (room > 38 ? 7 : -7), yNow);
-            errorCtx.restore();
+            svg.remove();
+            return fitted({ polygons: [points], capsules: [] }, 232);
         }
 
-        // Helper: Check if a grid cell is valid and alive
-        function isAlive(r, c) {
-            if (r < 0 || r >= GRID_ROWS || c < 0 || c >= GRID_COLS) return false;
-            return particleGrid[r][c] && particleGrid[r][c].alive;
+        // a standing hatchling, facing right
+        const HATCHLING = [[0, 52], [12, 46], [24, 41], [38, 34], [52, 28], [60, 22], [64, 12], [72, 6], [86, 6], [96, 11], [99, 18], [96, 24],
+            [86, 26], [78, 27], [74, 34], [76, 40], [82, 42], [82, 47], [74, 47], [70, 54], [68, 64], [68, 86], [74, 94], [74, 98], [58, 98],
+            [58, 90], [56, 72], [48, 72], [46, 88], [50, 96], [50, 100], [34, 100], [34, 92], [32, 70], [24, 64], [14, 60]];
+
+        // an industrial arm: pedestal, shoulder, upper arm, forearm, wrist and gripper
+        const ROBOT_ARM = {
+            polygons: [[[40, 300], [110, 300], [110, 332], [40, 332]]],
+            capsules: [
+                { a: [75, 300], b: [75, 232], r: 21 }, { a: [75, 232], b: [165, 128], r: 18 }, { a: [165, 128], b: [240, 196], r: 15 },
+                { a: [240, 196], b: [240, 238], r: 12 }, { a: [229, 238], b: [221, 270], r: 7 }, { a: [251, 238], b: [259, 270], r: 7 }
+            ]
+        };
+
+        // a rod held in an S, as in the threading game
+        const THREADED_ROD = {
+            polygons: [],
+            capsules: capsuleChain(Array.from({ length: 25 }, (_, i) => [30 + 10 * i, 170 + 72 * Math.sin(i / 24 * TAU)]), 21)
+        };
+
+        // a continuous Archimedean spiral, thick enough to carve from the particle grid
+        const SPIRAL = {
+            polygons: [],
+            capsules: capsuleChain(Array.from({ length: 65 }, (_, i) => {
+                const u = i / 64, angle = 0.25 * TAU + 2.55 * TAU * u, radius = 10 + 105 * u;
+                return [150 + radius * Math.cos(angle), 150 + radius * Math.sin(angle)];
+            }), 12)
+        };
+
+        const ORDERS = [
+            { key: 'dignity', glaze: '#b98b4e', shape: () => dignityShape() },
+            { key: 'hatchling', glaze: '#5aa77f', shape: () => fitted({ polygons: [HATCHLING], capsules: [] }, 258) },
+            { key: 'arm', glaze: '#7f93ad', shape: () => fitted(ROBOT_ARM, 272) },
+            { key: 'rod', glaze: '#c86f4f', shape: () => fitted(THREADED_ROD, 270) },
+            { key: 'spiral', glaze: '#c9b48a', shape: () => fitted(SPIRAL, 272) }
+        ];
+
+        // ------------------------------------------------------------------
+        // game state
+        // ------------------------------------------------------------------
+        let state = 'ready';                     // ready, playing, delivering, paused, done
+        let orderIndex = 0;
+        let target = null;                       // { shape, inside, counted, total }
+        const alive = new Uint8Array(N);
+        let match = 0;
+        let elapsed = 0;
+        let delivery = null;                     // animation of a finished piece toward its case
+        let debris = [];
+        let pieces = [];                         // finished pieces: { canvas, glaze, time, match }
+        let newBest = false;
+        let tool = 'remove';
+        let brush = 18;
+        let cursor = { x: BLOCK.cx, y: BLOCK.cy, visible: false };
+        let dragging = false;
+        let lastApplied = null;
+        const keysDown = new Set();
+
+        const bestKey = 'sculptingWorkshopBest';
+        const readBest = () => Number(storage.get(bestKey)) || 0;
+
+        function loadOrder(index) {
+            orderIndex = index;
+            const shape = ORDERS[index].shape();
+            const inside = new Uint8Array(N), counted = new Uint8Array(N);
+            let total = 0;
+            for (let k = 0; k < N; k++) {
+                const d = signedDistance(shape, PX[k], PY[k]);
+                inside[k] = d < 0 ? 1 : 0;
+                counted[k] = Math.abs(d) >= BAND ? 1 : 0;
+                if (inside[k] && counted[k]) total += 1;
+            }
+            target = { shape, inside, counted, total };
+            alive.fill(1);
+            debris = [];
+            measure();
         }
 
-        // Robust concave hull using grid-based boundary extraction
-        function traceGridBoundary() {
-            // 1. Find all cells on the boundary (alive cells with at least one dead neighbor)
-            const boundaryPixels = [];
-            
-            for (let r = 0; r < GRID_ROWS; r++) {
-                for (let c = 0; c < GRID_COLS; c++) {
-                    if (!isAlive(r, c)) continue;
-                    
-                    // Check if this cell touches a dead cell (is on boundary)
-                    let isBoundary = false;
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            if (!isAlive(r + dr, c + dc)) {
-                                isBoundary = true;
-                                break;
-                            }
-                        }
-                        if (isBoundary) break;
-                    }
-                    
-                    if (isBoundary) {
-                        boundaryPixels.push({
-                            r, c,
-                            x: particleGrid[r][c].x,
-                            y: particleGrid[r][c].y
-                        });
-                    }
+        // Dice overlap of the counted particles
+        function measure() {
+            let both = 0, block = 0;
+            for (let k = 0; k < N; k++) {
+                if (!target.counted[k]) continue;
+                if (alive[k]) {
+                    block += 1;
+                    if (target.inside[k]) both += 1;
                 }
             }
-
-            if (boundaryPixels.length < 3) return [];
-
-            // 2. Sort boundary pixels by angle from centroid
-            const cx = boundaryPixels.reduce((s, p) => s + p.x, 0) / boundaryPixels.length;
-            const cy = boundaryPixels.reduce((s, p) => s + p.y, 0) / boundaryPixels.length;
-            
-            boundaryPixels.sort((a, b) => {
-                const angleA = Math.atan2(a.y - cy, a.x - cx);
-                const angleB = Math.atan2(b.y - cy, b.x - cx);
-                return angleA - angleB;
-            });
-
-            // 3. Apply smoothing to reduce sharp peaks
-            // Use a wider kernel so we can run fewer iterations
-            const SMOOTH_ITERS = 2;
-            let smoothed = boundaryPixels.map(p => ({ x: p.x, y: p.y }));
-            for (let iter = 0; iter < SMOOTH_ITERS; iter++) {
-                const nextPass = [];
-                for (let i = 0; i < smoothed.length; i++) {
-                    const prev2 = smoothed[(i - 2 + smoothed.length) % smoothed.length];
-                    const prev1 = smoothed[(i - 1 + smoothed.length) % smoothed.length];
-                    const curr = smoothed[i];
-                    const next1 = smoothed[(i + 1) % smoothed.length];
-                    const next2 = smoothed[(i + 2) % smoothed.length];
-
-                    const w0 = 1;
-                    const w1 = 2;
-                    const w2 = 3;
-                    const wSum = w0 + w1 + w2 + w1 + w0;
-
-                    nextPass.push({
-                        x: (w0 * prev2.x + w1 * prev1.x + w2 * curr.x + w1 * next1.x + w0 * next2.x) / wSum,
-                        y: (w0 * prev2.y + w1 * prev1.y + w2 * curr.y + w1 * next1.y + w0 * next2.y) / wSum
-                    });
-                }
-                smoothed = nextPass;
-            }
-
-            // 4. Convert to coordinate array
-            return smoothed.map(p => [p.x, p.y]);
+            match = 2 * both / Math.max(block + target.total, 1);
         }
 
-        function renderSculpt() {
-            const palette = canvasPalette();
-            sculptCtx.fillStyle = palette.background;
-            sculptCtx.fillRect(0, 0, sculptCanvas.width, sculptCanvas.height);
-
-            sculptCtx.strokeStyle = palette.grid;
-            sculptCtx.lineWidth = 1;
-            for (let i = 0; i < sculptCanvas.width; i += 50) {
-                sculptCtx.beginPath();
-                sculptCtx.moveTo(i, 0);
-                sculptCtx.lineTo(i, sculptCanvas.height);
-                sculptCtx.stroke();
-            }
-            for (let i = 0; i < sculptCanvas.height; i += 50) {
-                sculptCtx.beginPath();
-                sculptCtx.moveTo(0, i);
-                sculptCtx.lineTo(sculptCanvas.width, i);
-                sculptCtx.stroke();
-            }
-
-            // Draw particles
-            for (let row = 0; row < particleGrid.length; row++) {
-                for (let col = 0; col < particleGrid[row].length; col++) {
-                    const p = particleGrid[row][col];
-                    if (p.alive) {
-                        sculptCtx.fillStyle = palette.clay;
-                        sculptCtx.beginPath();
-                        sculptCtx.arc(p.x, p.y, PARTICLE_RADIUS, 0, Math.PI * 2);
-                        sculptCtx.fill();
+        // clay that loses contact with the largest piece falls off
+        function dropLoosePieces() {
+            const label = new Int32Array(N).fill(-1);
+            let best = -1, bestSize = 0;
+            const sizes = [];
+            for (let start = 0; start < N; start++) {
+                if (!alive[start] || label[start] >= 0) continue;
+                const id = sizes.length, stack = [start];
+                label[start] = id;
+                let size = 0;
+                while (stack.length) {
+                    const k = stack.pop();
+                    size += 1;
+                    const c = k % COLS, r = (k / COLS) | 0;
+                    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+                        const rr = r + dr, cc = c + dc;
+                        if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) continue;
+                        const j = rr * COLS + cc;
+                        if (alive[j] && label[j] < 0) { label[j] = id; stack.push(j); }
                     }
                 }
+                sizes.push(size);
+                if (size > bestSize) { bestSize = size; best = id; }
             }
-            
-            // Draw falling particles
-            for (let i = 0; i < fallingParticles.length; i++) {
-                const p = fallingParticles[i];
-                const alpha = Math.max(0, p.life / 60);
-                // Extract RGB values from the clay hex colour
-                const r = parseInt(palette.clay.slice(1, 3), 16);
-                const g = parseInt(palette.clay.slice(3, 5), 16);
-                const b = parseInt(palette.clay.slice(5, 7), 16);
-                sculptCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-                sculptCtx.beginPath();
-                sculptCtx.arc(p.x, p.y, PARTICLE_RADIUS * 0.8, 0, Math.PI * 2);
-                sculptCtx.fill();
-            }
-
-            // Draw contour
-            if (currentSculptShape.length > 0) {
-                drawShape(sculptCtx, currentSculptShape, palette.contour, 2, false);
-            }
-
-            if (keyboardActive) {
-                sculptCtx.save();
-                sculptCtx.strokeStyle = palette.text;
-                sculptCtx.lineWidth = 2;
-                sculptCtx.setLineDash([4, 3]);
-                sculptCtx.beginPath();
-                sculptCtx.arc(keyboardCursor.x, keyboardCursor.y, brushRadius, 0, Math.PI * 2);
-                sculptCtx.stroke();
-                sculptCtx.restore();
-            }
-        }
-        
-        // Animation loop for falling particles
-        function animateFallingParticles() {
-            if (fallingParticles.length > 0) {
-                // Update falling particles
-                for (let i = fallingParticles.length - 1; i >= 0; i--) {
-                    const p = fallingParticles[i];
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.3; // gravity
-                    p.life--;
-                    
-                    if (p.life <= 0 || p.y > sculptCanvas.height) {
-                        fallingParticles.splice(i, 1);
-                    }
-                }
-                
-                // Re-render if there are still falling particles
-                renderSculpt();
-                drawTargetShape();
-                drawErrorPlot();
-                requestAnimationFrame(animateFallingParticles);
-            } else {
-                isAnimating = false;
-            }
-        }
-
-        function getSculptShape() {
-            // Trace the grid structure to get the boundary contour
-            const contour = traceGridBoundary();
-            
-            // If contour is too small (e.g. completely erased), return empty
-            if (contour.length < 3) return [];
-
-            // The rest of the pipeline expects a specific number of sampled points
-            // sampleUniformly handles the smoothing and point distribution
-            return sampleUniformly(contour, NUM_POINTS);
-        }
-
-        function removeDisconnectedParticles() {
-            // Find all connected components using flood fill
-            const visited = [];
-            for (let r = 0; r < GRID_ROWS; r++) {
-                visited[r] = [];
-                for (let c = 0; c < GRID_COLS; c++) {
-                    visited[r][c] = false;
-                }
-            }
-
-            // Find all connected components
-            const components = [];
-            function floodFill(startR, startC, component) {
-                const stack = [[startR, startC]];
-                while (stack.length > 0) {
-                    const [r, c] = stack.pop();
-                    if (r < 0 || r >= GRID_ROWS || c < 0 || c >= GRID_COLS) continue;
-                    if (visited[r][c] || !isAlive(r, c)) continue;
-                    
-                    visited[r][c] = true;
-                    component.push([r, c]);
-                    
-                    // Check 8 neighbors
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            stack.push([r + dr, c + dc]);
-                        }
-                    }
-                }
-            }
-
-            // Find all components
-            for (let r = 0; r < GRID_ROWS; r++) {
-                for (let c = 0; c < GRID_COLS; c++) {
-                    if (!visited[r][c] && isAlive(r, c)) {
-                        const component = [];
-                        floodFill(r, c, component);
-                        components.push(component);
-                    }
-                }
-            }
-
-            // Find the largest component
-            if (components.length === 0) return;
-            let largestComponent = components[0];
-            for (let comp of components) {
-                if (comp.length > largestComponent.length) {
-                    largestComponent = comp;
-                }
-            }
-
-            // Mark all particles not in largest component as dead
-            const largestSet = new Set(largestComponent.map(p => `${p[0]},${p[1]}`));
-            for (let r = 0; r < GRID_ROWS; r++) {
-                for (let c = 0; c < GRID_COLS; c++) {
-                    if (isAlive(r, c) && !largestSet.has(`${r},${c}`)) {
-                        particleGrid[r][c].alive = false;
-                    }
+            for (let k = 0; k < N; k++) {
+                if (alive[k] && label[k] !== best) {
+                    alive[k] = 0;
+                    spawnDebris(k);
                 }
             }
         }
 
-        function updateResidualAndRender() {
-            if (!targetLoaded) return;
-
-            removeDisconnectedParticles();
-
-            currentSculptShape = getSculptShape();
-            if (currentSculptShape.length > 0) {
-                const previousResidual = residualHistory.length
-                    ? residualHistory[residualHistory.length - 1]
-                    : null;
-                lastResidual = computeAreaResidual(targetShape, currentSculptShape);
-                residualHistory.push(lastResidual);
-                residualSampleCount += 1;
-                if (residualHistory.length > 600) residualHistory.shift();
-                updateFeedback(lastResidual, previousResidual);
-            }
-
-            renderSculpt();
-            drawTargetShape();
-            drawErrorPlot();
+        function spawnDebris(k) {
+            debris.push({ x: PX[k], y: PY[k], vx: (Math.random() - 0.5) * 60, vy: -20 - Math.random() * 40, t: 0 });
         }
 
-        function scheduleUpdate() {
-            if (pendingUpdate) return;
-            pendingUpdate = true;
-            requestAnimationFrame(() => {
-                pendingUpdate = false;
-                updateResidualAndRender();
-            });
-        }
-
-        function resetSculpt() {
-            if (!targetLoaded) return;
-
-            // Initialize particle grid
-            particleGrid = [];
-            fallingParticles = []; // Clear falling particles
-            isAnimating = false; // Reset animation flag
-            const startX = 50;
-            const startY = 40;
-            const endX = sculptCanvas.width - 50;
-            const endY = sculptCanvas.height - 40;
-            const stepX = (endX - startX) / (GRID_COLS - 1);
-            const stepY = (endY - startY) / (GRID_ROWS - 1);
-
-            for (let row = 0; row < GRID_ROWS; row++) {
-                particleGrid[row] = [];
-                for (let col = 0; col < GRID_COLS; col++) {
-                    particleGrid[row][col] = {
-                        x: startX + col * stepX,
-                        y: startY + row * stepY,
-                        alive: true
-                    };
-                }
-            }
-
-            residualHistory = [];
-            residualSampleCount = 0;
-            currentSculptShape = [];
-            residualValue.value = '—';
-            bestMatch = 0;
-            keyboardCursor = { x: 86, y: 86 };
-
-            updateResidualAndRender();
-        }
-
-        function eraseAt(x, y) {
+        // the tool acts on every particle within `brush` of (x, y)
+        function applyTool(x, y) {
             let changed = false;
-            let particlesRemoved = false;
-            for (let row = 0; row < particleGrid.length; row++) {
-                for (let col = 0; col < particleGrid[row].length; col++) {
-                    const p = particleGrid[row][col];
-                    const dx = p.x - x;
-                    const dy = p.y - y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (dist < brushRadius) {
-                        if (currentTool === 'chisel') {
-                            // Remove material (chisel)
-                            if (p.alive) {
-                                p.alive = false;
-                                changed = true;
-                                particlesRemoved = true;
-                                // Spawn falling particle animation
-                                fallingParticles.push({
-                                    x: p.x,
-                                    y: p.y,
-                                    vx: (Math.random() - 0.5) * 3,
-                                    vy: Math.random() * 2 + 1,
-                                    life: 60
-                                });
-                            }
-                        } else {
-                            // Add material (clay)
-                            if (!p.alive) {
-                                p.alive = true;
-                                changed = true;
-                            }
-                        }
-                    }
+            const r2 = brush * brush;
+            const c0 = Math.max(0, Math.floor((x - brush) / SPACING)), c1 = Math.min(COLS - 1, Math.ceil((x + brush) / SPACING));
+            const r0 = Math.max(0, Math.floor((y - brush) / SPACING)), r1 = Math.min(ROWS - 1, Math.ceil((y + brush) / SPACING));
+            for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+                const k = r * COLS + c, dx = PX[k] - x, dy = PY[k] - y;
+                if (dx * dx + dy * dy > r2) continue;
+                if (tool === 'remove' && alive[k]) { alive[k] = 0; spawnDebris(k); changed = true; }
+                if (tool === 'restore' && !alive[k]) { alive[k] = 1; changed = true; }
+            }
+            if (!changed) return;
+            if (tool === 'remove') dropLoosePieces();
+            measure();
+            if (match >= MATCH_GOAL) deliver();
+        }
+
+        // drags are applied at points spaced by half the tool size
+        function applyAlong(x, y) {
+            if (lastApplied) {
+                const dx = x - lastApplied.x, dy = y - lastApplied.y, steps = Math.ceil(Math.hypot(dx, dy) / (brush / 2));
+                for (let i = 1; i <= steps && state === 'playing'; i++) applyTool(lastApplied.x + dx * i / steps, lastApplied.y + dy * i / steps);
+            } else {
+                applyTool(x, y);
+            }
+            lastApplied = { x, y };
+        }
+
+        // ------------------------------------------------------------------
+        // orders and the collection
+        // ------------------------------------------------------------------
+        function resetGame() {
+            pieces = [];
+            elapsed = 0;
+            delivery = null;
+            newBest = false;
+            loadOrder(0);
+            updateHud();
+        }
+
+        function startGame() {
+            resetGame();
+            state = 'playing';
+            showOverlay(null);
+            canvas.focus({ preventScroll: true });
+        }
+
+        function pauseGame() {
+            if (state !== 'playing') return;
+            state = 'paused';
+            dragging = false;
+            showOverlay('paused');
+        }
+
+        function resumeGame() {
+            if (state !== 'paused') return;
+            state = 'playing';
+            showOverlay(null);
+            canvas.focus({ preventScroll: true });
+        }
+
+        // the finished piece is glazed and carried to its display case
+        function deliver() {
+            if (state !== 'playing') return;
+            state = 'delivering';
+            dragging = false;
+            const order = ORDERS[orderIndex];
+            const sprite = pieceSprite(order.glaze);
+            const time = elapsed - pieces.reduce((s, p) => s + p.time, 0);
+            delivery = { t: 0, sprite, index: orderIndex };
+            pieces.push({ sprite, glaze: order.glaze, time, match });
+            const t = dict();
+            announce(t.announceDone.replace('{name}', t[`order_${order.key}`]).replace('{time}', formatTime(time)));
+        }
+
+        function finishDelivery() {
+            delivery = null;
+            if (pieces.length === ORDERS.length) {
+                state = 'done';
+                const best = readBest();
+                newBest = !best || elapsed < best;
+                if (newBest) storage.set(bestKey, elapsed.toFixed(1));
+                updateHud();
+                showOverlay('done');
+                return;
+            }
+            loadOrder(orderIndex + 1);
+            state = 'playing';
+        }
+
+        // ------------------------------------------------------------------
+        // layout of the workshop, in virtual units of an 860 x 720 canvas
+        // ------------------------------------------------------------------
+        const VIRTUAL = { w: 860, h: 720 };
+        const CARD = { x: 20, y: 20, w: 262, h: 410 };
+        const SCALE = 1.2;                       // block units -> virtual units
+        const BLOCK_AT = { x: 316, y: 24 };
+        const GAUGE = { x: 720, y: 60, h: 330 };
+        const SHELF = { y: 552, h: 152, x: 20, w: 820 };
+        let view = { k: 1, ox: 0, oy: 0, w: 0, h: 0 };
+
+        const toBlock = (vx, vy) => [(vx - BLOCK_AT.x) / SCALE, (vy - BLOCK_AT.y) / SCALE];
+        const caseRect = (i) => {
+            const gap = 12, w = (SHELF.w - 4 * gap) / 5;
+            return { x: SHELF.x + i * (w + gap), y: SHELF.y, w, h: SHELF.h };
+        };
+
+        function hexToRgb(hex) {
+            const h = hex.replace('#', '');
+            return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+        }
+        const alpha = (hex, a) => { const [r, g, b] = hexToRgb(hex); return `rgba(${r}, ${g}, ${b}, ${a})`; };
+        function shadeHex(hex, f) {
+            const [r, g, b] = hexToRgb(hex).map((v) => clamp(Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f), 0, 255));
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+        const font = (weight, size) => `${weight} ${size}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+
+        function palette() {
+            const dark = document.documentElement.dataset.theme === 'dark';
+            return dark ? {
+                surface: '#1a1d20', ink: '#e6e9ec', text: '#949da6', line: '#3a4046', card: '#23272b', cardEdge: '#3a4046',
+                silhouette: '#3b4249', clay: '#6f9fc4', stand: '#4a4038', standTop: '#5c5046',
+                excess: '#e66767', missing: '#7fb0f0', done: '#3cc28f', glass: 'rgba(160, 200, 235, 0.08)', glassEdge: 'rgba(170, 205, 235, 0.35)',
+                plinth: '#2c3136', plinthTop: '#3a4046', shelf: '#24282c'
+            } : {
+                surface: '#fafbfb', ink: '#23282d', text: '#697179', line: '#d5dade', card: '#ffffff', cardEdge: '#dfe3e7',
+                silhouette: '#e3e7eb', clay: '#4f82aa', stand: '#b9a48d', standTop: '#cdb9a2',
+                excess: '#d64545', missing: '#3b7dd8', done: '#1b9e6f', glass: 'rgba(150, 190, 225, 0.12)', glassEdge: 'rgba(120, 160, 200, 0.45)',
+                plinth: '#d5dade', plinthTop: '#e6e9ec', shelf: '#eef0f2'
+            };
+        }
+
+        // a shaded clay bead, drawn once per colour
+        const beads = new Map();
+        function bead(hex, radius) {
+            const key = `${hex}:${radius.toFixed(2)}`;
+            if (beads.has(key)) return beads.get(key);
+            const size = Math.ceil(radius * 2 + 2), c = document.createElement('canvas');
+            c.width = c.height = size;
+            const g = c.getContext('2d'), m = size / 2;
+            const grad = g.createRadialGradient(m - radius * 0.35, m - radius * 0.35, radius * 0.1, m, m, radius);
+            grad.addColorStop(0, shadeHex(hex, 0.28));
+            grad.addColorStop(0.7, hex);
+            grad.addColorStop(1, shadeHex(hex, -0.22));
+            g.fillStyle = grad;
+            g.beginPath(); g.arc(m, m, radius, 0, TAU); g.fill();
+            beads.set(key, c);
+            return c;
+        }
+
+        // the finished piece as an image, in its glaze colour
+        function pieceSprite(glaze) {
+            const k = 0.5, c = document.createElement('canvas');
+            c.width = Math.ceil(BLOCK.w * k);
+            c.height = Math.ceil(BLOCK.h * k);
+            const g = c.getContext('2d'), b = bead(glaze, SPACING * 0.62 * k);
+            for (let j = 0; j < N; j++) if (alive[j]) g.drawImage(b, PX[j] * k - b.width / 2, PY[j] * k - b.height / 2);
+            return c;
+        }
+
+        // ------------------------------------------------------------------
+        // drawing
+        // ------------------------------------------------------------------
+        function roundRect(x, y, w, h, r) {
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+        }
+
+        function drawShape(shape, map, colour) {
+            ctx.fillStyle = colour;
+            ctx.strokeStyle = colour;
+            ctx.lineCap = 'round';
+            for (const poly of shape.polygons) {
+                ctx.beginPath();
+                poly.forEach((p, i) => { const [x, y] = map(p); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+                ctx.closePath();
+                ctx.fill();
+            }
+            for (const c of shape.capsules) {
+                const [ax, ay, s] = map(c.a), [bx, by] = map(c.b);
+                ctx.lineWidth = 2 * c.r * s;
+                ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+            }
+        }
+
+        // the order: name, client, and the comparison of the block with the target
+        function drawCard(p) {
+            const t = dict(), order = ORDERS[orderIndex];
+            ctx.save();
+            ctx.shadowColor = 'rgba(20, 26, 32, 0.08)';
+            ctx.shadowBlur = 14;
+            roundRect(CARD.x, CARD.y, CARD.w, CARD.h, 12);
+            ctx.fillStyle = p.card;
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = p.cardEdge;
+            ctx.stroke();
+            ctx.fillStyle = p.text;
+            ctx.font = font(750, 11);
+            ctx.textBaseline = 'top';
+            ctx.fillText(t.orderLabel.replace('{n}', String(orderIndex + 1)).toUpperCase(), CARD.x + 18, CARD.y + 18);
+            ctx.fillStyle = p.ink;
+            ctx.font = font(720, 19);
+            ctx.fillText(t[`order_${order.key}`], CARD.x + 18, CARD.y + 36);
+            ctx.fillStyle = p.text;
+            ctx.font = font(500, 11);
+            wrapText(t[`client_${order.key}`], CARD.x + 18, CARD.y + 62, CARD.w - 36, 14);
+            // comparison: the target, the excess and the missing material
+            const box = { x: CARD.x + 22, y: CARD.y + 100, w: CARD.w - 44 };
+            const k = box.w / BLOCK.w;
+            const map = ([x, y]) => [box.x + x * k, box.y + y * k, k];
+            drawShape(target.shape, map, p.silhouette);
+            const cell = SPACING * k;
+            const colours = { both: alpha(p.clay, 0.75), excess: alpha(p.excess, 0.22), missing: alpha(p.missing, 0.7) };
+            for (let j = 0; j < N; j++) {
+                const a = alive[j], inside = target.inside[j];
+                if (!a && !inside) continue;
+                ctx.fillStyle = a && inside ? colours.both : a ? colours.excess : colours.missing;
+                ctx.fillRect(box.x + (PX[j] - SPACING / 2) * k, box.y + (PY[j] - SPACING / 2) * k, cell + 0.2, cell + 0.2);
+            }
+            ctx.fillStyle = p.ink;
+            ctx.font = font(760, 26);
+            ctx.textBaseline = 'alphabetic';
+            const y = box.y + BLOCK.h * k + 40;
+            ctx.fillText(`${Math.round(100 * match)} %`, CARD.x + 18, y);
+            ctx.fillStyle = p.text;
+            ctx.font = font(500, 11);
+            ctx.fillText(t.cardGoal, CARD.x + 18, y + 18);
+            ctx.restore();
+        }
+
+        function wrapText(text, x, y, width, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            for (const word of words) {
+                const next = line ? `${line} ${word}` : word;
+                if (ctx.measureText(next).width > width && line) {
+                    ctx.fillText(line, x, y);
+                    line = word;
+                    y += lineHeight;
+                } else line = next;
+            }
+            ctx.fillText(line, x, y);
+        }
+
+        // the block on its modelling stand, with the falling debris and the tool
+        function drawBlock(p) {
+            const x0 = BLOCK_AT.x, y0 = BLOCK_AT.y, w = BLOCK.w * SCALE, h = BLOCK.h * SCALE;
+            ctx.save();
+            ctx.fillStyle = p.stand;
+            ctx.beginPath(); ctx.ellipse(x0 + w / 2, y0 + h + 8, w * 0.56, 12, 0, 0, TAU); ctx.fill();
+            ctx.fillStyle = p.standTop;
+            ctx.beginPath(); ctx.ellipse(x0 + w / 2, y0 + h + 3, w * 0.54, 10, 0, 0, TAU); ctx.fill();
+            const b = bead(p.clay, SPACING * 0.66 * SCALE);
+            const hidden = delivery && delivery.t < 1;
+            if (!hidden) {
+                for (let j = 0; j < N; j++) if (alive[j]) ctx.drawImage(b, x0 + PX[j] * SCALE - b.width / 2, y0 + PY[j] * SCALE - b.height / 2);
+            }
+            const small = bead(p.clay, SPACING * 0.5 * SCALE);
+            for (const d of debris) {
+                ctx.globalAlpha = clamp(1 - d.t / 1.1, 0, 1);
+                ctx.drawImage(small, x0 + d.x * SCALE - small.width / 2, y0 + d.y * SCALE - small.height / 2);
+            }
+            ctx.globalAlpha = 1;
+            if (cursor.visible && state === 'playing') {
+                ctx.strokeStyle = tool === 'remove' ? alpha(p.excess, 0.9) : alpha(p.missing, 0.9);
+                ctx.lineWidth = 1.6;
+                ctx.setLineDash([5, 4]);
+                ctx.beginPath(); ctx.arc(x0 + cursor.x * SCALE, y0 + cursor.y * SCALE, brush * SCALE, 0, TAU); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            ctx.restore();
+        }
+
+        function drawGauge(p) {
+            const { x, y, h } = GAUGE, yOf = (v) => y + h - h * clamp(v, 0, 1);
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = alpha(p.text, 0.25);
+            ctx.lineWidth = 10;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + h); ctx.stroke();
+            ctx.strokeStyle = match >= MATCH_GOAL ? p.done : p.clay;
+            ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x, yOf(match)); ctx.stroke();
+            ctx.strokeStyle = p.done;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x - 12, yOf(MATCH_GOAL)); ctx.lineTo(x + 12, yOf(MATCH_GOAL)); ctx.stroke();
+            ctx.font = font(700, 11);
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = p.done;
+            ctx.fillText('95 %', x + 18, yOf(MATCH_GOAL));
+            ctx.fillStyle = p.ink;
+            ctx.fillText(`${Math.round(100 * match)} %`, x + 18, yOf(match));
+            ctx.fillStyle = p.text;
+            ctx.textAlign = 'center';
+            ctx.fillText(dict().gaugeLabel, x, y - 18);
+            ctx.restore();
+        }
+
+        // five display cases on a shelf; finished pieces stand on their plinths
+        function drawShelf(p) {
+            const t = dict();
+            ctx.save();
+            ctx.fillStyle = p.shelf;
+            ctx.fillRect(SHELF.x - 8, SHELF.y + SHELF.h - 10, SHELF.w + 16, 10);
+            for (let i = 0; i < 5; i++) {
+                const r = caseRect(i), piece = pieces[i];
+                const arriving = delivery && delivery.index === i && delivery.t < 1;
+                // plinth
+                ctx.fillStyle = p.plinth;
+                ctx.fillRect(r.x + 10, r.y + r.h - 34, r.w - 20, 24);
+                ctx.fillStyle = p.plinthTop;
+                ctx.fillRect(r.x + 10, r.y + r.h - 34, r.w - 20, 4);
+                // piece
+                if (piece && !arriving) {
+                    const s = Math.min((r.w - 30) / piece.sprite.width, (r.h - 54) / piece.sprite.height);
+                    const w = piece.sprite.width * s, h = piece.sprite.height * s;
+                    ctx.drawImage(piece.sprite, r.x + (r.w - w) / 2, r.y + r.h - 34 - h, w, h);
                 }
+                // glass
+                roundRect(r.x + 6, r.y, r.w - 12, r.h - 34, 6);
+                ctx.fillStyle = p.glass;
+                ctx.fill();
+                ctx.strokeStyle = p.glassEdge;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+                ctx.beginPath(); ctx.moveTo(r.x + 16, r.y + 10); ctx.lineTo(r.x + 16, r.y + 46); ctx.stroke();
+                // label on the plinth
+                ctx.font = font(650, 10);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = piece ? p.ink : p.text;
+                const label = piece ? `${t[`order_${ORDERS[i].key}`]} · ${formatTime(piece.time)}` : t.caseEmpty.replace('{n}', String(i + 1));
+                ctx.fillText(label, r.x + r.w / 2, r.y + r.h - 21, r.w - 24);
             }
-            if (changed) {
-                scheduleUpdate();
-                // Start animation if particles were removed and not already animating
-                if (particlesRemoved && !isAnimating) {
-                    isAnimating = true;
-                    animateFallingParticles();
+            ctx.restore();
+        }
+
+        // the finished piece moves from the stand to its case
+        function drawDelivery() {
+            if (!delivery || delivery.t >= 1) return;
+            const u = delivery.t, e = u < 0.5 ? 2 * u * u : 1 - 2 * (1 - u) * (1 - u);
+            const r = caseRect(delivery.index), sprite = delivery.sprite;
+            const s1 = Math.min((r.w - 30) / sprite.width, (r.h - 54) / sprite.height);
+            const from = { x: BLOCK_AT.x, y: BLOCK_AT.y, s: SCALE / 0.5 };
+            const w1 = sprite.width * s1, h1 = sprite.height * s1;
+            const to = { x: r.x + (r.w - w1) / 2, y: r.y + r.h - 34 - h1, s: s1 };
+            const s = from.s + (to.s - from.s) * e;
+            const x = from.x + (to.x - from.x) * e, y = from.y + (to.y - from.y) * e - Math.sin(Math.PI * u) * 60;
+            ctx.save();
+            ctx.globalAlpha = 0.95;
+            ctx.drawImage(sprite, x, y, sprite.width * s, sprite.height * s);
+            ctx.restore();
+        }
+
+        function render() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = canvas.clientWidth, h = canvas.clientHeight;
+            if (!w || !h) return;
+            if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+                canvas.width = Math.round(w * dpr);
+                canvas.height = Math.round(h * dpr);
+            }
+            const k = Math.min(w / VIRTUAL.w, h / VIRTUAL.h);
+            view = { k, ox: (w - VIRTUAL.w * k) / 2, oy: (h - VIRTUAL.h * k) / 2, w, h };
+            const p = palette();
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.fillStyle = p.surface;
+            ctx.fillRect(0, 0, w, h);
+            ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * view.ox, dpr * view.oy);
+            drawCard(p);
+            drawBlock(p);
+            drawGauge(p);
+            drawShelf(p);
+            drawDelivery();
+        }
+
+        // ------------------------------------------------------------------
+        // simulation step
+        // ------------------------------------------------------------------
+        const CURSOR_SPEED = 160;                // block units per second
+
+        function update(dt) {
+            if (state === 'playing') {
+                elapsed += dt;
+                let dx = 0, dy = 0;
+                if (keysDown.has('ArrowLeft')) dx -= 1;
+                if (keysDown.has('ArrowRight')) dx += 1;
+                if (keysDown.has('ArrowUp')) dy -= 1;
+                if (keysDown.has('ArrowDown')) dy += 1;
+                if (dx || dy) {
+                    cursor.x = clamp(cursor.x + dx * CURSOR_SPEED * dt, 0, BLOCK.w);
+                    cursor.y = clamp(cursor.y + dy * CURSOR_SPEED * dt, 0, BLOCK.h);
+                    cursor.visible = true;
                 }
+                if (keysDown.has(' ')) applyAlong(cursor.x, cursor.y);
             }
+            if (state === 'delivering' && delivery) {
+                delivery.t += dt / 1.1;
+                if (delivery.t >= 1.25) finishDelivery();
+            }
+            if (state !== 'paused') {
+                for (const d of debris) {
+                    d.t += dt;
+                    d.vy += 420 * dt;
+                    d.x += d.vx * dt;
+                    d.y += d.vy * dt;
+                }
+                debris = debris.filter((d) => d.t < 1.1);
+            }
+            updateLiveHud();
         }
 
-        function getCanvasPos(e) {
-            const rect = sculptCanvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left) * (sculptCanvas.width / rect.width);
-            const y = (e.clientY - rect.top) * (sculptCanvas.height / rect.height);
-            return { x, y };
+        let last = performance.now();
+        function frame(now) {
+            const dt = clamp((now - last) / 1000, 0, 0.05);
+            last = Math.max(last, now);
+            update(dt);
+            render();
+            requestAnimationFrame(frame);
         }
 
-        document.querySelectorAll('[data-tool]').forEach(button => {
-            button.addEventListener('click', () => selectTool(button.dataset.tool));
-        });
+        // ------------------------------------------------------------------
+        // input
+        // ------------------------------------------------------------------
+        function eventBlock(event) {
+            const rect = canvas.getBoundingClientRect();
+            const vx = (event.clientX - rect.left - view.ox) / view.k, vy = (event.clientY - rect.top - view.oy) / view.k;
+            return toBlock(vx, vy);
+        }
 
-        const brushSizeSlider = document.getElementById('brushSizeSlider');
-        const brushSizeValue = document.getElementById('brushSizeValue');
-        brushSizeSlider.addEventListener('input', () => {
-            brushRadius = Number.parseInt(brushSizeSlider.value, 10);
-            brushSizeValue.value = `${brushRadius} px`;
-        });
+        const onBlock = (x, y) => x > -brush && x < BLOCK.w + brush && y > -brush && y < BLOCK.h + brush;
 
-        document.getElementById('resetBlockBtn').addEventListener('click', resetSculpt);
-        document.getElementById('newShapeBtn').addEventListener('click', () => {
-            targetShape = generateRandomShape(200, 200);
-            targetLoaded = true;
-            resetSculpt();
+        canvas.addEventListener('pointermove', (event) => {
+            const [x, y] = eventBlock(event);
+            cursor = { x, y, visible: onBlock(x, y) };
+            canvas.style.cursor = cursor.visible && state === 'playing' ? 'none' : 'default';
+            if (dragging && state === 'playing') applyAlong(x, y);
         });
-
-        sculptCanvas.addEventListener('pointerdown', (event) => {
-            if (event.pointerType === 'mouse' && event.button !== 0) return;
+        canvas.addEventListener('pointerdown', (event) => {
+            if (state !== 'playing' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+            const [x, y] = eventBlock(event);
+            if (!onBlock(x, y)) return;
             event.preventDefault();
-            keyboardActive = false;
-            isSculpting = true;
-            sculptCanvas.setPointerCapture(event.pointerId);
-            const { x, y } = getCanvasPos(event);
-            eraseAt(x, y);
+            canvas.setPointerCapture(event.pointerId);
+            dragging = true;
+            lastApplied = null;
+            applyAlong(x, y);
         });
+        const endDrag = (event) => {
+            dragging = false;
+            lastApplied = null;
+            if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+        };
+        canvas.addEventListener('pointerup', endDrag);
+        canvas.addEventListener('pointercancel', endDrag);
+        canvas.addEventListener('pointerleave', () => { cursor.visible = false; });
 
-        sculptCanvas.addEventListener('pointermove', (event) => {
-            if (!isSculpting) return;
+        function setTool(next) {
+            tool = next;
+            document.querySelectorAll('[data-tool]').forEach((button) => {
+                const active = button.dataset.tool === tool;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+        }
+
+        function setBrush(next) {
+            brush = clamp(next, Number(brushInput.min), Number(brushInput.max));
+            brushInput.value = String(brush);
+            brushValue.textContent = String(brush);
+        }
+
+        document.querySelectorAll('[data-tool]').forEach((button) => button.addEventListener('click', () => setTool(button.dataset.tool)));
+        brushInput.addEventListener('input', () => setBrush(Number(brushInput.value)));
+
+        const GAME_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' ']);
+        window.addEventListener('keydown', (event) => {
+            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+            const target = event.target instanceof HTMLElement ? event.target : null;
+            const onControl = Boolean(target?.closest('button, a, input'));
+            if (key === 'p' && (state === 'playing' || state === 'paused')) {
+                event.preventDefault();
+                if (state === 'playing') pauseGame(); else resumeGame();
+                return;
+            }
+            if (state !== 'playing' || onControl) return;
+            if (key === 't') { setTool(tool === 'remove' ? 'restore' : 'remove'); return; }
+            if (key === '[' || key === ']') { setBrush(brush + (key === ']' ? 2 : -2)); return; }
+            if (!GAME_KEYS.has(key)) return;
             event.preventDefault();
-            const { x, y } = getCanvasPos(event);
-            eraseAt(x, y);
+            if (key === ' ' && !event.repeat) lastApplied = null;
+            keysDown.add(key);
         });
+        window.addEventListener('keyup', (event) => {
+            const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+            keysDown.delete(key);
+            if (key === ' ') lastApplied = null;
+        });
+        window.addEventListener('blur', () => { keysDown.clear(); dragging = false; });
 
-        function endSculpting(event) {
-            isSculpting = false;
-            if (sculptCanvas.hasPointerCapture(event.pointerId)) {
-                sculptCanvas.releasePointerCapture(event.pointerId);
+        // ------------------------------------------------------------------
+        // interface
+        // ------------------------------------------------------------------
+        let currentLanguage = storage.get('language') || 'en';
+        if (!translations[currentLanguage]) currentLanguage = 'en';
+        const dict = () => translations[currentLanguage];
+        let overlayMode = 'start';
+
+        const formatTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+        function announce(text) {
+            announcer.textContent = text;
+        }
+
+        function setText(el, text) {
+            if (el.textContent !== text) el.textContent = text;
+        }
+
+        function updateHud() {
+            const best = readBest();
+            setText(hud.best, best ? formatTime(best) : '–');
+        }
+
+        function updateLiveHud() {
+            const t = dict();
+            setText(hud.order, `${Math.min(orderIndex + 1, 5)} / 5 · ${t[`order_${ORDERS[orderIndex].key}`]}`);
+            setText(hud.match, state === 'ready' ? '–' : `${Math.round(100 * match)} %`);
+            setText(hud.time, formatTime(elapsed));
+            setText(pauseButton, state === 'paused' ? t.resume : t.pause);
+        }
+
+        function showOverlay(which) {
+            if (which) overlayMode = which;
+            overlay.hidden = !which;
+            if (!which) return;
+            const t = dict();
+            overlayKicker.textContent = t.kicker;
+            overlayStats.hidden = which !== 'done';
+            overlayBadge.hidden = !(which === 'done' && newBest);
+            overlayBadge.textContent = t.newBest;
+            if (which === 'start') {
+                overlayTitle.textContent = t.title;
+                overlayText.textContent = t.startText;
+                overlayButton.textContent = t.start;
+            } else if (which === 'paused') {
+                overlayTitle.textContent = t.pausedTitle;
+                overlayText.textContent = t.pausedText;
+                overlayButton.textContent = t.resume;
+            } else {
+                overlayTitle.textContent = t.doneTitle;
+                overlayText.textContent = t.doneText;
+                overlayButton.textContent = t.playAgain;
+                byId('statTime').textContent = formatTime(elapsed);
+                byId('statBest').textContent = formatTime(readBest() || elapsed);
             }
         }
 
-        sculptCanvas.addEventListener('pointerup', endSculpting);
-        sculptCanvas.addEventListener('pointercancel', endSculpting);
-
-        sculptCanvas.addEventListener('focus', () => {
-            keyboardActive = true;
-            renderSculpt();
+        overlayButton.addEventListener('click', () => {
+            if (state === 'paused') resumeGame(); else startGame();
+        });
+        pauseButton.addEventListener('click', () => {
+            if (state === 'playing') pauseGame(); else resumeGame();
+        });
+        byId('restartButton').addEventListener('click', startGame);
+        byId('resetButton').addEventListener('click', () => {
+            if (state !== 'playing') return;
+            alive.fill(1);
+            debris = [];
+            measure();
         });
 
-        sculptCanvas.addEventListener('blur', () => {
-            keyboardActive = false;
-            renderSculpt();
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) pauseGame();
         });
 
-        sculptCanvas.addEventListener('keydown', (event) => {
-            const movementKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-            if (movementKeys.includes(event.key)) {
-                event.preventDefault();
-                const step = event.shiftKey ? 24 : 10;
-                if (event.key === 'ArrowLeft') keyboardCursor.x -= step;
-                if (event.key === 'ArrowRight') keyboardCursor.x += step;
-                if (event.key === 'ArrowUp') keyboardCursor.y -= step;
-                if (event.key === 'ArrowDown') keyboardCursor.y += step;
-                keyboardCursor.x = Math.max(brushRadius, Math.min(sculptCanvas.width - brushRadius, keyboardCursor.x));
-                keyboardCursor.y = Math.max(brushRadius, Math.min(sculptCanvas.height - brushRadius, keyboardCursor.y));
-                renderSculpt();
-            }
-            if (event.key === ' ' || event.key === 'Enter') {
-                event.preventDefault();
-                eraseAt(keyboardCursor.x, keyboardCursor.y);
-            }
+        function applyTranslations() {
+            const t = dict();
+            document.documentElement.lang = currentLanguage;
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const value = t[el.dataset.i18n];
+                if (typeof value === 'string') el.textContent = value;
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+                const value = t[el.getAttribute('data-i18n-aria-label')];
+                if (typeof value === 'string') el.setAttribute('aria-label', value);
+            });
+            document.querySelectorAll('.lang-btn').forEach((button) => {
+                const active = button.dataset.lang === currentLanguage;
+                button.classList.toggle('active', active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+            updateHud();
+            updateLiveHud();
+            showOverlay(overlay.hidden ? null : overlayMode);
+        }
+
+        document.querySelectorAll('.lang-btn').forEach((button) => {
+            button.addEventListener('click', () => {
+                currentLanguage = button.dataset.lang;
+                storage.set('language', currentLanguage);
+                applyTranslations();
+            });
         });
 
-        document.getElementById('nextDemoBtn').addEventListener('click', () => {
-            window.open('https://ignaciocuiral.com/tutorial_on_shape_servoing_of_deformable_objects/player.html', '_blank', 'noopener');
-        });
-
-        // Initialize by loading the target shape
-        loadTargetShape();
+        // ------------------------------------------------------------------
+        // start
+        // ------------------------------------------------------------------
+        setBrush(brush);
+        resetGame();
+        applyTranslations();
+        showOverlay('start');
+        requestAnimationFrame(frame);
     </script>
 </body>
 </html>

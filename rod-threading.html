@@ -655,7 +655,7 @@
                 </div>
             </div>
             <h1 data-i18n="title">Rod threading</h1>
-            <p class="demo-intro" data-i18n="intro">Shape control computes the robot motions that bring a deformable object to a target shape, as in cable routing, food handling or surgery. Here two robots hold an elastic rod in a vertical plane, and panels with a gap shaped like a reachable rod configuration move toward it: deform the rod so that it passes through each gap. Show solution runs the shape-servoing loop of our tutorial, which estimates how the rod responds to the grippers and corrects that estimate as it moves.</p>
+            <p class="demo-intro" data-i18n="intro">Shape control computes robot motions that deform an object toward a target, with applications in cable routing, food handling and surgery. Here two robots hold an elastic rod in a vertical plane. Each approaching panel has a gap that matches a reachable equilibrium shape. Deform the rod to pass through it. Show solution runs the tutorial's shape-servoing loop, which estimates the rod response to gripper motion and updates that estimate online.</p>
         </header>
 
         <section aria-labelledby="game-title">
@@ -712,7 +712,7 @@
             <p class="sr-only" aria-live="polite" id="announcer"></p>
 
             <div class="controls-row">
-                <p class="hint" id="hint" data-i18n="hint">Drag a gripper to move it, drag the ring above it to rotate it, or drag the rod to move both grippers. Keyboard: arrow keys move the selected gripper, Q and E rotate it, Space switches gripper, P pauses.</p>
+                <p class="hint" id="hint" data-i18n="hint">Drag a gripper to translate it; drag the ring above it to rotate it. Drag the rod to translate both grippers. Keyboard: arrow keys move the selected gripper, Q and E rotate it, Space switches gripper, P pauses.</p>
                 <div class="actions">
                     <div class="mode-switch" role="group" aria-label="Mode" data-i18n-aria-label="modeAria">
                         <button class="mode-btn active" type="button" data-mode="normal" aria-pressed="true" data-i18n="modeNormal">Normal</button>
@@ -729,7 +729,7 @@
                 <li><span class="legend-dot close" aria-hidden="true"></span><strong data-i18n="legendClose">Close pass</strong><span data-i18n="legendCloseDesc">At least 75% of the rod is inside the gap: +40.</span></li>
                 <li><span class="legend-dot crash" aria-hidden="true"></span><strong data-i18n="legendCrash">Collision</strong><span data-i18n="legendCrashDesc">Less than 75% of the rod is inside the gap: one life lost.</span></li>
             </ul>
-            <p class="note" id="note" data-i18n="note">Each gap is the equilibrium shape of the same rod for a reachable pair of gripper poses, widened by the current clearance, so every gap can be matched exactly. After every pass the clearance decreases and the panels move faster.</p>
+            <p class="note" id="note" data-i18n="note">Each gap is generated from the rod's equilibrium shape at reachable gripper poses, then widened by the current clearance. It can therefore be matched exactly. After each pass, the clearance decreases and the panels move faster.</p>
 
             <section class="references" aria-labelledby="references-title">
                 <h2 id="references-title" data-i18n="referencesTitle">Related papers</h2>
@@ -755,7 +755,7 @@
                 kicker: 'Mini-game',
                 languageAria: 'Language',
                 title: 'Rod threading',
-                intro: 'Shape control computes the robot motions that bring a deformable object to a target shape, as in cable routing, food handling or surgery. Here two robots hold an elastic rod in a vertical plane, and panels with a gap shaped like a reachable rod configuration move toward it: deform the rod so that it passes through each gap. Show solution runs the shape-servoing loop of our tutorial, which estimates how the rod responds to the grippers and corrects that estimate as it moves.',
+                intro: 'Shape control computes robot motions that deform an object toward a target, with applications in cable routing, food handling and surgery. Here two robots hold an elastic rod in a vertical plane. Each approaching panel has a gap that matches a reachable equilibrium shape. Deform the rod to pass through it. Show solution runs the tutorial\'s shape-servoing loop, which estimates the rod response to gripper motion and updates that estimate online.',
                 hudScore: 'Score',
                 hudClean: 'Clean',
                 hudClose: 'Close',
@@ -763,7 +763,7 @@
                 hudFit: 'Fit',
                 livesAria: 'Lives',
                 canvasAria: 'Two robot arms hold an elastic rod while panels with rod-shaped gaps approach the manipulation plane',
-                hint: 'Drag a gripper to move it, drag the ring above it to rotate it, or drag the rod to move both grippers. Keyboard: arrow keys move the selected gripper, Q and E rotate it, Space switches gripper, P pauses.',
+                hint: 'Drag a gripper to translate it; drag the ring above it to rotate it. Drag the rod to translate both grippers. Keyboard: arrow keys move the selected gripper, Q and E rotate it, Space switches gripper, P pauses.',
                 pause: 'Pause',
                 resume: 'Resume',
                 restart: 'Restart',
@@ -773,7 +773,7 @@
                 legendCloseDesc: 'At least 75% of the rod is inside the gap: +40.',
                 legendCrash: 'Collision',
                 legendCrashDesc: 'Less than 75% of the rod is inside the gap: one life lost.',
-                note: 'Each gap is the equilibrium shape of the same rod for a reachable pair of gripper poses, widened by the current clearance, so every gap can be matched exactly. After every pass the clearance decreases and the panels move faster.',
+                note: 'Each gap is generated from the rod\'s equilibrium shape at reachable gripper poses, then widened by the current clearance. It can therefore be matched exactly. After each pass, the clearance decreases and the panels move faster.',
                 startText: 'Match the rod to the dashed outline before each panel reaches the plane. You have three lives.',
                 start: 'Start',
                 pausedTitle: 'Paused',
@@ -800,8 +800,8 @@
                 jointShoulder: 'Shoulder',
                 jointElbow: 'Elbow',
                 jointWrist: 'Wrist',
-                hintHard: 'Hard mode: the left end of the rod is clamped to a fixed stand and the right robot is commanded in joint space. Use the sliders, or hold Q/A, W/S and E/D to rotate the shoulder, elbow and wrist. P pauses.',
-                noteHard: 'In hard mode each gap is the equilibrium shape of the rod for the fixed left clamp and a joint configuration of the right robot within the slider ranges, so every gap can be matched with the sliders. The panels take 30% longer to arrive than in normal mode.',
+                hintHard: 'Hard mode: the left rod end is clamped and the right robot is commanded in joint space. Use the sliders, or hold Q/A, W/S and E/D, to rotate the shoulder, elbow and wrist. P pauses.',
+                noteHard: 'In hard mode, each gap is generated from an equilibrium shape with the left end clamped and the right robot within the slider ranges. The sliders can therefore match every gap. The panels take 30% longer to arrive than in normal mode.',
                 referencesTitle: 'Related papers',
                 companionLabel: 'Interactive companion:',
                 startTextHard: 'The left end is clamped to a fixed stand. Rotate the joints of the right robot to match the dashed outline before each panel reaches the plane. You have three lives.'
@@ -811,7 +811,7 @@
                 kicker: 'Minijuego',
                 languageAria: 'Idioma',
                 title: 'Enhebra la varilla',
-                intro: 'El control de forma calcula los movimientos de los robots que llevan un objeto deformable a una forma objetivo, como en el guiado de cables, la manipulación de alimentos o la cirugía. Aquí dos robots sujetan una varilla elástica en un plano vertical y hacia ella avanzan paneles con un hueco que tiene la forma de una configuración alcanzable de la varilla: deforma la varilla para que atraviese cada hueco. Ver solución ejecuta el bucle de servocontrol de forma de nuestro tutorial, que estima cómo responde la varilla a las pinzas y corrige esa estimación mientras se mueve.',
+                intro: 'El control de forma calcula movimientos robóticos que deforman un objeto hacia un objetivo, con aplicaciones en guiado de cables, manipulación de alimentos y cirugía. Aquí dos robots sujetan una varilla elástica en un plano vertical. Cada panel tiene un hueco que coincide con una forma de equilibrio alcanzable. Deforma la varilla para atravesarlo. Ver solución ejecuta el servocontrol de forma del tutorial, que estima la respuesta de la varilla al movimiento de las pinzas y actualiza la estimación en línea.',
                 hudScore: 'Puntos',
                 hudClean: 'Limpios',
                 hudClose: 'Rozando',
@@ -819,7 +819,7 @@
                 hudFit: 'Encaje',
                 livesAria: 'Vidas',
                 canvasAria: 'Dos brazos robóticos sujetan una varilla elástica mientras paneles con huecos en forma de varilla se acercan al plano de manipulación',
-                hint: 'Arrastra una pinza para moverla, arrastra el anillo situado sobre ella para girarla o arrastra la varilla para mover ambas pinzas. Teclado: las flechas mueven la pinza seleccionada, Q y E la giran, Espacio cambia de pinza y P pausa el juego.',
+                hint: 'Arrastra una pinza para trasladarla; arrastra el anillo situado sobre ella para girarla. Arrastra la varilla para trasladar ambas pinzas. Teclado: las flechas mueven la pinza seleccionada, Q y E la giran, Espacio cambia de pinza y P pausa el juego.',
                 pause: 'Pausa',
                 resume: 'Continuar',
                 restart: 'Reiniciar',
@@ -829,7 +829,7 @@
                 legendCloseDesc: 'Al menos el 75 % de la varilla queda dentro del hueco: +40.',
                 legendCrash: 'Colisión',
                 legendCrashDesc: 'Menos del 75 % de la varilla queda dentro del hueco: se pierde una vida.',
-                note: 'Cada hueco es la forma de equilibrio de la misma varilla para un par de poses de pinza alcanzable, ensanchada con la holgura actual, de modo que todos los huecos pueden reproducirse exactamente. Tras cada paso, la holgura disminuye y los paneles avanzan más rápido.',
+                note: 'Cada hueco se genera a partir de una forma de equilibrio alcanzable y se ensancha con la holgura actual. Por tanto, puede ajustarse exactamente. Tras cada paso, la holgura disminuye y los paneles avanzan más rápido.',
                 startText: 'Ajusta la varilla al contorno discontinuo antes de que cada panel llegue al plano. Tienes tres vidas.',
                 start: 'Empezar',
                 pausedTitle: 'En pausa',
@@ -856,8 +856,8 @@
                 jointShoulder: 'Hombro',
                 jointElbow: 'Codo',
                 jointWrist: 'Muñeca',
-                hintHard: 'Modo difícil: el extremo izquierdo de la varilla está sujeto a un soporte fijo y el robot derecho se controla en el espacio articular. Usa los deslizadores o mantén pulsadas Q/A, W/S y E/D para girar el hombro, el codo y la muñeca. P pausa el juego.',
-                noteHard: 'En el modo difícil, cada hueco es la forma de equilibrio de la varilla para la sujeción izquierda fija y una configuración articular del robot derecho dentro de los rangos de los deslizadores, de modo que todos los huecos pueden reproducirse con los deslizadores. Los paneles tardan un 30 % más en llegar que en el modo normal.',
+                hintHard: 'Modo difícil: el extremo izquierdo está fijo y el robot derecho se controla en el espacio articular. Usa los deslizadores o mantén pulsadas Q/A, W/S y E/D para girar hombro, codo y muñeca. P pausa el juego.',
+                noteHard: 'En el modo difícil, cada hueco se genera a partir de una forma de equilibrio con el extremo izquierdo fijo y el robot derecho dentro de los rangos de los deslizadores. Por tanto, los deslizadores pueden ajustar cada hueco. Los paneles tardan un 30 % más en llegar que en modo normal.',
                 referencesTitle: 'Artículos relacionados',
                 companionLabel: 'Página interactiva:',
                 startTextHard: 'El extremo izquierdo está sujeto a un soporte fijo. Gira las articulaciones del robot derecho para ajustar la varilla al contorno discontinuo antes de que cada panel llegue al plano. Tienes tres vidas.'
