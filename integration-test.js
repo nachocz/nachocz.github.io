@@ -108,8 +108,20 @@ if (!robots.includes(`Sitemap: ${SITE_URL}sitemap.xml`)) {
 console.log('sitemap.xml and robots.txt: production URLs are consistent');
 
 const akelarre = fs.readFileSync('habra-akelarre/index.html', 'utf8');
+const akelarreGame = fs.readFileSync('habra-akelarre/js/juego.js', 'utf8');
 if (!/^<!DOCTYPE html>\s*<html lang="es">/i.test(akelarre)) {
     throw new Error('habra-akelarre/index.html: the game must declare Spanish as its language');
+}
+if (!akelarre.includes('id="reloj-arco"') || !akelarre.includes('pathLength="100"') ||
+    !akelarreGame.includes("strokeDashoffset = String(100 * (1 - proporcion))") ||
+    !fs.readFileSync('habra-akelarre/css/juego.css', 'utf8').includes('transform-origin: center')) {
+    throw new Error('habra-akelarre: the countdown arc must use normalized remaining time');
+}
+if (akelarreGame.includes("classList.toggle('aviso'") || !akelarreGame.includes("classList.toggle('precaucion'")) {
+    throw new Error('habra-akelarre: the timer warning state must not collide with event notices');
+}
+if (!akelarreGame.includes("clase === 'persistente'") || !akelarreGame.includes('class="fiesta-objetos"')) {
+    throw new Error('habra-akelarre: party guests must display their persistent objects');
 }
 const akelarreIds = [...akelarre.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
 const duplicateAkelarreIds = [...new Set(akelarreIds.filter((id, index) => akelarreIds.indexOf(id) !== index))];

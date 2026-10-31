@@ -730,6 +730,7 @@ kbd {
     width: 100%;
     height: 100%;
     transform: rotate(-90deg);
+    transform-origin: center;
 }
 
 .reloj-fondo {
@@ -743,9 +744,9 @@ kbd {
     stroke: var(--lima);
     stroke-width: 4.4;
     stroke-linecap: round;
-    stroke-dasharray: 119.4;
+    stroke-dasharray: 100;
     stroke-dashoffset: 0;
-    transition: stroke 0.3s ease;
+    transition: stroke-dashoffset 0.1s linear, stroke 0.2s ease;
 }
 
 #hud-segundos {
@@ -755,10 +756,14 @@ kbd {
     place-items: center;
     font-size: 1.15rem;
     font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.2s ease;
 }
 
-.hud-reloj.aviso .reloj-arco { stroke: var(--oro); }
+.hud-reloj.precaucion .reloj-arco { stroke: var(--oro); }
 .hud-reloj.urgente .reloj-arco { stroke: var(--malo); }
+.hud-reloj.precaucion #hud-segundos { color: var(--oro); }
+.hud-reloj.urgente #hud-segundos { color: var(--malo); }
 
 .hud-reloj.urgente {
     animation: latido 0.8s ease-in-out infinite;
@@ -1173,6 +1178,7 @@ kbd {
 .fiesta-lista {
     display: flex;
     gap: 6px;
+    align-items: stretch;
     padding: 0;
     margin: 0;
     overflow-x: auto;
@@ -1180,38 +1186,93 @@ kbd {
     scrollbar-width: thin;
 }
 
-.ficha-tipo {
-    display: flex;
-    flex: none;
-    gap: 6px;
-    align-items: center;
-    padding: 3px 10px 3px 3px;
-    border-radius: 999px;
+.ficha-invitado {
+    display: grid;
+    flex: 0 0 min(230px, 78vw);
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    padding: 5px 8px 6px 5px;
+    border-radius: 13px;
     background: var(--panel-2);
     font-size: 0.8rem;
-    white-space: nowrap;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color, #6a4c93) 35%, transparent);
 }
 
-.ficha-tipo .cara {
-    width: 30px;
-    height: 30px;
+.ficha-invitado .cara {
+    width: 36px;
+    height: 36px;
     overflow: hidden;
     border-radius: 50%;
     background: color-mix(in srgb, var(--color, #6a4c93) 45%, #1d1236);
 }
 
-.ficha-tipo .cara svg {
+.ficha-invitado .cara svg {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-.ficha-tipo .num {
-    color: var(--oro);
-    font-weight: 700;
+.fiesta-datos {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    line-height: 1.15;
 }
 
-.ficha-tipo.nueva {
+.fiesta-datos b,
+.fiesta-datos small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fiesta-datos small,
+.fiesta-sin-objetos {
+    color: var(--tenue);
+}
+
+.fiesta-sin-objetos {
+    margin-top: 4px;
+    font-size: 0.7rem;
+    font-style: italic;
+}
+
+.fiesta-objetos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding: 0;
+    margin: 4px 0 0;
+    list-style: none;
+}
+
+.fiesta-objetos li {
+    display: inline-flex;
+    gap: 3px;
+    align-items: center;
+    min-width: 0;
+    padding: 1px 5px 1px 2px;
+    border-radius: 7px;
+    background: rgba(9, 4, 20, 0.32);
+    color: var(--suave);
+    font-size: 0.66rem;
+    line-height: 1.2;
+}
+
+.fiesta-objetos svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+}
+
+.fiesta-objetos span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ficha-invitado.nueva {
     animation: llega 1.2s ease;
 }
 
@@ -1690,9 +1751,22 @@ kbd {
         min-height: 0;
     }
 
+    .panel-fiesta {
+        display: flex;
+        max-height: 42vh;
+        min-height: 0;
+        flex-direction: column;
+    }
+
     .panel-fiesta .fiesta-lista {
-        flex-wrap: wrap;
-        overflow: visible;
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .panel-fiesta .ficha-invitado {
+        flex: none;
+        width: 100%;
     }
 
     .panel-cronica {

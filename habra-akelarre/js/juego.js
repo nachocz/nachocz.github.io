@@ -255,22 +255,33 @@
         }
     }
 
-    function actualizarFiesta(nuevosTipos) {
-        const cuenta = {};
-        const orden = [];
-        for (const p of partida.asistentes) {
-            if (!cuenta[p.tipo]) { cuenta[p.tipo] = { n: 0, ejemplo: p }; orden.push(p.tipo); }
-            cuenta[p.tipo].n++;
-        }
-        $('fiesta-lista').innerHTML = orden.map((id) => {
-            const t = tipo(id);
-            const c = cuenta[id];
-            const nombre = c.n > 1 ? t.plural : t.nombre;
-            const nueva = nuevosTipos && nuevosTipos.includes(id) ? ' nueva' : '';
-            return `<li class="ficha-tipo${nueva}" style="--color:${t.color}" title="${nombre}"><span class="cara">${caraSVG(c.ejemplo)}</span><span>${nombre}</span>${c.n > 1 ? `<span class="num">×${c.n}</span>` : ''}</li>`;
+    function actualizarFiesta(rondaNueva) {
+        const lista = $('fiesta-lista');
+        lista.innerHTML = partida.asistentes.map((p) => {
+            const t = tipo(p.tipo);
+            const nombre = nombreVisitante(p);
+            // Los consumibles se gastan al entrar; solo permanecen en la fiesta
+            // los objetos que todavía pueden intervenir en rondas posteriores.
+            const objetos = (p.objetos || []).filter((id) => HA.objetoPorId[id].clase === 'persistente');
+            const listaObjetos = objetos.length
+                ? `<ul class="fiesta-objetos" aria-label="Objetos de ${esc(nombre)}">${objetos.map((id) => {
+                    const objeto = HA.objetoPorId[id];
+                    return `<li title="${esc(objeto.nombre)}">${A.objetoSVG(id, 18)}<span>${esc(objeto.nombre)}</span></li>`;
+                }).join('')}</ul>`
+                : '<span class="fiesta-sin-objetos">Sin objetos</span>';
+            const nueva = rondaNueva !== undefined && p.ronda === rondaNueva ? ' nueva' : '';
+            return `<li class="ficha-invitado${nueva}" style="--color:${t.color}"><span class="cara">${caraSVG(p)}</span>` +
+                `<div class="fiesta-datos"><b>${esc(nombre)}</b><small>${esc(t.nombre)}</small>${listaObjetos}</div></li>`;
         }).join('');
         $('fiesta-total').textContent = partida.asistentes.length;
         escena.ponerInvitados(partida.asistentes.length);
+        if (rondaNueva !== undefined) {
+            requestAnimationFrame(() => lista.scrollTo({
+                top: lista.scrollHeight,
+                left: lista.scrollWidth,
+                behavior: REDUCIDO ? 'auto' : 'smooth',
+            }));
+        }
     }
 
     // ------------------------------------------------------------------
@@ -417,12 +428,11 @@
     // cronómetro (se detiene durante animaciones y avisos)
     // ------------------------------------------------------------------
     const reloj = { fin: 0, id: null, ultimo: null };
-    const CIRC = 2 * Math.PI * 19;
 
     function relojIniciar() {
         reloj.fin = performance.now() + M.SEGUNDOS * 1000;
         reloj.ultimo = null;
-        $('hud-reloj').classList.remove('parado', 'aviso', 'urgente');
+        $('hud-reloj').classList.remove('parado', 'precaucion', 'urgente');
         clearInterval(reloj.id);
         reloj.id = setInterval(relojTic, 100);
         relojTic();
@@ -432,7 +442,7 @@
         clearInterval(reloj.id);
         reloj.id = null;
         $('hud-reloj').classList.add('parado');
-        $('hud-reloj').classList.remove('aviso', 'urgente');
+        $('hud-reloj').classList.remove('precaucion', 'urgente');
         $('hud-segundos').textContent = M.SEGUNDOS;
         $('reloj-arco').style.strokeDashoffset = '0';
     }
@@ -440,10 +450,11 @@
     function relojTic() {
         const restante = Math.max(0, (reloj.fin - performance.now()) / 1000);
         const seg = Math.ceil(restante);
+        const proporcion = Math.max(0, Math.min(1, restante / M.SEGUNDOS));
         $('hud-segundos').textContent = seg;
-        $('reloj-arco').style.strokeDashoffset = String(CIRC * (1 - restante / M.SEGUNDOS));
-        $('hud-reloj').classList.toggle('aviso', seg <= 7 && seg > 4);
-        $('hud-reloj').classList.toggle('urgente', seg <= 4);
+        $('reloj-arco').style.strokeDashoffset = String(100 * (1 - proporcion));
+        $('hud-reloj').classList.toggle('precaucion', restante <= 7 && restante > 4);
+        $('hud-reloj').classList.toggle('urgente', restante <= 4);
         if (seg !== reloj.ultimo && seg <= 7 && seg > 0) S.tocar(seg <= 4 ? 'tic_urgente' : 'tic', { volumen: seg <= 4 ? 0.9 : 0.6 });
         reloj.ultimo = seg;
         $('hud-reloj').setAttribute('aria-label', `Quedan ${seg} segundos`);
@@ -480,7 +491,7 @@
             cronicaAgregar(`<li class="cr-linea cr-decision"><span class="cr-icono">${A.nebuSVG('ladra')}</span><span class="cr-texto">Nebu deja pasar a <b>${nombreGrupo(elegidos)}</b>. ${otros} se marchan refunfuñando.</span><span></span></li>`);
             S.tocar('puerta_abre', { volumen: 0.6, retardo: 0.3 });
             await escena.elegir(eleccion);
-            actualizarFiesta(elegidos.map((v) => v.tipo));
+            actualizarFiesta(entrada.ronda);
         }
 
         await mostrarAvisos(entrada);
