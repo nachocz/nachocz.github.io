@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#140b26">
+    <title>¿Habrá akelarre?</title>
+    <meta name="description" content="Nebu vigila la puerta de la fiesta de Halloween mientras Claudia va al Scaryfour. ¿Quién entra y quién no?">
+    <meta property="og:title" content="¿Habrá akelarre?">
+    <meta property="og:description" content="Eres Nebu, la portera de una fiesta de Halloween. Diez decisiones, sinergias secretas y una luna que no para de cambiar.">
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="assets/fuentes/fredoka-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fuentes/creepster-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/juego.css">
+</head>
+<body>
+    <div class="cielo" aria-hidden="true"></div>
+
+    <!-- ============ PORTADA ============ -->
+    <section id="portada" class="pantalla activa" aria-labelledby="titulo-juego">
+        <div class="portada-caja">
+            <h1 id="titulo-juego" class="titulo">¿Habrá<br>akelarre?</h1>
+            <p class="lema">Claudia se ha ido al Scaryfour a por yugo de cebada.<br>Nebu se queda en la puerta. No hay lista de invitados.</p>
+            <div class="portada-arte" aria-hidden="true">
+                <div class="portada-luna" id="portada-luna"></div>
+                <div class="portada-claudia" id="portada-claudia"></div>
+                <div class="portada-nebu" id="portada-nebu"></div>
+            </div>
+            <div class="portada-botones">
+                <label class="campo-nombre">
+                    <span>¿Quién guarda la puerta?</span>
+                    <input id="nombre-jugador" type="text" maxlength="16" autocomplete="nickname" placeholder="Tu nombre para el ranking" spellcheck="false">
+                </label>
+                <button id="btn-jugar" class="btn btn-grande btn-naranja" type="button">Empezar la fiesta</button>
+                <div class="fila-botones">
+                    <button id="btn-album" class="btn btn-secundario" type="button">Álbum de sucesos <span id="album-progreso" class="insignia"></span></button>
+                    <button id="btn-ayuda" class="btn btn-secundario" type="button">Cómo se juega</button>
+                </div>
+            </div>
+            <section class="ranking" id="portada-ranking" aria-labelledby="portada-ranking-titulo" hidden>
+                <h2 id="portada-ranking-titulo">Ranking de esta sesión</h2>
+                <ol class="ranking-lista" id="portada-ranking-lista"></ol>
+                <button class="btn-enlace" type="button" id="btn-borrar-ranking">Borrar ranking</button>
+            </section>
+            <p class="portada-pie">
+                <span id="portada-mejor"></span>
+                <button class="btn-enlace" type="button" data-abrir="dlg-creditos">Créditos</button>
+            </p>
+        </div>
+    </section>
+
+    <!-- ============ INTRODUCCIÓN ============ -->
+    <section id="intro" class="pantalla" aria-label="Introducción">
+        <div class="intro-caja">
+            <div class="intro-escena">
+                <div class="intro-claudia" id="intro-claudia"></div>
+                <div class="intro-nebu" id="intro-nebu"></div>
+            </div>
+            <div class="intro-texto">
+                <div class="bocadillo bocadillo-grande" id="intro-bocadillo" aria-live="polite">
+                    <span class="quien">Claudia</span>
+                    <p id="intro-linea"></p>
+                </div>
+                <div id="intro-invitados" class="intro-invitados" hidden>
+                    <h2>Ya están en la fiesta</h2>
+                    <ul id="intro-lista" class="lista-iniciales"></ul>
+                    <p class="mision" id="intro-mision"></p>
+                    <ul class="controles">
+                        <li><span class="tecla">3</span> Cada ronda llaman <b>tres</b>: solo entra el que elijas; los otros dos se van.</li>
+                        <li><span class="tecla">2</span> En la <b>ronda 5</b> llegan parejas: entra la pareja entera.</li>
+                        <li><span class="tecla">⏱</span> <b>15 segundos</b> por decisión. Si no decides… ¡huevazo!</li>
+                    </ul>
+                </div>
+                <div class="intro-botones">
+                    <button id="btn-intro-saltar" class="btn btn-secundario" type="button">Saltar</button>
+                    <button id="btn-intro-seguir" class="btn btn-naranja" type="button">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ JUEGO ============ -->
+    <section id="juego" class="pantalla" aria-label="La puerta de la fiesta">
+        <header class="hud">
+            <div class="hud-ronda"><span class="hud-etq">Ronda</span> <output id="hud-ronda">1/10</output></div>
+            <div class="hud-luna" id="hud-luna" title="Fase lunar">
+                <span id="hud-luna-icono" aria-hidden="true"></span>
+                <output id="hud-luna-nombre">Luna llena</output>
+            </div>
+            <div class="hud-puntos" id="hud-puntos" aria-live="polite">
+                <span class="hud-etq">Popularidad</span>
+                <div class="puntos-fila"><output id="puntos" class="puntos">666</output><span class="puntos-max">/1000</span><span id="puntos-delta" class="puntos-delta"></span></div>
+                <div class="puntos-barra" aria-hidden="true"><div id="puntos-relleno" class="puntos-relleno"></div></div>
+            </div>
+            <div class="hud-reloj" id="hud-reloj" role="timer" aria-label="Tiempo restante">
+                <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="reloj-fondo" cx="22" cy="22" r="19"/><circle id="reloj-arco" class="reloj-arco" cx="22" cy="22" r="19"/></svg>
+                <output id="hud-segundos">15</output>
+            </div>
+            <button id="btn-sonido" class="btn-icono" type="button" aria-label="Sonido" title="Sonido">🔊</button>
+        </header>
+
+        <div class="tablero">
+            <div class="columna-puerta">
+                <div class="escenario" id="escenario">
+                    <div class="luna-escena" id="luna-escena" aria-hidden="true"></div>
+                    <canvas id="lienzo" class="lienzo" aria-label="Nebu, de espaldas en el umbral, mira a los tres candidatos que esperan en el porche"></canvas>
+                    <div class="banner-doble" id="banner-doble" hidden>Ronda de parejas: entra una pareja entera</div>
+                    <div class="avisos" id="avisos" aria-hidden="true"></div>
+                    <button class="btn-saltar-avisos" id="btn-saltar-avisos" type="button" hidden>Toca para seguir ›</button>
+                </div>
+                <div class="candidatos" id="candidatos" role="group" aria-label="Candidatos: elige a quién deja pasar Nebu"></div>
+            </div>
+            <aside class="columna-cronica">
+                <section class="panel panel-fiesta" aria-labelledby="titulo-fiesta">
+                    <h2 id="titulo-fiesta">Dentro de la fiesta <output id="fiesta-total" class="insignia">5</output></h2>
+                    <ul id="fiesta-lista" class="fiesta-lista"></ul>
+                </section>
+                <section class="panel panel-cronica" aria-labelledby="titulo-cronica">
+                    <h2 id="titulo-cronica">Crónica de la fiesta</h2>
+                    <ol id="cronica" class="cronica-viva" aria-live="polite"></ol>
+                </section>
+            </aside>
+        </div>
+    </section>
+
+    <!-- ============ FINAL ============ -->
+    <section id="final" class="pantalla" aria-labelledby="final-titulo">
+        <div class="final-caja">
+            <div class="final-cabecera">
+                <div class="final-escena">
+                    <div id="final-claudia" class="final-claudia"></div>
+                    <div id="final-nebu" class="final-nebu"></div>
+                </div>
+                <div class="final-resultado">
+                    <p class="final-akelarre" id="final-akelarre"></p>
+                    <h1 class="final-titulo" id="final-titulo">¡Fiestón!</h1>
+                    <p class="final-sub" id="final-sub"></p>
+                    <div class="final-puntos"><output id="final-puntos">0</output><span>/1000</span></div>
+                    <div class="bocadillo" id="final-comentario"><span class="quien">Claudia</span><p></p></div>
+                    <ul class="final-resumen" id="final-resumen"></ul>
+                </div>
+            </div>
+            <div class="final-botones">
+                <button id="btn-otra" class="btn btn-grande btn-naranja" type="button">Jugar otra fiesta</button>
+                <button id="btn-repetir" class="btn btn-secundario" type="button">Repetir esta fiesta</button>
+                <button id="btn-compartir" class="btn btn-secundario" type="button">Compartir esta fiesta</button>
+                <button id="btn-final-album" class="btn btn-secundario" type="button">Álbum</button>
+                <button id="btn-otro-jugador" class="btn btn-secundario" type="button">Otro jugador</button>
+            </div>
+            <section class="ranking" aria-labelledby="final-ranking-titulo">
+                <h2 id="final-ranking-titulo">Ranking de esta sesión</h2>
+                <p class="ranking-puesto" id="final-ranking-puesto"></p>
+                <ol class="ranking-lista" id="final-ranking-lista"></ol>
+            </section>
+            <h2 class="final-h2">¿Qué ha pasado en mi fiesta?</h2>
+            <ol class="cronica" id="final-cronica"></ol>
+        </div>
+    </section>
+
+    <!-- ============ ÁLBUM ============ -->
+    <section id="album" class="pantalla" aria-labelledby="album-titulo">
+        <div class="album-caja">
+            <div class="album-cabecera">
+                <button class="btn btn-secundario" type="button" id="btn-album-volver">‹ Volver</button>
+                <h1 id="album-titulo">Álbum de desastres y triunfos</h1>
+            </div>
+            <p class="album-intro">Cada suceso que provocas en una fiesta queda registrado aquí. Los que no has visto todavía aparecen como interrogantes.</p>
+            <div class="album-progreso"><div id="album-barra" class="album-barra"></div><output id="album-cuenta"></output></div>
+            <div id="album-contenido"></div>
+        </div>
+    </section>
+
+    <!-- ============ DIÁLOGOS ============ -->
+    <dialog id="dlg-ayuda" class="dialogo" aria-labelledby="ayuda-titulo">
+        <h2 id="ayuda-titulo">Cómo se juega</h2>
+        <p>Eres <b>Nebu</b>. Claudia ha ido al Scaryfour y te ha dejado en la puerta de su fiesta de Halloween. La fiesta empieza con <b>666 puntos de popularidad</b> sobre 1000 y cinco invitados dentro.</p>
+        <ul>
+            <li>Durante <b>10 rondas</b> llaman a la puerta <b>tres candidatos</b>. Eliges a uno y los otros dos se van.</li>
+            <li>En la <b>ronda 5</b> llegan tres parejas: entra la pareja que elijas.</li>
+            <li>Tienes <b>15 segundos</b> por decisión. Si se acaban, no entra nadie y te lanzan un <b>huevo</b> (−100).</li>
+            <li>Lo que pase dentro depende de <b>quién hay</b>, de <b>lo que traen</b> y de <b>la luna</b>, que cambia cada ronda. Las reglas no se explican: se descubren, y la crónica de la derecha cuenta qué ha pasado y cuánto ha sumado o restado.</li>
+            <li>Si la popularidad llega a <b>0</b>, la fiesta se arruina. El máximo es <b>1000</b>.</li>
+        </ul>
+        <p class="ayuda-teclas">Teclado: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> eligen candidato; <kbd>←</kbd> <kbd>→</kbd> cambian a quién miras y <kbd>Intro</kbd> lo deja pasar; <kbd>Espacio</kbd> pasa al siguiente aviso. En la escena, toca a un visitante para oír lo que dice.</p>
+        <form method="dialog"><button class="btn btn-naranja">¡Entendido!</button></form>
+    </dialog>
+
+
+    <dialog id="dlg-creditos" class="dialogo" aria-labelledby="creditos-titulo">
+        <h2 id="creditos-titulo">Créditos</h2>
+        <p>Idea y diseño: la fiesta de la Calf Queen. Ilustraciones vectoriales generadas por código para este juego.</p>
+        <h3>Música</h3>
+        <ul>
+            <li>«Ghoulish Fun» — Eric Matyas, <a href="https://soundimage.org" target="_blank" rel="noopener">soundimage.org</a> (CC-BY 3.0)</li>
+            <li>«Halloween Rock'n'Roll» — <a href="https://www.playonloop.com" target="_blank" rel="noopener">PlayOnLoop.com</a> (CC-BY 3.0)</li>
+            <li>«Spooky Waltz» (music box) — AureolusOmicron (CC0)</li>
+            <li>«8-bit Haunted House Theme» — Wolfgang_ (CC0)</li>
+        </ul>
+        <h3>Efectos de sonido</h3>
+        <p>Kenney.nl — Music Jingles, Interface, Impact, RPG y Digital Audio (CC0). OpenGameArt.org (CC0): haeldb, bonebrah, qubodup, frosty ham, AntumDeluge, NocturnalVanguard, caveboytup, EZduzziteh, rubberduck.</p>
+        <h3>Tipografías</h3>
+        <p>Creepster (Font Diner) y Fredoka (Milena Brandão, Hafontia), SIL Open Font License 1.1.</p>
+        <form method="dialog"><button class="btn btn-naranja">Cerrar</button></form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+
+    <script src="js/data/personajes.js"></script>
+    <script src="js/data/reglas.js"></script>
+    <script src="js/data/dialogos.js"></script>
+    <script src="js/data/balance.js"></script>
+    <script src="js/motor.js"></script>
+    <script src="js/arte.js"></script>
+    <script src="js/escena3d.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/juego.js"></script>
+</body>
+</html>

@@ -44,6 +44,15 @@ for (const [htmlFile, dictionaryFile] of checks) {
 }
 
 const index = fs.readFileSync('index.html', 'utf8');
+const app = fs.readFileSync('app.js', 'utf8');
+const akelarreCard = index.match(/<li\s+data-language-only="es"\s+hidden>[\s\S]*?href="habra-akelarre\/"[\s\S]*?<\/li>/);
+if (!akelarreCard) {
+    throw new Error('index.html: Akelarre card must be hidden initially and restricted to Spanish');
+}
+if (!app.includes("document.querySelectorAll('[data-language-only]')")) {
+    throw new Error('app.js: language-specific elements are not updated when the language changes');
+}
+
 for (const match of index.matchAll(/<iframe[^>]+src="([^"]+)"/g)) {
     if (/^https?:/.test(match[1])) continue;
     const localPath = match[1].split(/[?#]/, 1)[0];
@@ -97,6 +106,23 @@ if (!robots.includes(`Sitemap: ${SITE_URL}sitemap.xml`)) {
     throw new Error('robots.txt: sitemap URL does not match the deployed site');
 }
 console.log('sitemap.xml and robots.txt: production URLs are consistent');
+
+const akelarre = fs.readFileSync('habra-akelarre/index.html', 'utf8');
+if (!/^<!DOCTYPE html>\s*<html lang="es">/i.test(akelarre)) {
+    throw new Error('habra-akelarre/index.html: the game must declare Spanish as its language');
+}
+const akelarreIds = [...akelarre.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+const duplicateAkelarreIds = [...new Set(akelarreIds.filter((id, index) => akelarreIds.indexOf(id) !== index))];
+if (duplicateAkelarreIds.length) {
+    throw new Error(`habra-akelarre/index.html: duplicate IDs ${duplicateAkelarreIds}`);
+}
+for (const match of akelarre.matchAll(/<(?:script|link)[^>]+(?:src|href)="([^"]+)"/g)) {
+    const asset = match[1];
+    if (/^https?:/.test(asset)) continue;
+    const localPath = path.resolve('habra-akelarre', asset.split(/[?#]/, 1)[0]);
+    if (!fs.existsSync(localPath)) throw new Error(`habra-akelarre/index.html: missing asset ${asset}`);
+}
+console.log(`habra-akelarre/index.html: ${akelarreIds.length} unique IDs; local assets found; Spanish language declared`);
 
 // The solution of every cavity-inspection site is replayed with the controller
 // of the page: each viewpoint has to be reached and its defect reported.

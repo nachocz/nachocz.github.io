@@ -60,6 +60,10 @@
             });
         });
 
+        document.querySelectorAll('[data-language-only]').forEach((element) => {
+            element.hidden = element.dataset.languageOnly !== currentLanguage;
+        });
+
         document.documentElement.lang = currentLanguage;
         document.querySelectorAll('.lang-btn').forEach((button) => {
             const isActive = button.dataset.lang === currentLanguage;
