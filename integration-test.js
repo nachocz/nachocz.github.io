@@ -44,13 +44,8 @@ for (const [htmlFile, dictionaryFile] of checks) {
 }
 
 const index = fs.readFileSync('index.html', 'utf8');
-const app = fs.readFileSync('app.js', 'utf8');
-const akelarreCard = index.match(/<li\s+data-language-only="es"\s+hidden>[\s\S]*?href="habra-akelarre\/"[\s\S]*?<\/li>/);
-if (!akelarreCard) {
-    throw new Error('index.html: Akelarre card must be hidden initially and restricted to Spanish');
-}
-if (!app.includes("document.querySelectorAll('[data-language-only]')")) {
-    throw new Error('app.js: language-specific elements are not updated when the language changes');
+if (index.includes('habra-akelarre')) {
+    throw new Error('index.html: the Akelarre game is served at habra-akelarre/ but must not be linked from the site');
 }
 
 for (const match of index.matchAll(/<iframe[^>]+src="([^"]+)"/g)) {
@@ -111,6 +106,9 @@ const akelarre = fs.readFileSync('habra-akelarre/index.html', 'utf8');
 const akelarreGame = fs.readFileSync('habra-akelarre/js/juego.js', 'utf8');
 if (!/^<!DOCTYPE html>\s*<html lang="es">/i.test(akelarre)) {
     throw new Error('habra-akelarre/index.html: the game must declare Spanish as its language');
+}
+if (!akelarre.includes('<meta name="robots" content="noindex, nofollow">') || sitemap.includes('habra-akelarre')) {
+    throw new Error('habra-akelarre: the unlinked game must stay out of search indexes and the sitemap');
 }
 if (!akelarre.includes('id="reloj-arco"') || !akelarre.includes('pathLength="100"') ||
     !akelarreGame.includes("strokeDashoffset = String(100 * (1 - proporcion))") ||
