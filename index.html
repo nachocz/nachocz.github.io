@@ -308,20 +308,52 @@
         <!-- Research -->
         <section id="panel-research" class="panel" aria-labelledby="research-heading" hidden>
             <h2 id="research-heading" data-i18n="navResearch">Research</h2>
-            <p data-i18n="researchIntro">My research addresses the robotic manipulation of deformable objects, with shape control as the main line: estimating the shape of an object from sensor data, establishing correspondences between its deformed configurations, and computing the robot motions that drive it to a target shape. I focus on robust, data-efficient methods and on coordinated manipulation with several robots.</p>
+            <p data-i18n="researchIntro">I work on robotic manipulation along two lines: shape control of deformable objects and thermal servoing. In both, the robot motion is computed in closed loop from sensor measurements of the object (its shape or its surface temperature), with little or no model of the material.</p>
+
+            <div class="research-lines">
+                <article class="research-line" aria-labelledby="line-deformable-heading">
+                    <h3 id="line-deformable-heading" data-i18n="lineDeformableTitle">Deformable object manipulation</h3>
+                    <figure class="figure">
+                        <img src="assets/images/experimento_gif.gif" alt="Shape control experiment with two ABB IRB120 robots" data-i18n-alt="experimentAlt" class="figure-media" width="800" height="450" loading="lazy">
+                        <figcaption><span data-i18n="experimentCaption">Shape control of a foam piece with two ABB IRB120 robots</span> (<a href="https://doi.org/10.1109/TASE.2025.3529180">IEEE T-ASE 2025</a>).</figcaption>
+                    </figure>
+                    <p data-i18n="lineDeformableDesc">Shape control: estimating the shape of an object from sensor data, establishing correspondences between its deformed configurations, and computing the robot motions that drive it to a target shape. I focus on robust, data-efficient methods and on coordinated manipulation with several robots.</p>
+                    <p class="item-links">
+                        <a href="https://ignaciocuiral.com/tutorial_on_shape_servoing_of_deformable_objects/player.html" target="_blank" rel="noopener noreferrer" data-i18n="lineDeformableTutorial">Shape servoing tutorial</a>
+                        <a href="rod-threading.html" data-i18n="lineDeformableGame">Mini-game: Rod threading</a>
+                    </p>
+                </article>
+                <article class="research-line" aria-labelledby="line-thermal-heading">
+                    <h3 id="line-thermal-heading" data-i18n="lineThermalTitle">Thermal servoing</h3>
+                    <figure class="figure">
+                        <img src="assets/images/ehcc-experiment.gif" alt="Robot arm with a heat gun regulating the temperature of a foam block and a rubber sole, next to the measured temperature map" data-i18n-alt="ehccAlt" class="figure-media" width="640" height="360" loading="lazy">
+                        <figcaption><span data-i18n="ehccCaption">Ergodic heat coverage control of a foam block and a rubber sole. Right: temperature measured with thermochromic paint (60× speed)</span> (<a href="https://doi.org/10.1109/TRO.2026.3752259">IEEE T-RO 2026</a>).</figcaption>
+                    </figure>
+                    <p data-i18n="lineThermalDesc">Regulation of the temperature distribution of a surface with a robot-mounted heat source, as required in adhesive activation, composite curing or coating drying. Ergodic heat coverage control (EHCC) determines where to heat, by matching the time-averaged heat footprint of the source to the heat deficit of the surface, and how much, by adjusting the source-to-surface distance, without a thermal model of the material.</p>
+                    <p class="item-links">
+                        <a href="https://ignaciocuiral.com/Ergodic_Heat_Coverage_Control/player.html?p=index.html" target="_blank" rel="noopener noreferrer" data-i18n="linkDemos">Interactive demos</a>
+                        <a href="egg-incubator.html" data-i18n="lineThermalGame">Mini-game: Dino egg incubator</a>
+                    </p>
+                </article>
+            </div>
 
             <dl class="topics">
-                <div><dt data-i18n="topicsLabel">Topics</dt><dd data-i18n="topicsDesc">Shape control, deformable-object manipulation, robot perception and visual servoing.</dd></div>
-                <div><dt data-i18n="methodsLabel">Methods</dt><dd data-i18n="methodsDesc">Perception-to-manipulation pipelines, shape analysis, continuum mechanics, non-linear control, and data-driven estimation and control.</dd></div>
-                <div><dt data-i18n="applicationsLabel">Applications</dt><dd data-i18n="applicationsDesc">Robotic manipulation, cooperative robotics and manufacturing.</dd></div>
+                <div><dt data-i18n="topicsLabel">Topics</dt><dd data-i18n="topicsDesc">Shape control, deformable-object manipulation, thermal servoing, robot perception and visual servoing.</dd></div>
+                <div><dt data-i18n="methodsLabel">Methods</dt><dd data-i18n="methodsDesc">Perception-to-manipulation pipelines, shape analysis, continuum mechanics, non-linear and ergodic control, and data-driven estimation and control.</dd></div>
+                <div><dt data-i18n="applicationsLabel">Applications</dt><dd data-i18n="applicationsDesc">Robotic manipulation, cooperative robotics and manufacturing, including the thermal processing of materials.</dd></div>
             </dl>
 
-            <figure class="figure">
-                <img src="assets/images/experimento_gif.gif" alt="Shape control experiment with two ABB IRB120 robots" class="figure-media" width="800" height="450" loading="lazy">
-                <figcaption><span data-i18n="experimentCaption">Shape control of a foam piece with two ABB IRB120 robots</span> (<a href="https://doi.org/10.1109/TASE.2025.3529180">IEEE T-ASE 2025</a>).</figcaption>
-            </figure>
-
             <h3 data-i18n="selectedWorkTitle">Selected work</h3>
+            <article class="work">
+                <p><strong>I. Cuiral-Zueco</strong>, J. Thomas and Y. Mezouar, “Ergodic Heat Coverage Control: Model-Free Robotic Regulation of Temperature Distributions,” <em>IEEE Transactions on Robotics</em>, pp. 1–20, 2026. doi: <a href="https://doi.org/10.1109/TRO.2026.3752259">10.1109/TRO.2026.3752259</a>.</p>
+                <p class="item-links">
+                    <a href="https://ignaciocuiral.com/Ergodic_Heat_Coverage_Control/player.html?p=index.html" target="_blank" rel="noopener noreferrer" data-i18n="linkDemos">Interactive demos</a>
+                    <a href="https://github.com/nachocz/Ergodic_Heat_Coverage_Control" target="_blank" rel="noopener noreferrer" data-i18n="linkCode">Code</a>
+                </p>
+                <div class="video">
+                    <iframe src="https://www.youtube.com/embed/DbLgs0JepW0" title="Ergodic Heat Coverage Control video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </article>
             <article class="work">
                 <p><strong>I. Cuiral-Zueco</strong> and G. López-Nicolás, “Time Consistent Surface Mapping for Deformable Object Shape Control,” <em>IEEE Transactions on Automation Science and Engineering</em>, vol. 22, pp. 11099–11111, 2025. doi: <a href="https://doi.org/10.1109/TASE.2025.3529180">10.1109/TASE.2025.3529180</a>.</p>
                 <p class="item-links">
@@ -378,6 +410,14 @@
 
             <h3 data-i18n="journalsTitle">Journal articles</h3>
             <ol class="bib-list">
+                <li><span class="bib-label">J10</span><div><strong>I. Cuiral-Zueco</strong>, J. Thomas and Y. Mezouar, “Ergodic Heat Coverage Control: Model-Free Robotic Regulation of Temperature Distributions,” <em>IEEE Transactions on Robotics</em>, pp. 1–20, 2026. doi: <a href="https://doi.org/10.1109/TRO.2026.3752259">10.1109/TRO.2026.3752259</a>.
+                    <p class="item-links">
+                        <a href="https://ignaciocuiral.com/Ergodic_Heat_Coverage_Control/player.html?p=index.html" target="_blank" rel="noopener noreferrer" data-i18n="linkDemos">Interactive demos</a>
+                        <a href="https://github.com/nachocz/Ergodic_Heat_Coverage_Control" target="_blank" rel="noopener noreferrer" data-i18n="linkCode">Code</a>
+                        <a href="https://youtu.be/DbLgs0JepW0" target="_blank" rel="noopener noreferrer" data-i18n="linkVideo">Video</a>
+                        <a href="egg-incubator.html" data-i18n="linkMiniGame">Mini-game</a>
+                    </p></div>
+                </li>
                 <li><span class="bib-label">J9</span><div><strong>I. Cuiral-Zueco</strong> and G. López-Nicolás, “Data-Driven Shape Trajectory Control of Deformable Linear Objects,” <em>IEEE/ASME Transactions on Mechatronics</em>, pp. 1–12, 2026. doi: <a href="https://doi.org/10.1109/TMECH.2026.3715312">10.1109/TMECH.2026.3715312</a>.</div></li>
                 <li><span class="bib-label">J8</span><div>A. Caporali, <strong>I. Cuiral-Zueco</strong>, G. López-Nicolás and G. Palli, “Robotic perception and manipulation of deformable linear objects: A survey,” <em>The International Journal of Robotics Research</em>, 2026. doi: <a href="https://doi.org/10.1177/02783649261432253">10.1177/02783649261432253</a>.
                     <p class="item-links"><a href="https://ignaciocuiral.com/robotic_perception_and_manipulation_of_DLOs_survey/" target="_blank" rel="noopener noreferrer" data-i18n="linkProject">Project page</a></p></div>
@@ -449,6 +489,7 @@
                         <img src="assets/images/companion-heat-coverage.jpg" alt="" width="640" height="480" loading="lazy">
                         <strong>Ergodic Heat Coverage Control</strong>
                         <span data-i18n="companionHeatDesc">Model-free regulation of surface temperature with a robot-mounted heat source.</span>
+                        <cite class="card-ref">I. Cuiral-Zueco, J. Thomas and Y. Mezouar, IEEE Transactions on Robotics, 2026.</cite>
                     </a>
                 </li>
                 <li>
@@ -481,6 +522,7 @@
                         <img src="assets/images/minigame-egg-incubator.jpg" alt="" width="640" height="480" loading="lazy">
                         <strong><span data-i18n="miniGameEggTitle">Dino egg incubator</span> <span class="difficulty medium" data-i18n="difficultyMedium">Medium</span></strong>
                         <span data-i18n="miniGameEggDesc">Keep a dinosaur egg uniformly warm with a moving heat source until it hatches.</span>
+                        <cite class="card-ref">I. Cuiral-Zueco, J. Thomas and Y. Mezouar, IEEE Transactions on Robotics, 2026.</cite>
                     </a>
                 </li>
                 <li>
