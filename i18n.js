@@ -137,6 +137,7 @@ const translations = {
         // Demos
         companionsTitle: 'Interactive research demos',
         companionTutorialDesc: 'Data-driven shape control of an elastic rod held by two robot arms.',
+        companionProcrustesDesc: '3D shape control of a deformable object with 6-DoF gripper actions computed by Procrustes analysis at multiple scales.',
         companionSoftExtensionDesc: 'A tendon-driven soft extension bent and controlled through the joint motion of the arm.',
         companionHeatDesc: 'Model-free regulation of surface temperature with a robot-mounted heat source.',
         companionStereoSlamDesc: 'Stereo ORB-SLAM2 evaluated on laparoscopy sequences and extended with a dense tissue map built from stereo disparities.',
@@ -302,6 +303,7 @@ const translations = {
         // Demos
         companionsTitle: 'Demos interactivas de investigación',
         companionTutorialDesc: 'Control de forma basado en datos de una varilla elástica sujeta por dos brazos robóticos.',
+        companionProcrustesDesc: 'Control de forma 3D de un objeto deformable con acciones de 6 GDL de las pinzas calculadas mediante análisis de Procrustes a varias escalas.',
         companionSoftExtensionDesc: 'Una extensión blanda accionada por tendones que se flexiona y controla con el movimiento articular del brazo.',
         companionHeatDesc: 'Regulación sin modelo de la temperatura de una superficie con una fuente de calor montada en un robot.',
         companionStereoSlamDesc: 'ORB-SLAM2 estéreo evaluado en secuencias de laparoscopia y ampliado con un mapa denso del tejido construido a partir de las disparidades estéreo.',
