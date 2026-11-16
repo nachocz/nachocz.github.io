@@ -37,6 +37,7 @@ build/
 
 # Prompt files
 prompt
+prompts/
 
 # Local reference material supplied for demo development
 context/

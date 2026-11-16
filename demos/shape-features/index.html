@@ -8,13 +8,13 @@
     <meta name="author" content="Ignacio Cuiral-Zueco">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ignaciocuiral.com/shape-features-demo.html">
+    <meta property="og:url" content="https://ignaciocuiral.com/demos/shape-features/">
     <meta property="og:title" content="Data-Driven Shape Control | Ignacio Cuiral-Zueco">
     <meta property="og:description" content="Interactive lessons on manual deformable-object manipulation, shape representations and data-driven shape control.">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Data-Driven Shape Control | Ignacio Cuiral-Zueco">
     <meta name="twitter:description" content="Interactive lessons on manual deformable-object manipulation, shape representations and data-driven shape control.">
-    <link rel="canonical" href="https://ignaciocuiral.com/shape-features-demo.html">
+    <link rel="canonical" href="https://ignaciocuiral.com/demos/shape-features/">
     <script>
         (() => {
             const savedTheme = localStorage.getItem('theme');
@@ -1189,7 +1189,7 @@
 <body>
     <main class="demo-shell">
         <header>
-            <a class="standalone-back" href="index.html#dissemination" data-i18n="backToJourney">← Back to the demos</a>
+            <a class="standalone-back" href="../../#demos" data-i18n="backToJourney">← Back to the demos</a>
             <div class="demo-topline">
                 <p class="demo-kicker" data-i18n="demoKicker">Interactive demo</p>
                 <div class="language-switcher" aria-label="Language">
@@ -1389,7 +1389,7 @@
                 <strong id="takeawayTitle" data-i18n="takeawayTitle">The feature vector determines which errors the controller corrects.</strong>
                 <p id="takeawayDesc" data-i18n="takeawayDesc">Point coordinates retain pose and shape, edge vectors are invariant to translation, and curvature depends only on bending. The choice depends on whether the task specifies the pose of the object.</p>
             </div>
-            <a id="nextJourneyBtn" class="button button-primary button-link" href="index.html#research" target="_top" data-i18n="finishJourney">Related research →</a>
+            <a id="nextJourneyBtn" class="button button-primary button-link" href="../../#research" target="_top" data-i18n="finishJourney">Related research →</a>
         </section>
     </main>
 
@@ -3332,10 +3332,10 @@
             const next = document.getElementById('nextJourneyBtn');
             next.textContent = words[modeKeys.next];
             next.href = demoMode === 'manipulate'
-                ? 'shape-comparison.html'
+                ? '../../games/shape-comparison/'
                 : demoMode === 'representations'
-                    ? 'shape-features-demo.html?mode=data-driven'
-                    : 'index.html#research';
+                    ? '?mode=data-driven'
+                    : '../../#research';
             document.title = `${words[modeKeys.title]} | Ignacio Cuiral-Zueco`;
         }
 

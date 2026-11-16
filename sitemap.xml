@@ -2,43 +2,43 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ignaciocuiral.com/</loc>
-    <lastmod>2026-11-13</lastmod>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ignaciocuiral.com/robotics-demo.html</loc>
-    <lastmod>2026-10-15</lastmod>
+    <loc>https://ignaciocuiral.com/games/shape-comparison/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ignaciocuiral.com/shape-comparison.html</loc>
-    <lastmod>2026-10-15</lastmod>
+    <loc>https://ignaciocuiral.com/games/rod-threading/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ignaciocuiral.com/rod-threading.html</loc>
-    <lastmod>2026-10-28</lastmod>
+    <loc>https://ignaciocuiral.com/games/egg-incubator/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ignaciocuiral.com/egg-incubator.html</loc>
-    <lastmod>2026-11-12</lastmod>
+    <loc>https://ignaciocuiral.com/games/cavity-inspection/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ignaciocuiral.com/cavity-inspection.html</loc>
-    <lastmod>2026-10-30</lastmod>
+    <loc>https://ignaciocuiral.com/demos/cable-challenge/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ignaciocuiral.com/shape-features-demo.html</loc>
-    <lastmod>2026-10-15</lastmod>
+    <loc>https://ignaciocuiral.com/demos/shape-features/</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

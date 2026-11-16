@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Page not found | Ignacio Cuiral-Zueco</title>
+    <script>
+        // GitHub Pages serves this page for every missing path. Pages and files that
+        // were moved when the site was reorganised into folders are forwarded to their
+        // new location, keeping the query string (?mode=hard, ?site=3) and the hash.
+        (() => {
+            const MOVED = {
+                '/robotics-demo.html': '/demos/cable-challenge/',
+                '/shape-features-demo.html': '/demos/shape-features/',
+                '/shape-comparison.html': '/games/shape-comparison/',
+                '/rod-threading.html': '/games/rod-threading/',
+                '/egg-incubator.html': '/games/egg-incubator/',
+                '/cavity-inspection.html': '/games/cavity-inspection/',
+                '/bibliography.bib': '/assets/downloads/bibliography.bib',
+                '/assets/ERF_2026/ERF_2026poster.pdf': '/assets/downloads/erf-2026-poster.pdf',
+                '/assets/images/triptico_tesis_ENG.pdf': '/assets/downloads/thesis-flyer-en.pdf',
+                '/assets/images/triptico_tesis_ESP.pdf': '/assets/downloads/thesis-flyer-es.pdf',
+                '/assets/images/icz_photo.jpg': '/assets/images/profile/icz-photo.jpg'
+            };
+            const target = MOVED[window.location.pathname];
+            if (target) {
+                window.location.replace(target + window.location.search + window.location.hash);
+                return;
+            }
+            let theme = null;
+            let language = null;
+            try {
+                theme = localStorage.getItem('theme');
+                language = localStorage.getItem('language');
+            } catch (error) { /* storage blocked */ }
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.dataset.theme = theme || systemTheme;
+            if (language === 'es') document.documentElement.lang = 'es';
+        })();
+    </script>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #ffffff;
+            --text: #1f2328;
+            --muted: #697179;
+            --link: #1d5b94;
+            --link-hover: #0e3c66;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #15181b;
+            --text: #e3e6e9;
+            --muted: #949da6;
+            --link: #8dbbe8;
+            --link-hover: #bcd8f3;
+        }
+
+        body {
+            min-width: 320px;
+            margin: 0;
+            color: var(--text);
+            background: var(--bg);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.65;
+        }
+
+        main {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 18vh 16px 48px;
+        }
+
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin: 0 0 1rem;
+            color: var(--muted);
+        }
+
+        a {
+            color: var(--link);
+        }
+
+        a:hover {
+            color: var(--link-hover);
+        }
+
+        html[lang="es"] [data-lang="en"],
+        html:not([lang="es"]) [data-lang="es"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div data-lang="en">
+            <h1>Page not found</h1>
+            <p>The page at this address does not exist or has been moved.</p>
+            <p><a href="/">Go to the home page</a></p>
+        </div>
+        <div data-lang="es">
+            <h1>Página no encontrada</h1>
+            <p>La página de esta dirección no existe o se ha movido.</p>
+            <p><a href="/">Ir a la página principal</a></p>
+        </div>
+    </main>
+</body>
+</html>

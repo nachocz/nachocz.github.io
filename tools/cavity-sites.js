@@ -1,4 +1,4 @@
-// Generates the sites of cavity-inspection.html and writes them into its SITES
+// Generates the sites of games/cavity-inspection/index.html and writes them into its SITES
 // literal: node tools/cavity-sites.js
 //
 // For each theme: the contents of the housing, intact decoys on viewable spots,
@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PAGE = path.join(__dirname, '..', 'cavity-inspection.html');
+const PAGE = path.join(__dirname, '..', 'games', 'cavity-inspection', 'index.html');
 const page = fs.readFileSync(PAGE, 'utf8');
 const coreStart = page.indexOf('const Core = (() => {');
 const coreEnd = page.indexOf('// end of the simulation core', coreStart);
@@ -267,4 +267,4 @@ if (!literal.test(page)) throw new Error('SITES literal not found');
 const eol = page.includes('\r\n') ? '\r\n' : '\n';
 const updated = page.replace(literal, `const SITES = ${format(sites).replace(/\n/g, eol)};`);
 fs.writeFileSync(PAGE, updated);
-console.log(updated === page ? 'cavity-inspection.html: sites unchanged' : 'cavity-inspection.html: sites updated');
+console.log(updated === page ? 'games/cavity-inspection: sites unchanged' : 'games/cavity-inspection: sites updated');
