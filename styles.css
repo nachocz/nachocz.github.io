@@ -461,6 +461,76 @@ strong {
     background: var(--media-bg);
 }
 
+/* Text beside a compact figure or video, stacked on narrow screens */
+
+.media-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    gap: 1.5rem;
+    align-items: start;
+    margin: 0 0 1.4rem;
+}
+
+.media-row > p,
+.media-row .figure,
+.media-row .video {
+    margin: 0;
+}
+
+.media-row .figure figcaption {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+}
+
+/* People I admire: a small image beside each name and description */
+
+.admire-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.75rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admire-list li {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: start;
+}
+
+.admire-thumb img {
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    object-fit: cover;
+    transition: border-color 0.15s ease;
+}
+
+.admire-thumb:hover img {
+    border-color: var(--muted);
+}
+
+.admire-name {
+    font-weight: 600;
+    line-height: 1.35;
+    text-decoration: none;
+}
+
+.admire-name:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.admire-list p {
+    margin: 0.2rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
 /* Research lines: two columns, stacked on narrow screens */
 
 .research-lines {
@@ -774,6 +844,22 @@ strong {
         grid-template-columns: minmax(0, 1fr);
         gap: 2.25rem;
     }
+
+    .media-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.9rem;
+    }
+
+    .admire-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Keeps the six English tabs within a 390 px phone screen */
+@media (max-width: 420px) {
+    .site-nav a {
+        padding: 0 6px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -806,7 +892,7 @@ strong {
     .site-footer,
     .video,
     #panel-demos,
-    #panel-outreach {
+    #panel-misc {
         display: none !important;
     }
 

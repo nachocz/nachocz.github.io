@@ -5,7 +5,7 @@
     const VALID_THEMES = ['light', 'dark'];
     const DEFAULT_PANEL = 'panel-news';
     // Hashes used by earlier versions of the site keep working.
-    const PANEL_ALIASES = { dissemination: 'demos', home: 'news' };
+    const PANEL_ALIASES = { dissemination: 'demos', home: 'news', outreach: 'misc' };
     const THEME_COLORS = { light: '#23282d', dark: '#0e1012' };
 
     const navLinks = [...document.querySelectorAll('.site-nav a[data-panel]')];
