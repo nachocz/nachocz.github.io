@@ -1,5 +1,5 @@
-// Generates the sites of games/cavity-inspection/index.html and writes them into its SITES
-// literal: node tools/cavity-sites.js
+// Generates the sites of the cavity-inspection game and writes them into the SITES
+// literal of games/cavity-inspection/script.js: node tools/cavity-sites.js
 //
 // For each theme: the contents of the housing, intact decoys on viewable spots,
 // three viewpoints sampled from collision-free null-space motions, a closed-loop
@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PAGE = path.join(__dirname, '..', 'games', 'cavity-inspection', 'index.html');
+const PAGE = path.join(__dirname, '..', 'games', 'cavity-inspection', 'script.js');
 const page = fs.readFileSync(PAGE, 'utf8');
 const coreStart = page.indexOf('const Core = (() => {');
 const coreEnd = page.indexOf('// end of the simulation core', coreStart);
@@ -233,7 +233,7 @@ function generate(theme, seed, index) {
 
 // one key per line; objects and number arrays that fit on a line stay on it
 function format(value, level = 0) {
-    const pad = ' '.repeat(12 + 4 * level);
+    const pad = ' '.repeat(4 + 4 * level);
     const numbers = (v) => `[${v.map((x) => (Array.isArray(x) ? numbers(x) : JSON.stringify(x))).join(', ')}]`;
     if (typeof value === 'string') return `'${value}'`;
     if (!Array.isArray(value) && typeof value === 'object') {
@@ -262,7 +262,7 @@ const sites = THEMES.map((theme, index) => {
     throw new Error(`no site for ${theme.name.en}`);
 });
 
-const literal = /const SITES = \[[\s\S]*?\n {12}\];/;
+const literal = /const SITES = \[[\s\S]*?\n {4}\];/;
 if (!literal.test(page)) throw new Error('SITES literal not found');
 const eol = page.includes('\r\n') ? '\r\n' : '\n';
 const updated = page.replace(literal, `const SITES = ${format(sites).replace(/\n/g, eol)};`);

@@ -1,0 +1,1844 @@
+const translations = {
+    en: {
+        backToDemos: '← Back to the demos',
+        kicker: 'Mini-game',
+        languageAria: 'Language',
+        title: 'Rod threading',
+        intro: 'Shape control computes robot motions that deform an object toward a target, with applications in cable routing, food handling and surgery. Here two robots hold an elastic rod in a vertical plane. Each approaching gap is generated from a reachable equilibrium shape. Deform the rod to pass through it. Show solution runs the tutorial\'s shape-servoing loop, which estimates the rod response to gripper motion and updates that estimate online.',
+        hudScore: 'Score',
+        hudClean: 'Clean',
+        hudClose: 'Close',
+        hudGap: 'Gap',
+        hudFit: 'Fit',
+        livesAria: 'Lives',
+        canvasAria: 'Two robot arms hold an elastic rod while panels with rod-shaped gaps approach the manipulation plane',
+        hint: 'Drag a gripper to translate it; drag the ring above it to rotate it. Drag the rod to translate both grippers. Keyboard: arrow keys move the selected gripper, Q and E rotate it, Space switches gripper, P pauses.',
+        pause: 'Pause',
+        resume: 'Resume',
+        restart: 'Restart',
+        legendClean: 'Clean pass',
+        legendCleanDesc: 'The whole rod is inside the gap: +100.',
+        legendClose: 'Close pass',
+        legendCloseDesc: 'At least 75% of the rod is inside the gap: +40.',
+        legendCrash: 'Collision',
+        legendCrashDesc: 'Less than 75% of the rod is inside the gap: one life lost.',
+        note: 'Each gap is generated from the rod\'s equilibrium shape at reachable gripper poses, then widened by the current clearance. It can therefore be matched exactly. After each pass, the clearance decreases and the panels move faster.',
+        startText: 'Match the rod to the dashed outline before each panel reaches the plane. You have three lives.',
+        start: 'Start',
+        pausedTitle: 'Paused',
+        pausedText: 'The panels stop until you resume.',
+        overTitle: 'Game over',
+        overText: 'The rod collided with three panels.',
+        showSolution: 'Show solution',
+        stopSolution: 'Stop solution',
+        solutionBanner: 'Solution · shape servoing, Algorithm 1 of the tutorial',
+        solutionOverText: 'Gaps threaded by the shape-servoing loop before the third collision: {count}.',
+        statBest: 'Best',
+        newBest: 'New best score',
+        playAgain: 'Play again',
+        popupClean: 'Clean',
+        popupClose: 'Close',
+        popupCrash: 'Collision',
+        announceClean: 'Clean pass, 100 points.',
+        announceClose: 'Close pass, 40 points.',
+        announceCrash: 'Collision, one life lost.',
+        modeAria: 'Mode',
+        modeNormal: 'Normal',
+        modeHard: 'Hard',
+        jointsTitle: 'Right robot joints',
+        jointShoulder: 'Shoulder',
+        jointElbow: 'Elbow',
+        jointWrist: 'Wrist',
+        hintHard: 'Hard mode: the left rod end is clamped and the right robot is commanded in joint space. Use the sliders, or hold Q/A, W/S and E/D, to rotate the shoulder, elbow and wrist. P pauses.',
+        noteHard: 'In hard mode, each gap is generated from an equilibrium shape with the left end clamped and the right robot within the slider ranges. The sliders can therefore match every gap. The panels take 30% longer to arrive than in normal mode.',
+        referencesTitle: 'Related papers',
+        companionLabel: 'Interactive companion:',
+        startTextHard: 'The left end is clamped to a fixed stand. Rotate the joints of the right robot to match the dashed outline before each panel reaches the plane. You have three lives.'
+    },
+    es: {
+        backToDemos: '← Volver a las demos',
+        kicker: 'Minijuego',
+        languageAria: 'Idioma',
+        title: 'Enhebra la varilla',
+        intro: 'El control de forma calcula movimientos robóticos que deforman un objeto hacia un objetivo, con aplicaciones en guiado de cables, manipulación de alimentos y cirugía. Aquí dos robots sujetan una varilla elástica en un plano vertical. Cada hueco que se aproxima se genera a partir de una forma de equilibrio alcanzable. Deforma la varilla para atravesarlo. Ver solución ejecuta el servocontrol de forma del tutorial, que estima la respuesta de la varilla al movimiento de las pinzas y actualiza la estimación en línea.',
+        hudScore: 'Puntos',
+        hudClean: 'Limpios',
+        hudClose: 'Rozando',
+        hudGap: 'Hueco',
+        hudFit: 'Encaje',
+        livesAria: 'Vidas',
+        canvasAria: 'Dos brazos robóticos sujetan una varilla elástica mientras paneles con huecos en forma de varilla se acercan al plano de manipulación',
+        hint: 'Arrastra una pinza para trasladarla; arrastra el anillo situado sobre ella para girarla. Arrastra la varilla para trasladar ambas pinzas. Teclado: las flechas mueven la pinza seleccionada, Q y E la giran, Espacio cambia de pinza y P pausa el juego.',
+        pause: 'Pausa',
+        resume: 'Continuar',
+        restart: 'Reiniciar',
+        legendClean: 'Paso limpio',
+        legendCleanDesc: 'Toda la varilla queda dentro del hueco: +100.',
+        legendClose: 'Paso rozando',
+        legendCloseDesc: 'Al menos el 75 % de la varilla queda dentro del hueco: +40.',
+        legendCrash: 'Colisión',
+        legendCrashDesc: 'Menos del 75 % de la varilla queda dentro del hueco: se pierde una vida.',
+        note: 'Cada hueco se genera a partir de una forma de equilibrio alcanzable y se ensancha con la holgura actual. Por tanto, puede ajustarse exactamente. Tras cada paso, la holgura disminuye y los paneles avanzan más rápido.',
+        startText: 'Ajusta la varilla al contorno discontinuo antes de que cada panel llegue al plano. Tienes tres vidas.',
+        start: 'Empezar',
+        pausedTitle: 'En pausa',
+        pausedText: 'Los paneles se detienen hasta que continúes.',
+        overTitle: 'Fin de la partida',
+        overText: 'La varilla ha chocado con tres paneles.',
+        showSolution: 'Ver solución',
+        stopSolution: 'Detener solución',
+        solutionBanner: 'Solución · servocontrol de forma, algoritmo 1 del tutorial',
+        solutionOverText: 'Huecos atravesados por el bucle de servocontrol de forma antes de la tercera colisión: {count}.',
+        statBest: 'Récord',
+        newBest: 'Nuevo récord',
+        playAgain: 'Jugar de nuevo',
+        popupClean: 'Limpio',
+        popupClose: 'Rozando',
+        popupCrash: 'Colisión',
+        announceClean: 'Paso limpio, 100 puntos.',
+        announceClose: 'Paso rozando, 40 puntos.',
+        announceCrash: 'Colisión, se pierde una vida.',
+        modeAria: 'Modo',
+        modeNormal: 'Normal',
+        modeHard: 'Difícil',
+        jointsTitle: 'Articulaciones del robot derecho',
+        jointShoulder: 'Hombro',
+        jointElbow: 'Codo',
+        jointWrist: 'Muñeca',
+        hintHard: 'Modo difícil: el extremo izquierdo está fijo y el robot derecho se controla en el espacio articular. Usa los deslizadores o mantén pulsadas Q/A, W/S y E/D para girar hombro, codo y muñeca. P pausa el juego.',
+        noteHard: 'En el modo difícil, cada hueco se genera a partir de una forma de equilibrio con el extremo izquierdo fijo y el robot derecho dentro de los rangos de los deslizadores. Por tanto, los deslizadores pueden ajustar cada hueco. Los paneles tardan un 30 % más en llegar que en modo normal.',
+        referencesTitle: 'Artículos relacionados',
+        companionLabel: 'Página interactiva:',
+        startTextHard: 'El extremo izquierdo está sujeto a un soporte fijo. Gira las articulaciones del robot derecho para ajustar la varilla al contorno discontinuo antes de que cada panel llegue al plano. Tienes tres vidas.'
+    }
+};
+
+const isEmbedded = window.self !== window.top;
+// embedded copies keep their preferences out of the parent's storage
+const storage = {
+    get(key) {
+        if (isEmbedded) return null;
+        try { return localStorage.getItem(key); } catch (error) { return null; }
+    },
+    set(key, value) {
+        if (isEmbedded) return;
+        try { localStorage.setItem(key, value); } catch (error) { /* storage blocked */ }
+    }
+};
+
+// ------------------------------------------------------------------
+// model: the discrete Kirchhoff rod and planar 3R arms of the
+// dual-arm shape-control demos (demos/shape-features/)
+// ------------------------------------------------------------------
+const TAU = Math.PI * 2;
+const ROD = { length: 1.85, segments: 24, stiffness: 1, iterations: 48 };
+ROD.h = ROD.length / ROD.segments;
+const ROD_RADIUS = 0.017;
+const ARM = { l1: 1.30, l2: 1.10, l3: 0.28 };
+const BASES = [[-1.55, -0.95], [1.55, -0.95]];
+const FLOOR = -1.02;
+const KEYS = ['x0', 'y0', 'a0', 'x1', 'y1', 'a1'];
+// the envelope in which both arms reach every clamped pose
+const LIMITS = {
+    x0: [-1.00, -0.20], y0: [-0.36, 0.38], a0: [-1.00, 1.00],
+    x1: [0.20, 1.00], y1: [-0.36, 0.38], a1: [-1.00, 1.00]
+};
+const HOME = { x0: -0.58, y0: 0.00, a0: 0.28, x1: 0.58, y1: 0.00, a1: -0.28 };
+const HANDLE = 0.26;
+
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+const dist = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+
+function integrateRod(start, angles) {
+    const pts = [[start[0], start[1]]];
+    for (const angle of angles) {
+        const prev = pts[pts.length - 1];
+        pts.push([prev[0] + ROD.h * Math.cos(angle), prev[1] + ROD.h * Math.sin(angle)]);
+    }
+    return pts;
+}
+
+function bendingEnergy(angles) {
+    let energy = 0;
+    for (let i = 1; i < angles.length; i++) {
+        const kappa = wrapAngle(angles[i] - angles[i - 1]);
+        energy += 0.5 * ROD.stiffness * kappa * kappa;
+    }
+    return energy;
+}
+
+function solveDense(matrix, rhs) {
+    const size = rhs.length;
+    const a = matrix.map((row, index) => [...row, rhs[index]]);
+    for (let column = 0; column < size; column++) {
+        let pivot = column;
+        for (let row = column + 1; row < size; row++) {
+            if (Math.abs(a[row][column]) > Math.abs(a[pivot][column])) pivot = row;
+        }
+        if (Math.abs(a[pivot][column]) < 1e-10) return null;
+        [a[column], a[pivot]] = [a[pivot], a[column]];
+        const inv = 1 / a[column][column];
+        for (let e = column; e <= size; e++) a[column][e] *= inv;
+        for (let row = 0; row < size; row++) {
+            if (row === column) continue;
+            const factor = a[row][column];
+            if (Math.abs(factor) < 1e-14) continue;
+            for (let e = column; e <= size; e++) a[row][e] -= factor * a[column][e];
+        }
+    }
+    return a.map(row => row[size]);
+}
+
+function initialRodAngles(p0, p1, a0, a1, bend) {
+    const segmentCount = ROD.segments;
+    const internal = segmentCount - 2;
+    const innerL = [p0[0] + ROD.h * Math.cos(a0), p0[1] + ROD.h * Math.sin(a0)];
+    const innerR = [p1[0] - ROD.h * Math.cos(a1), p1[1] - ROD.h * Math.sin(a1)];
+    const chordAngle = Math.atan2(innerR[1] - innerL[1], innerR[0] - innerL[0]);
+    const chord = dist(innerL, innerR);
+    const paired = internal - internal % 2;
+    const centre = internal - paired;
+    const cosine = clamp((chord / ROD.h - centre) / paired, -1, 1);
+    const opening = Math.acos(cosine);
+    const angles = Array(segmentCount).fill(chordAngle);
+    const half = paired / 2;
+    for (let i = 0; i < half; i++) angles[i + 1] = chordAngle + bend * opening;
+    for (let i = 0; i < half; i++) angles[i + 1 + half + centre] = chordAngle - bend * opening;
+    angles[0] = a0;
+    angles[segmentCount - 1] = a1;
+    return angles;
+}
+
+function projectEndpoints(angles, p0, p1, maxIterations = 8) {
+    const last = angles.length - 1;
+    for (let iteration = 0; iteration < maxIterations; iteration++) {
+        const pts = integrateRod(p0, angles);
+        const end = pts[pts.length - 1];
+        const error = [end[0] - p1[0], end[1] - p1[1]];
+        if (Math.hypot(...error) < 1e-7) return true;
+        let xx = 1e-8;
+        let xy = 0;
+        let yy = 1e-8;
+        const columns = [];
+        for (let index = 1; index < last; index++) {
+            const column = [-ROD.h * Math.sin(angles[index]), ROD.h * Math.cos(angles[index])];
+            columns.push(column);
+            xx += column[0] * column[0];
+            xy += column[0] * column[1];
+            yy += column[1] * column[1];
+        }
+        const det = xx * yy - xy * xy;
+        if (Math.abs(det) < 1e-10) return false;
+        const mx = (yy * error[0] - xy * error[1]) / det;
+        const my = (-xy * error[0] + xx * error[1]) / det;
+        const correction = columns.map(c => -(c[0] * mx + c[1] * my));
+        const largest = Math.max(...correction.map(Math.abs), 1e-9);
+        const scale = Math.min(1, 0.45 / largest);
+        for (let v = 0; v < correction.length; v++) angles[v + 1] += scale * correction[v];
+    }
+    const pts = integrateRod(p0, angles);
+    return dist(pts[pts.length - 1], p1) < 1e-4;
+}
+
+// Quasi-static equilibrium: minimise bending energy over the interior segment
+// angles while both clamped ends and the endpoint positions are held exactly.
+function solveRod(p0, p1, a0, a1, warm = null, bend = 1) {
+    const segmentCount = ROD.segments;
+    const variables = segmentCount - 2;
+    const angles = warm?.length === segmentCount
+        ? [...warm]
+        : initialRodAngles(p0, p1, a0, a1, bend);
+    angles[0] = a0;
+    angles[segmentCount - 1] = a1;
+    projectEndpoints(angles, p0, p1);
+
+    for (let iteration = 0; iteration < ROD.iterations; iteration++) {
+        const pts = integrateRod(p0, angles);
+        const end = pts[pts.length - 1];
+        const constraint = [end[0] - p1[0], end[1] - p1[1]];
+        const residual = Math.hypot(...constraint);
+
+        const gradient = Array(variables).fill(0);
+        const hessian = Array.from({ length: variables }, () => Array(variables).fill(0));
+        const jac = [Array(variables).fill(0), Array(variables).fill(0)];
+        for (let v = 0; v < variables; v++) {
+            const index = v + 1;
+            const prev = wrapAngle(angles[index] - angles[index - 1]);
+            const next = wrapAngle(angles[index + 1] - angles[index]);
+            gradient[v] = ROD.stiffness * (prev - next);
+            hessian[v][v] = 2 * ROD.stiffness + 1e-5;
+            if (v > 0) hessian[v][v - 1] = -ROD.stiffness;
+            if (v < variables - 1) hessian[v][v + 1] = -ROD.stiffness;
+            jac[0][v] = -ROD.h * Math.sin(angles[index]);
+            jac[1][v] = ROD.h * Math.cos(angles[index]);
+        }
+        if (residual < 1e-4 && Math.max(...gradient.map(Math.abs)) < 1e-4) break;
+
+        const size = variables + 2;
+        const kkt = Array.from({ length: size }, () => Array(size).fill(0));
+        const rhs = Array(size).fill(0);
+        for (let row = 0; row < variables; row++) {
+            rhs[row] = -gradient[row];
+            for (let col = 0; col < variables; col++) kkt[row][col] = hessian[row][col];
+            kkt[row][variables] = jac[0][row];
+            kkt[row][variables + 1] = jac[1][row];
+            kkt[variables][row] = jac[0][row];
+            kkt[variables + 1][row] = jac[1][row];
+        }
+        kkt[variables][variables] = -1e-8;
+        kkt[variables + 1][variables + 1] = -1e-8;
+        rhs[variables] = -constraint[0];
+        rhs[variables + 1] = -constraint[1];
+
+        const solution = solveDense(kkt, rhs);
+        if (!solution) break;
+        const direction = solution.slice(0, variables);
+        const largest = Math.max(...direction.map(Math.abs), 1e-9);
+        if (residual < 1e-4 && largest < 1e-5) break;
+        const stepLimit = Math.min(1, 0.65 / largest);
+        const penalty = 4;
+        const oldMerit = bendingEnergy(angles) + penalty * residual * residual;
+        let accepted = false;
+        for (let ls = 0; ls < 9; ls++) {
+            const scale = stepLimit * 0.5 ** ls;
+            const candidate = [...angles];
+            for (let v = 0; v < variables; v++) candidate[v + 1] += scale * direction[v];
+            projectEndpoints(candidate, p0, p1, 6);
+            const candidatePts = integrateRod(p0, candidate);
+            const candidateResidual = dist(candidatePts[candidatePts.length - 1], p1);
+            const candidateMerit = bendingEnergy(candidate) +
+                penalty * candidateResidual * candidateResidual;
+            const closes = residual > 1e-3 && candidateResidual < residual * (1 - 0.04 * scale);
+            if (candidateMerit < oldMerit || closes || candidateResidual < 1e-5) {
+                for (let i = 1; i < segmentCount - 1; i++) angles[i] = candidate[i];
+                accepted = true;
+                break;
+            }
+        }
+        if (!accepted) break;
+    }
+
+    projectEndpoints(angles, p0, p1, 10);
+    const pts = integrateRod(p0, angles);
+    return { points: pts, angles, residual: dist(pts[pts.length - 1], p1) };
+}
+
+function solveStableRod(p0, p1, a0, a1, warm = null) {
+    const first = solveRod(p0, p1, a0, a1, warm);
+    if (first.residual <= 0.004) return first;
+    const candidates = [first];
+    if (warm) candidates.push(solveRod(p0, p1, a0, a1, null, 1));
+    candidates.push(solveRod(p0, p1, a0, a1, null, -1));
+    return candidates.reduce((best, c) => (c.residual < best.residual ? c : best));
+}
+
+// the rod is inextensible: both endpoints and both inner clamped nodes
+// have to stay within reach of each other
+function rodFeasible(s) {
+    const p0 = [s.x0, s.y0];
+    const p1 = [s.x1, s.y1];
+    const innerL = [p0[0] + ROD.h * Math.cos(s.a0), p0[1] + ROD.h * Math.sin(s.a0)];
+    const innerR = [p1[0] - ROD.h * Math.cos(s.a1), p1[1] - ROD.h * Math.sin(s.a1)];
+    return dist(p0, p1) <= ROD.length + 1e-6 &&
+        dist(innerL, innerR) <= ROD.h * (ROD.segments - 2) + 1e-6;
+}
+
+// inverse kinematics of a planar 3R arm, elbow-up, with reach clamping
+function solveArm(baseXY, ee, psi) {
+    const wx = ee[0] - ARM.l3 * Math.cos(psi);
+    const wy = ee[1] - ARM.l3 * Math.sin(psi);
+    let dx = wx - baseXY[0];
+    let dy = wy - baseXY[1];
+    let r = Math.hypot(dx, dy);
+    const rMax = ARM.l1 + ARM.l2 - 1e-4;
+    const rMin = Math.abs(ARM.l1 - ARM.l2) + 1e-3;
+    if (r > rMax) { const f = rMax / r; dx *= f; dy *= f; r = rMax; }
+    if (r < rMin) { const f = r < 1e-6 ? 0 : rMin / r; dx *= f || 1; dy *= f || 1; r = rMin; }
+    const c2 = clamp((r * r - ARM.l1 * ARM.l1 - ARM.l2 * ARM.l2) / (2 * ARM.l1 * ARM.l2), -1, 1);
+    const s2 = Math.sqrt(Math.max(0, 1 - c2 * c2));
+    const phi = Math.atan2(dy, dx);
+    let best = null;
+    for (const sign of [1, -1]) {
+        const t2 = Math.atan2(sign * s2, c2);
+        const t1 = phi - Math.atan2(ARM.l2 * Math.sin(t2), ARM.l1 + ARM.l2 * Math.cos(t2));
+        const elbow = [baseXY[0] + ARM.l1 * Math.cos(t1), baseXY[1] + ARM.l1 * Math.sin(t1)];
+        if (!best || elbow[1] > best.elbow[1]) best = { t1, t2, elbow };
+    }
+    const wrist = [best.elbow[0] + ARM.l2 * Math.cos(best.t1 + best.t2), best.elbow[1] + ARM.l2 * Math.sin(best.t1 + best.t2)];
+    const tip = [wrist[0] + ARM.l3 * Math.cos(psi), wrist[1] + ARM.l3 * Math.sin(psi)];
+    return { base: baseXY, elbow: best.elbow, wrist, tip, psi };
+}
+
+const armPoses = (s) => [
+    solveArm(BASES[0], [s.x0, s.y0], s.a0),
+    solveArm(BASES[1], [s.x1, s.y1], s.a1 + Math.PI)
+];
+
+function armsReach(s) {
+    const ends = [[BASES[0], [s.x0, s.y0], s.a0], [BASES[1], [s.x1, s.y1], s.a1 + Math.PI]];
+    return ends.every(([b, ee, psi]) => {
+        const r = Math.hypot(ee[0] - ARM.l3 * Math.cos(psi) - b[0], ee[1] - ARM.l3 * Math.sin(psi) - b[1]);
+        return r < ARM.l1 + ARM.l2 - 0.02 && r > Math.abs(ARM.l1 - ARM.l2) + 0.02;
+    });
+}
+
+// ------------------------------------------------------------------
+// hard mode: the left end of the rod is clamped to a fixed stand and
+// the right arm is commanded in joint space
+// ------------------------------------------------------------------
+const FIXTURE = { x0: -0.62, y0: -0.04, a0: 0.22 };
+const JOINT_SPAN = [0.2, 0.35, 0.8];
+
+function forwardArm(baseXY, q) {
+    const t1 = q[0];
+    const t12 = q[0] + q[1];
+    const psi = q[0] + q[1] + q[2];
+    const elbow = [baseXY[0] + ARM.l1 * Math.cos(t1), baseXY[1] + ARM.l1 * Math.sin(t1)];
+    const wrist = [elbow[0] + ARM.l2 * Math.cos(t12), elbow[1] + ARM.l2 * Math.sin(t12)];
+    const tip = [wrist[0] + ARM.l3 * Math.cos(psi), wrist[1] + ARM.l3 * Math.sin(psi)];
+    return { base: baseXY, elbow, wrist, tip, psi };
+}
+
+function jointsOf(armPose) {
+    const t1 = Math.atan2(armPose.elbow[1] - armPose.base[1], armPose.elbow[0] - armPose.base[0]);
+    const t12 = Math.atan2(armPose.wrist[1] - armPose.elbow[1], armPose.wrist[0] - armPose.elbow[0]);
+    return [t1, wrapAngle(t12 - t1), wrapAngle(armPose.psi - t12)];
+}
+
+// joint ranges centred on the free-mode home configuration of the right arm
+const Q_HOME = jointsOf(solveArm(BASES[1], [HOME.x1, HOME.y1], HOME.a1 + Math.PI));
+const JOINT_LIMITS = Q_HOME.map((q, i) => [q - JOINT_SPAN[i], q + JOINT_SPAN[i]]);
+
+function poseFromJoints(q) {
+    const arm = forwardArm(BASES[1], q);
+    return { ...FIXTURE, x1: arm.tip[0], y1: arm.tip[1], a1: wrapAngle(arm.psi - Math.PI) };
+}
+
+// the right end stays inside the free-mode envelope and the rod stays feasible
+function jointPoseValid(s) {
+    return rodFeasible(s) && ['x1', 'y1', 'a1'].every(k => s[k] >= LIMITS[k][0] && s[k] <= LIMITS[k][1]);
+}
+
+// ------------------------------------------------------------------
+// geometry of the gaps
+// ------------------------------------------------------------------
+function distToPolyline(p, line) {
+    let best = Infinity;
+    for (let i = 0; i < line.length - 1; i++) {
+        const a = line[i];
+        const b = line[i + 1];
+        const abx = b[0] - a[0];
+        const aby = b[1] - a[1];
+        const t = clamp(((p[0] - a[0]) * abx + (p[1] - a[1]) * aby) / (abx * abx + aby * aby), 0, 1);
+        const dx = a[0] + t * abx - p[0];
+        const dy = a[1] + t * aby - p[1];
+        best = Math.min(best, dx * dx + dy * dy);
+    }
+    return Math.sqrt(best);
+}
+
+// rod nodes plus segment midpoints
+function rodSamples(points) {
+    const out = [];
+    for (let i = 0; i < points.length; i++) {
+        out.push(points[i]);
+        if (i < points.length - 1) {
+            out.push([(points[i][0] + points[i + 1][0]) / 2, (points[i][1] + points[i + 1][1]) / 2]);
+        }
+    }
+    return out;
+}
+
+// A sample is inside the gap when the whole rod cross-section fits,
+// i.e. its distance to the gap centreline is below clearance - radius.
+function fitOf(rodPoints, holePoints, clearance) {
+    const samples = rodSamples(rodPoints);
+    const limit = clearance - ROD_RADIUS;
+    const inside = samples.map(p => distToPolyline(p, holePoints) <= limit);
+    const count = inside.filter(Boolean).length;
+    return { fraction: count / samples.length, inside, samples };
+}
+
+// Boundary of the gap: the centreline offset by the clearance on both
+// sides, closed by round caps at the clamped ends.
+function holeOutline(points, m) {
+    const n = points.length;
+    const normals = points.map((p, i) => {
+        const a = points[Math.max(0, i - 1)];
+        const b = points[Math.min(n - 1, i + 1)];
+        const tx = b[0] - a[0];
+        const ty = b[1] - a[1];
+        const len = Math.hypot(tx, ty) || 1;
+        return [-ty / len, tx / len];
+    });
+    const left = points.map((p, i) => [p[0] + m * normals[i][0], p[1] + m * normals[i][1]]);
+    const right = points.map((p, i) => [p[0] - m * normals[i][0], p[1] - m * normals[i][1]]);
+    const cap = (centre, normal, steps = 10) => {
+        const base = Math.atan2(normal[1], normal[0]);
+        const out = [];
+        for (let k = 1; k < steps; k++) {
+            const ang = base - Math.PI * k / steps;
+            out.push([centre[0] + m * Math.cos(ang), centre[1] + m * Math.sin(ang)]);
+        }
+        return out;
+    };
+    const startNormal = [-normals[0][0], -normals[0][1]];
+    return [
+        ...left,
+        ...cap(points[n - 1], normals[n - 1]),
+        ...right.reverse(),
+        ...cap(points[0], startNormal)
+    ];
+}
+
+function panelRect(points, m) {
+    let x0 = -1.32, x1 = 1.32, y0 = -0.82, y1 = 0.98;
+    for (const p of points) {
+        x0 = Math.min(x0, p[0] - m - 0.14);
+        x1 = Math.max(x1, p[0] + m + 0.14);
+        y0 = Math.min(y0, p[1] - m - 0.14);
+        y1 = Math.max(y1, p[1] + m + 0.14);
+    }
+    return { x0, x1, y0, y1 };
+}
+
+function roundedRect(r, radius = 0.09, steps = 4) {
+    const out = [];
+    const corners = [
+        [r.x1 - radius, r.y1 - radius, 0],
+        [r.x0 + radius, r.y1 - radius, Math.PI / 2],
+        [r.x0 + radius, r.y0 + radius, Math.PI],
+        [r.x1 - radius, r.y0 + radius, 1.5 * Math.PI]
+    ];
+    for (const [cx, cy, start] of corners) {
+        for (let k = 0; k <= steps; k++) {
+            const a = start + (Math.PI / 2) * k / steps;
+            out.push([cx + radius * Math.cos(a), cy + radius * Math.sin(a)]);
+        }
+    }
+    return out;
+}
+
+// ------------------------------------------------------------------
+// difficulty
+// ------------------------------------------------------------------
+const Z_SPAWN = -5.5;
+const EXIT_TIME = 0.55;
+const clearanceAt = (level) => 0.05 + 0.12 * Math.pow(0.86, level);
+const travelTimeAt = (level) => 2.6 + 4.4 * Math.pow(0.88, level);
+const POINTS = { clean: 100, close: 40 };
+const HARD_TIME_FACTOR = 1.3;
+
+// normal mode: both clamped poses move inside the arm envelope
+function sampleFree(previous, amplitude) {
+    const pose = {};
+    for (const k of KEYS) {
+        const [lo, hi] = LIMITS[k];
+        const pad = (hi - lo) * 0.08;
+        const step = (Math.random() * 2 - 1) * amplitude * (hi - lo);
+        pose[k] = clamp(previous.pose[k] + step, lo + pad, hi - pad);
+    }
+    return rodFeasible(pose) && armsReach(pose) ? { pose, q: null } : null;
+}
+
+// hard mode: the joints of the right arm move inside the slider ranges
+function sampleJoints(previous, amplitude) {
+    const q = previous.q.map((v, i) => {
+        const [lo, hi] = JOINT_LIMITS[i];
+        return clamp(v + (Math.random() * 2 - 1) * amplitude * (hi - lo), lo, hi);
+    });
+    const pose = poseFromJoints(q);
+    return jointPoseValid(pose) ? { pose, q } : null;
+}
+
+// Gaps are sampled as rod equilibria for reachable clamped poses. A
+// candidate is kept only if its equilibrium is unique (both initial
+// bending directions converge to it), so the player reaches the same
+// shape with the same commands, and if it differs from the previous gap
+// by an amount that grows with the level.
+function* gapSearch(previous, level, sample) {
+    const grow = 1 - Math.pow(0.85, level);
+    const amplitude = 0.28 + 0.5 * grow;
+    const m = clearanceAt(level);
+    for (let attempt = 0; attempt < 480; attempt++) {
+        const relax = attempt < 240 ? 1 : 1.8;
+        const dMin = (0.05 + 0.10 * grow) / relax;
+        const dMax = (0.22 + 0.33 * grow) * relax;
+        const sampled = sample(previous, amplitude * relax);
+        yield null;
+        if (!sampled) continue;
+        const candidate = sampled.pose;
+        const chord = dist([candidate.x0, candidate.y0], [candidate.x1, candidate.y1]) / ROD.length;
+        if (chord < 0.5 || chord > 0.9) continue;
+        const p0 = [candidate.x0, candidate.y0];
+        const p1 = [candidate.x1, candidate.y1];
+        const a = solveRod(p0, p1, candidate.a0, candidate.a1, null, 1);
+        if (a.residual > 1e-3) continue;
+        if (a.points.some(p => p[1] < FLOOR + 0.22 || p[1] > 0.92)) continue;
+        let sharpest = 0;
+        for (let i = 1; i < a.angles.length; i++) {
+            sharpest = Math.max(sharpest, Math.abs(wrapAngle(a.angles[i] - a.angles[i - 1])));
+        }
+        if (sharpest > ROD.h / (m + 0.03)) continue;
+        let change = 0;
+        for (let i = 0; i < a.points.length; i++) change += dist(a.points[i], previous.points[i]);
+        change /= a.points.length;
+        if (change < dMin || change > dMax) continue;
+        yield null;
+        const b = solveRod(p0, p1, candidate.a0, candidate.a1, null, -1);
+        if (b.residual > 1e-3) continue;
+        let deviation = 0;
+        for (let i = 0; i < a.points.length; i++) deviation = Math.max(deviation, dist(a.points[i], b.points[i]));
+        if (deviation > 0.03) continue;
+        return { pose: candidate, q: sampled.q, points: a.points };
+    }
+    return {
+        pose: { ...previous.pose },
+        q: previous.q ? [...previous.q] : null,
+        points: previous.points.map(p => [...p])
+    };
+}
+
+// ------------------------------------------------------------------
+// solution: the shape-servoing loop of "A Tutorial on Shape Servoing of
+// Deformable Objects" (Algorithm 1; docs/js/sim/control.js and jacobian.js
+// of github.com/nachocz/tutorial_on_shape_servoing_of_deformable_objects).
+// Features s: the coordinates of points tracked along the rod. Robot
+// coordinates q: both gripper poses, or the joints of the right arm in
+// hard mode. J_hat starts from a regression over probing motions and is
+// corrected by Broyden's rule after every motion; the command is the
+// damped least-squares law on the shape error e = s* - s.
+// ------------------------------------------------------------------
+const SERVO = {
+    points: 7,                       // tracked points
+    gain: 3,                         // alpha [1 / s]
+    damping: 0.05,                   // mu
+    fractions: [-1, -0.5, 0.5, 1],   // probing motions, per coordinate
+    minStep: 1e-6, maxResponse: 25,  // gating of Broyden's rule
+    stall: 0.6                       // s without progress before J_hat is estimated again
+};
+// probing amplitudes: the tutorial's (0.35 per position, 0.18 rad per
+// angle for a rod of length 6) scaled to this rod, or a share of the joint ranges
+const PROBE_FREE = [0.11, 0.11, 0.18, 0.11, 0.11, 0.18];
+const PROBE_JOINTS = [0.03, 0.05, 0.12];
+const TRACKED = Array.from({ length: SERVO.points }, (_, i) => Math.round(i * ROD.segments / (SERVO.points - 1)));
+const featuresOf = (points) => TRACKED.flatMap((i) => [points[i][0], points[i][1]]);
+const vsub = (a, b) => a.map((v, i) => v - b[i]);
+const vnorm = (a) => Math.hypot(...a);
+
+class ShapeServoing {
+    constructor() {
+        this.s = featuresOf(rodPoints);
+        this.J = this.probe();
+        this.error = 0;
+        this.best = Infinity;
+        this.stalled = 0;
+        this.panel = null;
+    }
+
+    // the setters accept q: the rod is not stretched and, in hard mode,
+    // the gripper stays in its envelope
+    valid(q) {
+        if (mode === 'hard') return jointPoseValid(poseFromJoints(q.map((v, i) => clamp(v, JOINT_LIMITS[i][0], JOINT_LIMITS[i][1]))));
+        return rodFeasible(Object.fromEntries(KEYS.map((k, i) => [k, clamp(q[i], LIMITS[k][0], LIMITS[k][1])])));
+    }
+
+    // a step that leaves the feasible set keeps only the coordinates that
+    // are feasible on their own, then shrinks until it is feasible
+    feasibleStep(q, dq) {
+        const at = (step) => q.map((v, i) => v + step[i]);
+        if (this.valid(at(dq))) return dq;
+        let out = dq.map((v, i) => (this.valid(at(dq.map((w, j) => (j === i ? w : 0)))) ? v : 0));
+        for (let k = 0; k < 8 && !this.valid(at(out)); k++) out = out.map((v) => v / 2);
+        return this.valid(at(out)) ? out : dq.map(() => 0);
+    }
+
+    coordinates() {
+        return mode === 'hard' ? [...joints] : KEYS.map((k) => pose[k]);
+    }
+
+    // features of the equilibrium at q, without moving the robot
+    measure(q) {
+        const s = mode === 'hard' ? poseFromJoints(q) : Object.fromEntries(KEYS.map((k, i) => [k, q[i]]));
+        return featuresOf(solveStableRod([s.x0, s.y0], [s.x1, s.y1], s.a0, s.a1, rodAngles).points);
+    }
+
+    // offline estimate J0 = dS dQ^T (dQ dQ^T)^-1 from one probing motion per
+    // coordinate and fraction about the current configuration
+    probe() {
+        const q0 = this.coordinates(), s0 = this.s;
+        const amplitudes = mode === 'hard' ? PROBE_JOINTS : PROBE_FREE;
+        const dQ = [], dS = [];
+        amplitudes.forEach((a, j) => SERVO.fractions.forEach((f) => {
+            const dq = q0.map((_, i) => (i === j ? f * a : 0));
+            dQ.push(dq);
+            dS.push(vsub(this.measure(q0.map((v, i) => v + dq[i])), s0));
+        }));
+        const m = q0.length;
+        const G = Array.from({ length: m }, (_, a) => Array.from({ length: m }, (_, b) => dQ.reduce((sum, c) => sum + c[a] * c[b], 0)));
+        const columns = Array.from({ length: m }, (_, b) => solveDense(G, Array.from({ length: m }, (_, a) => (a === b ? 1 : 0))));
+        return s0.map((_, r) => Array.from({ length: m }, (_, b) =>
+            dS.reduce((sum, ds, c) => sum + ds[r] * dQ[c].reduce((acc, dq, a) => acc + dq * columns[b][a], 0), 0)));
+    }
+
+    // one iteration toward the gap of the incoming panel
+    step(dt) {
+        const panel = approaching();
+        if (!panel) return;
+        const e = vsub(featuresOf(panel.gap.points), this.s);
+        this.error = vnorm(e) / Math.sqrt(SERVO.points);
+        // a new target, or no progress for a while: estimate J_hat again
+        // from probing motions about the current configuration
+        if (panel !== this.panel) { this.panel = panel; this.best = Infinity; this.stalled = 0; }
+        if (this.error < this.best * 0.99) { this.best = this.error; this.stalled = 0; }
+        else if (this.error > 0.01 && (this.stalled += dt) > SERVO.stall) {
+            this.J = this.probe();
+            this.best = this.error;
+            this.stalled = 0;
+        }
+        // u = alpha (J^T J + mu^2 I)^-1 J^T e
+        const J = this.J, m = J[0].length;
+        const JtJ = Array.from({ length: m }, (_, a) => Array.from({ length: m }, (_, b) =>
+            J.reduce((sum, row) => sum + row[a] * row[b], 0) + (a === b ? SERVO.damping ** 2 : 0)));
+        const Jte = Array.from({ length: m }, (_, a) => J.reduce((sum, row, r) => sum + row[a] * e[r], 0));
+        const u = solveDense(JtJ, Jte);
+        if (!u) return;
+        // the speed limits of the player's commands
+        const limits = mode === 'hard' ? [0, 0, 0].map(() => JOINT_SPEED) : [MOVE_SPEED, MOVE_SPEED, TURN_SPEED, MOVE_SPEED, MOVE_SPEED, TURN_SPEED];
+        let dq = u.map((v) => v * SERVO.gain * dt);
+        const over = Math.max(1, ...dq.map((v, i) => Math.abs(v) / (limits[i] * dt)));
+        dq = dq.map((v) => v / over);
+        const before = this.coordinates();
+        dq = this.feasibleStep(before, dq);
+        if (mode === 'hard') setJoints(before.map((v, i) => v + dq[i]));
+        else setPose(Object.fromEntries(KEYS.map((k, i) => [k, before[i] + dq[i]])));
+        // measure, then Broyden's rule on the motion actually made
+        const moved = vsub(this.coordinates(), before);
+        const sNext = featuresOf(rodPoints), ds = vsub(sNext, this.s);
+        const size = vnorm(moved);
+        if (size > SERVO.minStep && vnorm(ds) <= SERVO.maxResponse * size) {
+            const r = ds.map((v, i) => v - J[i].reduce((sum, x, j) => sum + x * moved[j], 0));
+            this.J = J.map((row, i) => row.map((x, j) => x + r[i] * moved[j] / (size * size)));
+        }
+        this.s = sNext;
+    }
+}
+
+// ------------------------------------------------------------------
+// game state
+// ------------------------------------------------------------------
+let solving = false;
+let servo = null;
+let mode = new URLSearchParams(window.location.search).get('mode') === 'hard' ? 'hard' : 'normal';
+const startPose = () => (mode === 'hard' ? poseFromJoints(Q_HOME) : { ...HOME });
+const sampler = () => (mode === 'hard' ? sampleJoints : sampleFree);
+
+function startGap() {
+    const s = startPose();
+    const eq = solveRod([s.x0, s.y0], [s.x1, s.y1], s.a0, s.a1, null, 1);
+    return { pose: s, q: [...Q_HOME], points: eq.points };
+}
+
+let pose = startPose();
+let joints = [...Q_HOME];
+let activeJoint = -1;
+let rodAngles = null;
+let rodPoints = null;
+let rodKey = '';
+
+let state = 'ready';
+let score = 0;
+let cleanCount = 0;
+let closeCount = 0;
+let lives = 3;
+let level = 0;
+let panels = [];
+let lastGap = startGap();
+let search = null;
+let nextGap = null;
+let popups = [];
+let shake = 0;
+let flash = null;
+let liveFit = null;
+let selectedSide = 0;
+let drag = null;
+const keysDown = new Set();
+
+const bestKey = () => (mode === 'hard' ? 'rodThreadingBestHard' : 'rodThreadingBest');
+const readBest = () => Number(storage.get(bestKey())) || 0;
+const saveBest = (value) => storage.set(bestKey(), String(value));
+
+function updateRod() {
+    const key = KEYS.map(k => pose[k].toFixed(5)).join(',');
+    if (key === rodKey && rodPoints) return;
+    const eq = solveStableRod([pose.x0, pose.y0], [pose.x1, pose.y1], pose.a0, pose.a1, rodAngles);
+    rodAngles = eq.angles;
+    rodPoints = eq.points;
+    rodKey = key;
+}
+
+function setPose(next) {
+    const candidate = { ...pose, ...next };
+    for (const k of KEYS) candidate[k] = clamp(candidate[k], LIMITS[k][0], LIMITS[k][1]);
+    if (!rodFeasible(candidate)) return false;
+    pose = candidate;
+    updateRod();
+    return true;
+}
+
+const lerp = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+
+// Joint commands are clipped to the slider ranges; a command that would
+// stretch the rod or leave the envelope stops at the last valid point.
+function setJoints(target) {
+    const clipped = target.map((v, i) => clamp(v, JOINT_LIMITS[i][0], JOINT_LIMITS[i][1]));
+    const valid = (q) => jointPoseValid(poseFromJoints(q));
+    let next = clipped;
+    if (!valid(next)) {
+        let lo = 0;
+        let hi = 1;
+        for (let k = 0; k < 12; k++) {
+            const mid = (lo + hi) / 2;
+            if (valid(lerp(joints, clipped, mid))) lo = mid; else hi = mid;
+        }
+        next = lerp(joints, clipped, lo);
+    }
+    joints = next;
+    pose = poseFromJoints(joints);
+    updateRod();
+    syncSliders();
+}
+
+function startSearch() {
+    search = gapSearch(lastGap, level, sampler());
+    nextGap = null;
+}
+
+function stepSearch(budgetMs) {
+    if (!search) return;
+    const started = performance.now();
+    while (performance.now() - started < budgetMs) {
+        const result = search.next();
+        if (result.done) {
+            nextGap = result.value;
+            search = null;
+            return;
+        }
+    }
+}
+
+function spawnPanel(gap) {
+    const margin = clearanceAt(level);
+    panels.push({
+        gap,
+        margin,
+        z: Z_SPAWN,
+        speed: -Z_SPAWN / (travelTimeAt(level) * (mode === 'hard' ? HARD_TIME_FACTOR : 1)),
+        phase: 'approach',
+        result: null,
+        exitT: 0,
+        outline: holeOutline(gap.points, margin),
+        rect: roundedRect(panelRect(gap.points, margin))
+    });
+    lastGap = gap;
+    startSearch();
+}
+
+const approaching = () => panels.find(p => p.phase === 'approach') || null;
+
+function resolvePanel(panel) {
+    const fit = fitOf(rodPoints, panel.gap.points, panel.margin);
+    const kind = fit.fraction >= 1 ? 'clean' : fit.fraction >= 0.75 ? 'close' : 'crash';
+    panel.phase = 'exit';
+    panel.result = kind;
+    panel.exitT = 0;
+    flash = { kind, inside: fit.inside, samples: fit.samples, t: 0 };
+    const t = dict();
+    const centre = panel.gap.points[Math.floor(panel.gap.points.length / 2)];
+    if (kind === 'crash') {
+        lives -= 1;
+        shake = 1;
+        popups.push({ text: t.popupCrash, kind, at: centre, t: 0 });
+        announce(t.announceCrash);
+    } else {
+        score += POINTS[kind];
+        if (kind === 'clean') cleanCount += 1; else closeCount += 1;
+        level += 1;
+        popups.push({ text: `${kind === 'clean' ? t.popupClean : t.popupClose} +${POINTS[kind]}`, kind, at: centre, t: 0 });
+        announce(kind === 'clean' ? t.announceClean : t.announceClose);
+    }
+    updateHud();
+    if (lives <= 0) gameOver();
+}
+
+function resetGame() {
+    pose = startPose();
+    joints = [...Q_HOME];
+    rodAngles = null;
+    rodKey = '';
+    updateRod();
+    syncSliders();
+    score = 0;
+    cleanCount = 0;
+    closeCount = 0;
+    lives = 3;
+    level = 0;
+    panels = [];
+    popups = [];
+    flash = null;
+    shake = 0;
+    lastGap = startGap();
+    search = gapSearch(lastGap, level, sampler());
+    nextGap = null;
+    while (search) stepSearch(50);
+    spawnPanel(nextGap);
+    updateHud();
+}
+
+function startGame() {
+    resetGame();
+    solving = false;
+    state = 'playing';
+    showOverlay(null);
+    canvas.focus({ preventScroll: true });
+}
+
+// the solution plays a new game from the start pose
+function startSolution() {
+    resetGame();
+    keysDown.clear();
+    drag = null;
+    servo = new ShapeServoing();
+    solving = true;
+    state = 'playing';
+    showOverlay(null);
+}
+
+function stopSolution() {
+    solving = false;
+    servo = null;
+    setMode(mode);
+}
+
+function pauseGame() {
+    if (state !== 'playing') return;
+    state = 'paused';
+    keysDown.clear();
+    showOverlay('paused');
+}
+
+function resumeGame() {
+    if (state !== 'paused') return;
+    state = 'playing';
+    showOverlay(null);
+    canvas.focus({ preventScroll: true });
+}
+
+let newBest = false;
+function gameOver() {
+    state = 'over';
+    keysDown.clear();
+    const best = readBest();
+    newBest = !solving && score > best;
+    if (newBest) saveBest(score);
+    showOverlay('over');
+}
+
+// ------------------------------------------------------------------
+// camera: perspective view of the manipulation plane (z = 0) and of
+// the corridor along which the panels approach it
+// ------------------------------------------------------------------
+const CAM = { yaw: 0.40, pitch: 0.19, dist: 8.2, target: [0, -0.02, -1.6] };
+const cosYaw = Math.cos(CAM.yaw);
+const sinYaw = Math.sin(CAM.yaw);
+const cosPitch = Math.cos(CAM.pitch);
+const sinPitch = Math.sin(CAM.pitch);
+let view = { F: 100, ox: 0, oy: 0, w: 0, h: 0 };
+
+function toCamera(p) {
+    const dx = p[0] - CAM.target[0];
+    const dy = p[1] - CAM.target[1];
+    const dz = p[2] - CAM.target[2];
+    const x1 = cosYaw * dx + sinYaw * dz;
+    const z1 = -sinYaw * dx + cosYaw * dz;
+    return [x1, cosPitch * dy - sinPitch * z1, sinPitch * dy + cosPitch * z1];
+}
+
+function fromCamera(c) {
+    const dy = cosPitch * c[1] + sinPitch * c[2];
+    const z1 = -sinPitch * c[1] + cosPitch * c[2];
+    const dx = cosYaw * c[0] - sinYaw * z1;
+    const dz = sinYaw * c[0] + cosYaw * z1;
+    return [CAM.target[0] + dx, CAM.target[1] + dy, CAM.target[2] + dz];
+}
+
+// screen position and pixels per world unit at that depth
+function project(p, z = 0) {
+    const c = toCamera([p[0], p[1], z]);
+    const d = CAM.dist - c[2];
+    return [view.ox + view.F * c[0] / d, view.oy - view.F * c[1] / d, view.F / d];
+}
+
+function unproject(px, py) {
+    const u = (px - view.ox) / view.F;
+    const v = (view.oy - py) / view.F;
+    const origin = fromCamera([0, 0, CAM.dist]);
+    const ahead = fromCamera([u, v, CAM.dist - 1]);
+    const dz = ahead[2] - origin[2];
+    if (Math.abs(dz) < 1e-9) return null;
+    const t = -origin[2] / dz;
+    return [origin[0] + t * (ahead[0] - origin[0]), origin[1] + t * (ahead[1] - origin[1])];
+}
+
+function fitView(w, h) {
+    const probe = [];
+    for (const x of [-2.05, 2.05]) for (const y of [FLOOR, 1.1]) probe.push([x, y, 0]);
+    for (const x of [-1.35, 1.35]) for (const y of [-0.82, 0.98]) probe.push([x, y, Z_SPAWN]);
+    let u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity;
+    for (const p of probe) {
+        const c = toCamera(p);
+        const d = CAM.dist - c[2];
+        u0 = Math.min(u0, c[0] / d); u1 = Math.max(u1, c[0] / d);
+        v0 = Math.min(v0, c[1] / d); v1 = Math.max(v1, c[1] / d);
+    }
+    const F = Math.min(w * 0.95 / (u1 - u0), h * 0.93 / (v1 - v0));
+    view = { F, ox: w / 2 - F * (u0 + u1) / 2, oy: h / 2 + F * (v0 + v1) / 2, w, h };
+}
+
+// ------------------------------------------------------------------
+// rendering
+// ------------------------------------------------------------------
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+const alpha = (hex, a) => {
+    const [r, g, b] = hexToRgb(hex);
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
+
+function mix(h1, h2, t) {
+    const a = hexToRgb(h1);
+    const b = hexToRgb(h2);
+    const c = a.map((v, i) => Math.round(v + (b[i] - v) * t));
+    return `#${c.map(v => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function palette() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    return dark ? {
+        surface: '#1a1d20', floor: '#2c3136', plane: '#8dbbe8', ink: '#e6e9ec', text: '#949da6',
+        robot: '#6f7881', robotDeep: '#59626b', joint: '#aab2ba', accent: '#b8c0c8',
+        panel: '#7fa8e6', panelEdge: '#4f7cc0', rim: '#c9dcf6', glass: 0.2,
+        clean: '#3cc28f', close: '#e0a526', crash: '#e66767'
+    } : {
+        surface: '#fafbfb', floor: '#dde2e6', plane: '#1d5b94', ink: '#23282d', text: '#697179',
+        robot: '#9ba3ab', robotDeep: '#7d868f', joint: '#5c656e', accent: '#3d4650',
+        panel: '#3b6fb6', panelEdge: '#2c548c', rim: '#ffffff', glass: 0.15,
+        clean: '#1b9e6f', close: '#c98500', crash: '#d64545'
+    };
+}
+
+function polygonPath(points, z) {
+    points.forEach((p, i) => {
+        const [x, y] = project(p, z);
+        if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    });
+    ctx.closePath();
+}
+
+function smoothPath(points, z = 0) {
+    const P = points.map(p => project(p, z));
+    ctx.beginPath();
+    ctx.moveTo(P[0][0], P[0][1]);
+    for (let i = 0; i < P.length - 1; i++) {
+        ctx.quadraticCurveTo(P[i][0], P[i][1], (P[i][0] + P[i + 1][0]) / 2, (P[i][1] + P[i + 1][1]) / 2);
+    }
+    ctx.lineTo(P[P.length - 1][0], P[P.length - 1][1]);
+}
+
+function drawFloor(p) {
+    ctx.save();
+    ctx.lineWidth = 1;
+    const zNear = 1.6;
+    for (let x = -2.4; x <= 2.401; x += 0.4) {
+        const a = project([x, FLOOR], Z_SPAWN - 0.4);
+        const b = project([x, FLOOR], zNear);
+        const g = ctx.createLinearGradient(a[0], a[1], b[0], b[1]);
+        g.addColorStop(0, alpha(p.floor, 0));
+        g.addColorStop(0.5, alpha(p.floor, 1));
+        g.addColorStop(1, alpha(p.floor, 0.4));
+        ctx.strokeStyle = g;
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    }
+    for (let z = Z_SPAWN; z <= zNear + 0.01; z += 0.55) {
+        const fade = clamp((z - Z_SPAWN) / 2.5, 0, 1);
+        ctx.strokeStyle = alpha(p.floor, 0.85 * fade);
+        const a = project([-2.4, FLOOR], z);
+        const b = project([2.4, FLOOR], z);
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawPlane(p) {
+    const corners = [[-2.05, FLOOR], [2.05, FLOOR], [2.05, 1.1], [-2.05, 1.1]];
+    ctx.save();
+    ctx.beginPath();
+    polygonPath(corners, 0);
+    ctx.fillStyle = alpha(p.plane, 0.035);
+    ctx.fill();
+    ctx.strokeStyle = alpha(p.plane, 0.16);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+}
+
+function panelColour(panel, p) {
+    if (!panel.result) return p.panel;
+    return mix(p.panel, p[panel.result], 0.75);
+}
+
+function drawPanel(panel, p) {
+    const progress = clamp((panel.z - Z_SPAWN) / -Z_SPAWN, 0, 1);
+    let opacity = clamp(progress / 0.18, 0, 1);
+    if (panel.phase === 'exit') opacity *= 1 - clamp(panel.exitT / EXIT_TIME, 0, 1);
+    if (opacity <= 0.001) return;
+    const colour = panelColour(panel, p);
+    ctx.save();
+    // back face: gives the panel a visible thickness
+    ctx.beginPath();
+    polygonPath(panel.rect, panel.z - 0.07);
+    polygonPath(panel.outline, panel.z - 0.07);
+    ctx.fillStyle = alpha(p.panelEdge, p.glass * opacity);
+    ctx.fill('evenodd');
+    // front face
+    ctx.beginPath();
+    polygonPath(panel.rect, panel.z);
+    polygonPath(panel.outline, panel.z);
+    ctx.fillStyle = alpha(colour, p.glass * opacity);
+    ctx.fill('evenodd');
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    polygonPath(panel.rect, panel.z);
+    ctx.strokeStyle = alpha(colour, 0.7 * opacity);
+    ctx.lineWidth = 1.3;
+    ctx.stroke();
+    // rim of the gap
+    ctx.beginPath();
+    polygonPath(panel.outline, panel.z);
+    ctx.strokeStyle = alpha(p.rim, 0.85 * opacity);
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.strokeStyle = alpha(colour, 0.95 * opacity);
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawGuide(panel, p) {
+    const progress = clamp((panel.z - Z_SPAWN) / -Z_SPAWN, 0, 1);
+    ctx.save();
+    ctx.beginPath();
+    polygonPath(panel.outline, 0);
+    ctx.fillStyle = alpha(p.panel, 0.04 + 0.05 * progress);
+    ctx.fill();
+    ctx.setLineDash([7, 6]);
+    ctx.lineDashOffset = -performance.now() / 60;
+    ctx.strokeStyle = alpha(p.panel, 0.4 + 0.55 * progress);
+    ctx.lineWidth = 1.6;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.restore();
+}
+
+function segment(a, b, width, colour) {
+    ctx.strokeStyle = colour;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(a[0], a[1]);
+    ctx.lineTo(b[0], b[1]);
+    ctx.stroke();
+}
+
+function drawRobot(armPose, p, active) {
+    const chain = [armPose.base, armPose.elbow, armPose.wrist, armPose.tip].map(q => project(q));
+    const k = chain[1][2];
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    // pedestal
+    const b = armPose.base;
+    const ped = [[b[0] - 0.055, b[1]], [b[0] + 0.055, b[1]], [b[0] + 0.16, FLOOR], [b[0] - 0.16, FLOOR]];
+    ctx.beginPath();
+    polygonPath(ped, 0);
+    ctx.fillStyle = p.robotDeep;
+    ctx.fill();
+    const widths = [0.072, 0.055, 0.036];
+    for (let i = 0; i < 3; i++) {
+        segment(chain[i], chain[i + 1], widths[i] * k, i === 0 ? p.robotDeep : p.robot);
+        segment(chain[i], chain[i + 1], Math.max(1, widths[i] * k * 0.16), alpha(p.surface, 0.55));
+    }
+    for (const j of chain.slice(0, 3)) {
+        ctx.beginPath();
+        ctx.arc(j[0], j[1], 0.032 * k, 0, TAU);
+        ctx.fillStyle = p.surface;
+        ctx.fill();
+        ctx.strokeStyle = p.joint;
+        ctx.lineWidth = Math.max(1.5, 0.012 * k);
+        ctx.stroke();
+    }
+    // gripper jaws
+    const c = Math.cos(armPose.psi);
+    const s = Math.sin(armPose.psi);
+    const open = active ? 0.062 : 0.05;
+    ctx.lineWidth = Math.max(2, 0.022 * k);
+    for (const sgn of [1, -1]) {
+        const a = [armPose.tip[0] - c * 0.03 - s * sgn * open, armPose.tip[1] - s * 0.03 + c * sgn * open];
+        const e = [a[0] + c * 0.1, a[1] + s * 0.1];
+        segment(project(a), project(e), Math.max(2, 0.022 * k), active ? p.accent : p.joint);
+    }
+    ctx.restore();
+}
+
+function drawFixture(p) {
+    const g = [FIXTURE.x0, FIXTURE.y0];
+    const t = [Math.cos(FIXTURE.a0), Math.sin(FIXTURE.a0)];
+    const n = [-t[1], t[0]];
+    const at = (u, v) => [g[0] + u * t[0] + v * n[0], g[1] + u * t[1] + v * n[1]];
+    const k = project(g)[2];
+    const column = at(-0.13, 0)[0];
+    const top = at(-0.13, -0.05)[1];
+    ctx.save();
+    // stand: base plate and column up to the clamp block
+    ctx.beginPath();
+    polygonPath([[column - 0.06, FLOOR + 0.05], [column + 0.06, FLOOR + 0.05], [column + 0.16, FLOOR], [column - 0.16, FLOOR]], 0);
+    ctx.fillStyle = p.robotDeep;
+    ctx.fill();
+    ctx.beginPath();
+    polygonPath([[column - 0.032, top], [column + 0.032, top], [column + 0.032, FLOOR + 0.05], [column - 0.032, FLOOR + 0.05]], 0);
+    ctx.fillStyle = p.robot;
+    ctx.fill();
+    // clamp block and jaws around the clamped end
+    ctx.beginPath();
+    polygonPath([at(-0.22, -0.065), at(-0.02, -0.065), at(-0.02, 0.065), at(-0.22, 0.065)], 0);
+    ctx.fillStyle = p.robotDeep;
+    ctx.fill();
+    ctx.lineCap = 'round';
+    for (const v of [0.04, -0.04]) {
+        segment(project(at(-0.03, v)), project(at(0.07, v)), Math.max(2, 0.022 * k), p.joint);
+    }
+    ctx.restore();
+}
+
+const JOINT_SYMBOLS = ['q₁', 'q₂', 'q₃'];
+
+function drawJointMarks(arm, p) {
+    ctx.save();
+    ctx.font = '700 11px system-ui, -apple-system, "Segoe UI", sans-serif';
+    ctx.textBaseline = 'middle';
+    [arm.base, arm.elbow, arm.wrist].forEach((j, i) => {
+        const [x, y, k] = project(j);
+        const active = activeJoint === i;
+        if (active) {
+            ctx.beginPath();
+            ctx.arc(x, y, 0.075 * k, 0, TAU);
+            ctx.strokeStyle = alpha(p.panel, 0.9);
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        ctx.fillStyle = active ? p.panel : p.text;
+        ctx.fillText(JOINT_SYMBOLS[i], x + 0.075 * k + 4, y - 0.05 * k);
+    });
+    ctx.restore();
+}
+
+const handlePoint = (side) => {
+    const g = side === 0 ? [pose.x0, pose.y0] : [pose.x1, pose.y1];
+    const a = side === 0 ? pose.a0 : pose.a1;
+    return [g[0] - HANDLE * Math.sin(a), g[1] + HANDLE * Math.cos(a)];
+};
+
+function drawHandles(p) {
+    for (const side of [0, 1]) {
+        const g = project(side === 0 ? [pose.x0, pose.y0] : [pose.x1, pose.y1]);
+        const h = project(handlePoint(side));
+        const active = side === selectedSide || drag?.side === side;
+        ctx.save();
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = alpha(p.accent, active ? 0.7 : 0.4);
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(g[0], g[1]); ctx.lineTo(h[0], h[1]); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(h[0], h[1], 0.036 * h[2], 0, TAU);
+        ctx.fillStyle = alpha(p.surface, 0.92);
+        ctx.fill();
+        ctx.strokeStyle = active ? p.accent : alpha(p.accent, 0.6);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
+function drawRod(p) {
+    const k = project(rodPoints[12])[2];
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    smoothPath(rodPoints);
+    ctx.strokeStyle = alpha(p.ink, 0.14);
+    ctx.lineWidth = 0.064 * k;
+    ctx.stroke();
+    ctx.strokeStyle = p.ink;
+    ctx.lineWidth = 2 * ROD_RADIUS * k;
+    ctx.stroke();
+    // samples outside the incoming gap, or outside the gap just resolved
+    let marks = null;
+    let colour = p.close;
+    if (flash && flash.t < 0.7 && flash.kind !== 'clean') {
+        marks = { inside: flash.inside, samples: flash.samples };
+        colour = flash.kind === 'crash' ? p.crash : p.close;
+    } else if (liveFit && state === 'playing') {
+        marks = liveFit;
+        const incoming = approaching();
+        const progress = incoming ? clamp((incoming.z - Z_SPAWN) / -Z_SPAWN, 0, 1) : 1;
+        colour = alpha(p.close, 0.3 + 0.7 * progress);
+    }
+    if (marks) {
+        ctx.strokeStyle = colour;
+        ctx.lineWidth = 2 * ROD_RADIUS * k + 1;
+        for (let i = 0; i < marks.samples.length - 1; i++) {
+            if (marks.inside[i] && marks.inside[i + 1]) continue;
+            const a = project(marks.samples[i]);
+            const b = project(marks.samples[i + 1]);
+            ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+        }
+    }
+    ctx.restore();
+}
+
+// tracked points of the rod and their targets on the incoming gap
+function drawServo(p) {
+    const panel = approaching();
+    if (!solving || !panel) return;
+    const target = TRACKED.map((i) => panel.gap.points[i]);
+    const now = TRACKED.map((i) => rodPoints[i]);
+    ctx.save();
+    ctx.lineWidth = 1.5;
+    target.forEach((t, i) => {
+        const a = project(now[i]), b = project(t);
+        ctx.strokeStyle = alpha(p.panel, 0.7);
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(b[0], b[1], 5, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = p.panel;
+        ctx.beginPath(); ctx.arc(a[0], a[1], 3.2, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.restore();
+}
+
+function drawSolutionBanner(p) {
+    if (!solving) return;
+    const text = dict().solutionBanner;
+    ctx.save();
+    ctx.font = '700 12px system-ui, -apple-system, "Segoe UI", sans-serif';
+    const tw = ctx.measureText(text).width;
+    const by = 12;
+    ctx.fillStyle = alpha(p.panel, 0.14);
+    ctx.strokeStyle = alpha(p.panel, 0.6);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(view.w / 2 - tw / 2 - 12, by, tw + 24, 24, 12); else ctx.rect(view.w / 2 - tw / 2 - 12, by, tw + 24, 24);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = p.panel;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, view.w / 2, by + 12.5);
+    ctx.restore();
+}
+
+function drawPopups(p) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const pop of popups) {
+        const life = pop.t / 1.2;
+        const [x, y] = project(pop.at);
+        ctx.globalAlpha = clamp(1.4 - life * 1.4, 0, 1);
+        ctx.font = '750 17px system-ui, -apple-system, "Segoe UI", sans-serif';
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = alpha(p.surface, 0.9);
+        ctx.fillStyle = p[pop.kind];
+        const yy = y - 26 - 34 * life;
+        ctx.strokeText(pop.text, x, yy);
+        ctx.fillText(pop.text, x, yy);
+    }
+    ctx.restore();
+}
+
+function drawProgress(p) {
+    const panel = approaching();
+    if (!panel || state === 'ready') return;
+    const progress = clamp((panel.z - Z_SPAWN) / -Z_SPAWN, 0, 1);
+    const x = 14;
+    const y = view.h - 12;
+    const w = Math.min(160, view.w * 0.3);
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = alpha(p.text, 0.18);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w, y); ctx.stroke();
+    ctx.strokeStyle = alpha(p.panel, 0.85);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + w * progress, y); ctx.stroke();
+    ctx.restore();
+}
+
+function render() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (!w || !h) return;
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+    }
+    fitView(w, h);
+    if (shake > 0) {
+        view.ox += (Math.random() - 0.5) * 10 * shake;
+        view.oy += (Math.random() - 0.5) * 10 * shake;
+    }
+    const p = palette();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = p.surface;
+    ctx.fillRect(0, 0, w, h);
+
+    drawFloor(p);
+    const behind = panels.filter(panel => panel.z < 0).sort((a, b) => a.z - b.z);
+    const ahead = panels.filter(panel => panel.z >= 0).sort((a, b) => a.z - b.z);
+    behind.forEach(panel => drawPanel(panel, p));
+    drawPlane(p);
+    const incoming = approaching();
+    if (incoming && state !== 'ready') drawGuide(incoming, p);
+    if (mode === 'hard') {
+        const arm = forwardArm(BASES[1], joints);
+        drawFixture(p);
+        drawRobot(arm, p, false);
+        drawRod(p);
+        drawJointMarks(arm, p);
+    } else {
+        const arms = armPoses(pose);
+        arms.forEach((armPose, i) => drawRobot(armPose, p, selectedSide === i || drag?.side === i));
+        drawRod(p);
+        drawHandles(p);
+    }
+    drawServo(p);
+    ahead.forEach(panel => drawPanel(panel, p));
+    drawPopups(p);
+    drawProgress(p);
+    drawSolutionBanner(p);
+}
+
+// ------------------------------------------------------------------
+// simulation step
+// ------------------------------------------------------------------
+const MOVE_SPEED = 0.55;
+const TURN_SPEED = 1.5;
+const JOINT_SPEED = 0.5;
+const JOINT_KEYS = [['q', 'a'], ['w', 's'], ['e', 'd']];
+
+function applyKeys(dt) {
+    if (!keysDown.size || drag) return;
+    if (mode === 'hard') {
+        const rates = JOINT_KEYS.map(([up, down]) => (keysDown.has(up) ? 1 : 0) - (keysDown.has(down) ? 1 : 0));
+        if (!rates.some(Boolean)) return;
+        activeJoint = rates.findIndex(Boolean);
+        setJoints(joints.map((q, i) => q + rates[i] * JOINT_SPEED * dt));
+        return;
+    }
+    const kx = selectedSide === 0 ? 'x0' : 'x1';
+    const ky = selectedSide === 0 ? 'y0' : 'y1';
+    const ka = selectedSide === 0 ? 'a0' : 'a1';
+    const next = {};
+    let dx = 0, dy = 0, da = 0;
+    if (keysDown.has('ArrowLeft')) dx -= 1;
+    if (keysDown.has('ArrowRight')) dx += 1;
+    if (keysDown.has('ArrowUp')) dy += 1;
+    if (keysDown.has('ArrowDown')) dy -= 1;
+    if (keysDown.has('q')) da += 1;
+    if (keysDown.has('e')) da -= 1;
+    if (dx) next[kx] = pose[kx] + dx * MOVE_SPEED * dt;
+    if (dy) next[ky] = pose[ky] + dy * MOVE_SPEED * dt;
+    if (da) next[ka] = pose[ka] + da * TURN_SPEED * dt;
+    if (dx || dy || da) setPose(next);
+}
+
+function update(dt) {
+    if (solving && state === 'playing') servo.step(dt);
+    else if (state === 'playing' || state === 'ready') applyKeys(dt);
+    if (state === 'playing') {
+        for (const panel of panels) {
+            if (panel.phase !== 'approach') continue;
+            panel.z = Math.min(0, panel.z + panel.speed * dt);
+            if (panel.z >= 0) resolvePanel(panel);
+        }
+        if (state === 'playing' && !approaching()) {
+            if (nextGap) spawnPanel(nextGap);
+            else stepSearch(30);
+        }
+        stepSearch(5);
+    }
+    if (state === 'playing' || state === 'over') {
+        for (const panel of panels) {
+            if (panel.phase !== 'exit') continue;
+            panel.exitT += dt;
+            panel.z += Math.max(panel.speed, 2.4) * dt;
+        }
+        panels = panels.filter(panel => panel.phase === 'approach' || panel.exitT < EXIT_TIME);
+        popups.forEach(pop => { pop.t += dt; });
+        popups = popups.filter(pop => pop.t < 1.2);
+        if (flash) flash.t += dt;
+        shake = Math.max(0, shake - dt * 2.6);
+    }
+    const incoming = approaching();
+    liveFit = incoming && state === 'playing' ? fitOf(rodPoints, incoming.gap.points, incoming.margin) : null;
+    updateLiveHud(incoming);
+}
+
+let last = performance.now();
+function frame(now) {
+    const dt = clamp((now - last) / 1000, 0, 0.05);
+    last = Math.max(last, now);
+    update(dt);
+    render();
+    requestAnimationFrame(frame);
+}
+
+// ------------------------------------------------------------------
+// interface
+// ------------------------------------------------------------------
+let currentLanguage = storage.get('language') || 'en';
+if (!translations[currentLanguage]) currentLanguage = 'en';
+const dict = () => translations[currentLanguage];
+
+const hud = {
+    score: document.getElementById('score'),
+    clean: document.getElementById('cleanCount'),
+    close: document.getElementById('closeCount'),
+    gap: document.getElementById('gapWidth'),
+    fit: document.getElementById('fitValue'),
+    lives: document.getElementById('lives')
+};
+const overlay = document.getElementById('overlay');
+const overlayKicker = document.getElementById('overlayKicker');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlayText = document.getElementById('overlayText');
+const overlayBadge = document.getElementById('overlayBadge');
+const overlayStats = document.getElementById('overlayStats');
+const overlayButton = document.getElementById('overlayButton');
+const pauseButton = document.getElementById('pauseButton');
+const solutionButton = document.getElementById('solutionButton');
+const announcer = document.getElementById('announcer');
+let overlayMode = 'start';
+const jointPanel = document.getElementById('jointPanel');
+const jointInputs = [0, 1, 2].map(i => document.getElementById(`joint${i}`));
+const jointOutputs = [0, 1, 2].map(i => document.getElementById(`jointValue${i}`));
+const hintText = document.getElementById('hint');
+const noteText = document.getElementById('note');
+const DEG = 180 / Math.PI;
+
+function syncSliders() {
+    jointInputs.forEach((input, i) => {
+        input.value = (joints[i] * DEG).toFixed(1);
+        jointOutputs[i].textContent = `${Math.round(joints[i] * DEG)}°`;
+    });
+}
+
+jointInputs.forEach((input, i) => {
+    input.min = (JOINT_LIMITS[i][0] * DEG).toFixed(1);
+    input.max = (JOINT_LIMITS[i][1] * DEG).toFixed(1);
+    input.step = '0.1';
+    input.addEventListener('input', () => {
+        if (solving) { syncSliders(); return; }
+        activeJoint = i;
+        const next = [...joints];
+        next[i] = Number(input.value) / DEG;
+        setJoints(next);
+    });
+    input.addEventListener('focus', () => { activeJoint = i; });
+    input.addEventListener('blur', () => { if (activeJoint === i) activeJoint = -1; });
+});
+
+function applyModeUi() {
+    document.querySelectorAll('.mode-btn').forEach((button) => {
+        const active = button.dataset.mode === mode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+    jointPanel.hidden = mode !== 'hard';
+    hintText.dataset.i18n = mode === 'hard' ? 'hintHard' : 'hint';
+    noteText.dataset.i18n = mode === 'hard' ? 'noteHard' : 'note';
+    hintText.textContent = dict()[hintText.dataset.i18n];
+    noteText.textContent = dict()[noteText.dataset.i18n];
+    syncSliders();
+}
+
+function setMode(next) {
+    mode = next;
+    solving = false;
+    servo = null;
+    state = 'ready';
+    keysDown.clear();
+    drag = null;
+    activeJoint = -1;
+    panels = [];
+    popups = [];
+    flash = null;
+    shake = 0;
+    liveFit = null;
+    score = 0;
+    cleanCount = 0;
+    closeCount = 0;
+    lives = 3;
+    level = 0;
+    search = null;
+    nextGap = null;
+    pose = startPose();
+    joints = [...Q_HOME];
+    rodAngles = null;
+    rodKey = '';
+    updateRod();
+    lastGap = startGap();
+    canvas.style.cursor = mode === 'hard' ? 'default' : 'crosshair';
+    updateHud();
+    applyModeUi();
+    showOverlay('start');
+    const url = new URL(window.location.href);
+    if (mode === 'hard') url.searchParams.set('mode', 'hard'); else url.searchParams.delete('mode');
+    try { history.replaceState(null, '', url); } catch (error) { /* file:// or sandboxed */ }
+}
+
+document.querySelectorAll('.mode-btn').forEach((button) => {
+    button.addEventListener('click', () => setMode(button.dataset.mode));
+});
+
+function announce(text) {
+    announcer.textContent = text;
+}
+
+function updateHud() {
+    hud.score.textContent = String(score);
+    hud.clean.textContent = String(cleanCount);
+    hud.close.textContent = String(closeCount);
+    [...hud.lives.querySelectorAll('.life')].forEach((heart, i) => heart.classList.toggle('lost', i >= lives));
+    hud.lives.setAttribute('aria-label', `${dict().livesAria}: ${lives}`);
+}
+
+let shownGap = '';
+let shownFit = '';
+function updateLiveHud(incoming) {
+    const margin = incoming ? incoming.margin : clearanceAt(level);
+    const gapText = `${Math.round(200 * margin)} cm`;
+    if (gapText !== shownGap) { hud.gap.textContent = gapText; shownGap = gapText; }
+    const fitText = liveFit ? `${Math.round(100 * liveFit.fraction)}%` : '–';
+    if (fitText !== shownFit) { hud.fit.textContent = fitText; shownFit = fitText; }
+}
+
+function showOverlay(which) {
+    if (which) overlayMode = which;
+    overlay.hidden = !which;
+    pauseButton.textContent = state === 'paused' ? dict().resume : dict().pause;
+    solutionButton.textContent = solving && state !== 'over' ? dict().stopSolution : dict().showSolution;
+    jointInputs.forEach((input) => { input.disabled = state === 'paused' || state === 'over'; });
+    if (!which) return;
+    const t = dict();
+    overlayKicker.textContent = mode === 'hard' ? `${t.kicker} · ${t.modeHard}` : t.kicker;
+    overlayStats.hidden = which !== 'over';
+    overlayBadge.hidden = !(which === 'over' && newBest);
+    overlayBadge.textContent = t.newBest;
+    if (which === 'start') {
+        overlayTitle.textContent = t.title;
+        overlayText.textContent = mode === 'hard' ? t.startTextHard : t.startText;
+        overlayButton.textContent = t.start;
+    } else if (which === 'paused') {
+        overlayTitle.textContent = t.pausedTitle;
+        overlayText.textContent = t.pausedText;
+        overlayButton.textContent = t.resume;
+    } else {
+        overlayTitle.textContent = t.overTitle;
+        overlayText.textContent = solving ? t.solutionOverText.replace('{count}', String(cleanCount + closeCount)) : t.overText;
+        overlayButton.textContent = t.playAgain;
+        document.getElementById('statScore').textContent = String(score);
+        document.getElementById('statBest').textContent = String(Math.max(score, readBest()));
+        document.getElementById('statClean').textContent = String(cleanCount);
+        document.getElementById('statClose').textContent = String(closeCount);
+    }
+}
+
+overlayButton.addEventListener('click', () => {
+    if (state === 'paused') resumeGame();
+    else startGame();
+});
+
+pauseButton.addEventListener('click', () => {
+    if (state === 'playing') pauseGame();
+    else if (state === 'paused') resumeGame();
+});
+
+document.getElementById('restartButton').addEventListener('click', startGame);
+
+solutionButton.addEventListener('click', () => {
+    if (solving && state !== 'over') stopSolution(); else startSolution();
+    showOverlay(overlay.hidden ? null : overlayMode);
+});
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseGame();
+});
+
+// pointer: grippers, wrist rings and the rod body
+function eventWorld(event) {
+    const rect = canvas.getBoundingClientRect();
+    return unproject(event.clientX - rect.left, event.clientY - rect.top);
+}
+
+// pick radii in world units, never below 16 px on screen
+function hitTest(w) {
+    if (!w) return null;
+    const minimum = 16 / project([0, 0])[2];
+    const near = (a, b, r) => Math.hypot(a[0] - b[0], a[1] - b[1]) < Math.max(r, minimum);
+    for (const side of [0, 1]) {
+        if (near(w, handlePoint(side), 0.11)) return { mode: 'angle', side };
+    }
+    for (const side of [0, 1]) {
+        if (near(w, side === 0 ? [pose.x0, pose.y0] : [pose.x1, pose.y1], 0.15)) return { mode: 'grip', side };
+    }
+    if (rodPoints.some(pt => near(w, pt, 0.12))) return { mode: 'body', side: -1 };
+    return null;
+}
+
+canvas.addEventListener('pointerdown', (event) => {
+    if (state === 'paused' || state === 'over' || mode === 'hard' || solving) return;
+    const w = eventWorld(event);
+    const hit = hitTest(w);
+    if (!hit) return;
+    event.preventDefault();
+    canvas.setPointerCapture(event.pointerId);
+    if (hit.side >= 0) selectedSide = hit.side;
+    drag = { ...hit, start: { ...pose }, w };
+});
+
+canvas.addEventListener('pointermove', (event) => {
+    if (mode === 'hard') {
+        canvas.style.cursor = 'default';
+        return;
+    }
+    const w = eventWorld(event);
+    if (!drag) {
+        const hit = hitTest(w);
+        canvas.style.cursor = hit ? (hit.mode === 'angle' ? 'grab' : 'move') : 'crosshair';
+        return;
+    }
+    if (!w) return;
+    if (drag.mode === 'angle') {
+        const g = drag.side === 0 ? [pose.x0, pose.y0] : [pose.x1, pose.y1];
+        const ang = Math.atan2(w[1] - g[1], w[0] - g[0]) - Math.PI / 2;
+        setPose({ [drag.side === 0 ? 'a0' : 'a1']: wrapAngle(ang) });
+    } else if (drag.mode === 'grip') {
+        const kx = drag.side === 0 ? 'x0' : 'x1';
+        const ky = drag.side === 0 ? 'y0' : 'y1';
+        setPose({ [kx]: drag.start[kx] + w[0] - drag.w[0], [ky]: drag.start[ky] + w[1] - drag.w[1] });
+    } else {
+        const dx = w[0] - drag.w[0];
+        const dy = w[1] - drag.w[1];
+        setPose({
+            x0: drag.start.x0 + dx, x1: drag.start.x1 + dx,
+            y0: drag.start.y0 + dy, y1: drag.start.y1 + dy
+        });
+    }
+});
+
+const endDrag = (event) => {
+    if (!drag) return;
+    drag = null;
+    if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+};
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
+const FREE_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'q', 'e']);
+const HARD_KEYS = new Set(JOINT_KEYS.flat());
+window.addEventListener('keydown', (event) => {
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    // buttons keep Space and Enter, sliders keep their arrow keys
+    const onControl = Boolean(target?.closest('button, a')) ||
+        (Boolean(target?.closest('input')) && key.startsWith('Arrow'));
+    if (key === 'p' && (state === 'playing' || state === 'paused')) {
+        event.preventDefault();
+        if (state === 'playing') pauseGame(); else resumeGame();
+        return;
+    }
+    if ((state !== 'playing' && state !== 'ready') || solving) return;
+    if (key === ' ' && !onControl && mode === 'normal') {
+        event.preventDefault();
+        selectedSide = 1 - selectedSide;
+        return;
+    }
+    if ((mode === 'hard' ? HARD_KEYS : FREE_KEYS).has(key) && !onControl) {
+        event.preventDefault();
+        keysDown.add(key);
+    }
+});
+window.addEventListener('keyup', (event) => {
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    keysDown.delete(key);
+    if (mode === 'hard' && !keysDown.size && !jointInputs.includes(document.activeElement)) activeJoint = -1;
+});
+window.addEventListener('blur', () => keysDown.clear());
+
+// language
+function applyTranslations() {
+    const t = dict();
+    document.documentElement.lang = currentLanguage;
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const value = t[el.dataset.i18n];
+        if (typeof value === 'string') el.textContent = value;
+    });
+    document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
+        const value = t[el.getAttribute('data-i18n-aria-label')];
+        if (typeof value === 'string') el.setAttribute('aria-label', value);
+    });
+    document.querySelectorAll('.lang-btn').forEach((button) => {
+        const active = button.dataset.lang === currentLanguage;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+    updateHud();
+    applyModeUi();
+    showOverlay(overlay.hidden ? null : overlayMode);
+}
+
+document.querySelectorAll('.lang-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+        currentLanguage = button.dataset.lang;
+        storage.set('language', currentLanguage);
+        applyTranslations();
+    });
+});
+
+// ------------------------------------------------------------------
+// start
+// ------------------------------------------------------------------
+updateRod();
+canvas.style.cursor = mode === 'hard' ? 'default' : 'crosshair';
+applyTranslations();
+showOverlay('start');
+requestAnimationFrame(frame);

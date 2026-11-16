@@ -35,7 +35,14 @@ function parseTranslations(file) {
     return Function(`return (${source.slice(objectStart, objectEnd + 1)})`)();
 }
 
-// Each page with its public URL and the file that holds its translations.
+// index.html and assets/js/i18n.js are generated from sections/ by tools/build.js.
+const generator = require('./build.js');
+const generated = generator.status();
+if (generated.stale.length) throw new Error(generator.describe(generated));
+console.log('index.html and assets/js/i18n.js: up to date with sections/');
+
+// Each page with its public URL and the script that holds its translations
+// (each game and demo folder holds index.html, style.css and script.js).
 const pages = [
     { html: 'index.html', url: SITE_URL, dictionary: I18N },
     { html: 'games/shape-comparison/index.html', url: `${SITE_URL}games/shape-comparison/` },
@@ -45,13 +52,16 @@ const pages = [
     { html: 'demos/cable-challenge/index.html', url: `${SITE_URL}demos/cable-challenge/` },
     { html: 'demos/shape-features/index.html', url: `${SITE_URL}demos/shape-features/` }
 ];
-for (const page of pages) page.dictionary = page.dictionary || page.html;
+for (const page of pages) {
+    page.dictionary = page.dictionary || path.posix.join(path.posix.dirname(page.html), 'script.js');
+}
 
 for (const { html: htmlFile, dictionary: dictionaryFile } of pages) {
     const html = read(htmlFile);
     const dictionary = read(dictionaryFile);
     const parsedTranslations = parseTranslations(dictionaryFile);
-    const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+    // IDs written by the script (markup templates) share the document with those of the page.
+    const ids = [...(html + dictionary).matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
     const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
     const keys = [...new Set(
         [...html.matchAll(/data-i18n(?:-aria-label|-title|-alt)?="([^"]+)"/g)].map(match => match[1])
@@ -176,7 +186,7 @@ console.log(`habra-akelarre/index.html: ${akelarreIds.length} unique IDs; local 
 
 // The solution of every cavity-inspection site is replayed with the controller
 // of the page: each viewpoint has to be reached and its defect reported.
-const CAVITY = 'games/cavity-inspection/index.html';
+const CAVITY = 'games/cavity-inspection/script.js';
 const cavity = read(CAVITY);
 const coreStart = cavity.indexOf('const Core = (() => {');
 const coreEnd = cavity.indexOf('// end of the simulation core', coreStart);

@@ -1,0 +1,47 @@
+// Demos section: English and Spanish text. tools/build.js merges it into assets/js/i18n.js.
+({
+    en: {
+        // Demos
+        companionsTitle: 'Interactive research demos',
+        companionTutorialDesc: 'Data-driven shape control of an elastic rod held by two robot arms.',
+        companionProcrustesDesc: '3D shape control of a deformable object with 6-DoF gripper actions computed by Procrustes analysis at multiple scales.',
+        companionSurfaceMappingDesc: 'Time-consistent functional maps between the mesh perceived at every frame and the target shape, used as the reference for 3D shape control.',
+        companionSoftExtensionDesc: 'A tendon-driven soft extension bent and controlled through the joint motion of the arm.',
+        companionHeatDesc: 'Model-free regulation of surface temperature with a robot-mounted heat source.',
+        companionStereoSlamDesc: 'Stereo ORB-SLAM2 evaluated on laparoscopy sequences and extended with a dense tissue map built from stereo disparities.',
+        miniGamesTitle: 'Mini-games',
+        difficultyEasy: 'Easy',
+        difficultyMedium: 'Medium',
+        difficultyHard: 'Hard',
+        miniGameShapeTitle: 'Shape similarity',
+        miniGameShapeDesc: 'Remove or restore material until a block matches each target.',
+        miniGameRodTitle: 'Rod threading',
+        miniGameRodDesc: 'Deform a rod held by two robots so that it passes through approaching gaps.',
+        miniGameEggTitle: 'Dino egg incubator',
+        miniGameEggDesc: 'Keep a dinosaur egg uniformly warm with a moving heat source until it hatches.',
+        miniGameCavityTitle: 'Cavity inspection',
+        miniGameCavityDesc: 'Find damaged parts inside a closed housing with the tip camera of a soft extension moved in the null space of the arm.',
+    },
+    es: {
+        // Demos
+        companionsTitle: 'Demos interactivas de investigación',
+        companionTutorialDesc: 'Control de forma basado en datos de una varilla elástica sujeta por dos brazos robóticos.',
+        companionProcrustesDesc: 'Control de forma 3D de un objeto deformable con acciones de 6 GDL de las pinzas calculadas mediante análisis de Procrustes a varias escalas.',
+        companionSurfaceMappingDesc: 'Mapas funcionales consistentes en el tiempo entre la malla percibida en cada fotograma y la forma objetivo, usados como referencia del control de forma 3D.',
+        companionSoftExtensionDesc: 'Una extensión blanda accionada por tendones que se flexiona y controla con el movimiento articular del brazo.',
+        companionHeatDesc: 'Regulación sin modelo de la temperatura de una superficie con una fuente de calor montada en un robot.',
+        companionStereoSlamDesc: 'ORB-SLAM2 estéreo evaluado en secuencias de laparoscopia y ampliado con un mapa denso del tejido construido a partir de las disparidades estéreo.',
+        miniGamesTitle: 'Minijuegos',
+        difficultyEasy: 'Fácil',
+        difficultyMedium: 'Intermedio',
+        difficultyHard: 'Difícil',
+        miniGameShapeTitle: 'Similitud de forma',
+        miniGameShapeDesc: 'Retira o recupera material hasta que un bloque coincida con cada objetivo.',
+        miniGameRodTitle: 'Enhebra la varilla',
+        miniGameRodDesc: 'Deforma una varilla sujeta por dos robots para que atraviese los huecos que se aproximan.',
+        miniGameEggTitle: 'Incubadora de dinosaurios',
+        miniGameEggDesc: 'Mantén un huevo de dinosaurio a temperatura uniforme con una fuente de calor móvil hasta que eclosione.',
+        miniGameCavityTitle: 'Inspección de cavidades',
+        miniGameCavityDesc: 'Encuentra piezas dañadas dentro de una carcasa cerrada con la cámara de la punta de una extensión blanda que se mueve en el espacio nulo del brazo.',
+    }
+})

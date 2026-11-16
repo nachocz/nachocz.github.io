@@ -1,0 +1,2437 @@
+(() => {
+    'use strict';
+
+    // ------------------------------------------------------------------
+    // translations
+    // ------------------------------------------------------------------
+    const translations = {
+        en: {
+            languageAria: 'Language',
+            backToJourney: '← Back to the demos',
+            demoKicker: 'Interactive demo',
+            title: 'Data-driven shape control',
+            intro: 'Estimate the relation between gripper motion and shape change, then use this local model to drive the object to a target shape.',
+            manipulateTitle: 'Manual shape servoing',
+            manipulateIntro: 'Two robot arms hold a flexible rod by its ends; the dashed curve is the target shape. A motion of one gripper changes the shape of the entire rod, so every input affects all shape coordinates at once. This coupling is a central difficulty of shape control.',
+            representationsTitle: 'Shape representations and invariance',
+            representationsIntro: 'A controller does not operate on the shape itself but on a feature vector computed from it. Here the same rod is described by three feature vectors, which differ in the motions to which they are invariant.',
+            dataDrivenTitle: 'Data-driven shape control',
+            dataDrivenIntro: 'The controller has no prior model of the rod. It first applies a small motion to each gripper command and records the resulting feature change; from these measurements it estimates the shape Jacobian and uses it to drive the shape error to zero.',
+            experimentEyebrow: 'Try this',
+            experimentTitle: 'Which motions change each feature vector?',
+            experimentDesc: 'Translate and Rotate move the rod as a rigid body; Bend deforms it. Apply each motion and compare which of the three traces change.',
+            manipulateExperimentEyebrow: 'Task',
+            manipulateExperimentTitle: 'Reach the dashed target shape',
+            manipulateExperimentDesc: 'Drag a gripper to translate it, or its ring handle to rotate it. Change one input at a time and reverse any change that increases the error.',
+            dataExperimentEyebrow: 'Procedure',
+            dataExperimentTitle: 'Estimate the Jacobian, then close the loop',
+            dataExperimentDesc: 'Select a feature vector on the right and press Estimate & control. The grippers first execute small test motions; the feedback loop starts once the Jacobian is estimated.',
+            predictionStartTitle: 'Start with Translate',
+            predictionStartDesc: 'Before pressing it: which of the three traces will change when the rod is displaced without deformation?',
+            predictionTranslateTitle: 'Translation: position only',
+            predictionTranslateDesc: 'Every point has new coordinates, so the point-coordinate trace changes. Edge vectors and curvature are computed from differences between neighbouring points, in which a common translation cancels.',
+            predictionRotateTitle: 'Rotation: position and orientation',
+            predictionRotateDesc: 'Point coordinates and edge vectors rotate with the rod. Curvature is the angle between consecutive edges, in which a common rotation cancels, so its trace remains constant.',
+            predictionWaveTitle: 'Bending: a change of shape',
+            predictionWaveDesc: 'Bending changes the intrinsic shape of the rod. None of the three feature vectors is invariant to it, so all three traces change.',
+            dataPhaseStartTitle: 'No model yet',
+            dataPhaseStartDesc: 'Select a feature vector. The grippers execute test motions before the feedback loop starts.',
+            dataPhaseEstimateTitle: 'Estimating the shape Jacobian',
+            dataPhaseEstimateDesc: 'One command is perturbed at a time, so each measured feature change is attributed to a single input and gives one column of Ĵ.',
+            dataPhaseControlTitle: 'Closed loop',
+            dataPhaseControlDesc: 'Each cycle measures the feature error, maps it to a gripper velocity through Ĵ and updates Ĵ with the measured response.',
+            dataPhaseReadyTitle: 'Jacobian estimated',
+            dataPhaseReadyDesc: 'Ĵ relates gripper motion to feature motion around the current configuration. Press Estimate & control to start the feedback loop.',
+            sceneTitle: 'Robots, object and target',
+            sceneHint: 'Drag a gripper, its ring handle to rotate it, or the rod itself.',
+            legendObject: 'Object',
+            legendTarget: 'Target shape',
+            legendFeatures: 'Measured features',
+            rodModel: 'Discrete Kirchhoff rod · 24 segments',
+            playBtn: 'Estimate & control',
+            pauseBtn: 'Pause',
+            probeBtn: 'Estimate only',
+            targetBtn: 'New target',
+            resetBtn: 'Reset',
+            disturbLabel: 'Move the object:',
+            rigidBtn: 'Translate',
+            rotateBtn: 'Rotate',
+            waveBtn: 'Bend',
+            repTitle: 'Controlled feature vector',
+            representationAria: 'Shape representation',
+            repComparisonNote: 'The three rows have different units and scales; compare each value only with itself before and after a motion.',
+            pointCoordinates: 'Point coordinates',
+            pointsNote: '18 components · changes under any motion',
+            edgeVectors: 'Edge vectors',
+            edgesNote: '16 components · translation-invariant',
+            curvature: 'Curvature',
+            curvatureNote: '7 components · invariant to rigid motion',
+            currentError: 'Current error',
+            errorNorm: 'Selected error',
+            modelRank: 'Rank',
+            conditioning: 'Condition',
+            jacobianTitle: 'Estimated shape Jacobian Ĵ',
+            emptyModel: 'No estimate yet. The estimation step applies a small motion to each of the six commands and measures the feature response.',
+            featPointsTitle: 'Point coordinates',
+            featEdgesTitle: 'Edge vectors',
+            featCurvatureTitle: 'Curvature',
+            actionTitle: 'Robot command u̇',
+            errorTitle: 'Normalised error',
+            signalsTitle: 'Signals in the feedback loop',
+            signalsDesc: 'Each feature component keeps one scale over the whole time window; the error panel shows the three representations on the same normalised axis.',
+            manipulateSignalsTitle: 'Shape error over time',
+            manipulateSignalsDesc: 'Each blue arrow joins a measured point to its target position. The plot converts the norm of these errors, relative to its initial value, into a percentage; bring it into the shaded band below the match threshold.',
+            representationsSignalsTitle: 'Invariance of each feature vector',
+            representationsSignalsDesc: 'A feature vector is invariant to a motion if the motion leaves its components unchanged. A trace that remains constant while the object moves indicates invariance to that motion.',
+            dataSignalsTitle: 'Signals in the feedback loop',
+            dataSignalsDesc: 'Feature components, gripper velocities and error are plotted over the same three-second window, so the test motions of the estimation step and the subsequent correction share one time axis.',
+            timeAxisLabel: 'Time (s)',
+            pointsAxisLabel: 'Position (m)',
+            edgesAxisLabel: 'Edge component (m)',
+            curvatureAxisLabel: 'Turning angle (rad)',
+            actionAxisLabel: 'Command rate (m/s, rad/s)',
+            errorAxisLabel: 'Normalised error (–)',
+            manualErrorAxisLabel: 'Shape error (%)',
+            manualErrorTitle: 'Shape error',
+            manualErrorSeries: 'Shape error',
+            manualTargetBand: 'match threshold',
+            statusIdle: 'Idle. Select a feature vector, then estimate and control.',
+            statusProbing: 'Perturbing command',
+            statusLearned: 'Jacobian estimated from the test motions.',
+            statusRunning: 'Controller running',
+            statusConverged: 'Converged for the selected feature vector.',
+            statusPaused: 'Controller paused.',
+            statusStalled: 'Stopped: the error does not converge in this feature space.',
+            statusManual: 'Manual motion; the plots continue to update.',
+            statusTarget: 'New target sampled from a feasible clamped pose.',
+            statusLimit: 'Stopped: the commanded gripper distance exceeds the rod length.',
+            statusDisturb: 'Disturbance applied to the object.',
+            stepsLabel: 'steps',
+            learnMore: 'Definitions of the three feature vectors',
+            pointsHeading: 'Point coordinates',
+            pointsDesc: 'The x and y coordinates of each measured point. The vector retains position, orientation and shape, so all three can be controlled, and any rigid motion of the object appears as error.',
+            edgesHeading: 'Edge vectors',
+            edgesDesc: 'The vector from each point to the next. The difference between neighbouring points cancels absolute position, so edge vectors are invariant to translation but change under rotation and bending.',
+            curvatureHeading: 'Curvature',
+            curvatureDesc: 'The turning angle between consecutive edges. The angle difference cancels both position and orientation, so curvature is invariant to rigid motion and depends only on bending.',
+            showAdvanced: 'Show model and signals',
+            hideAdvanced: 'Hide model and signals',
+            controlLoopTitle: 'The shape servoing loop',
+            controlLoopDesc: 'The Jacobian is estimated once from test motions, then used and updated at every cycle of the feedback loop.',
+            phaseOffline: 'Offline · once',
+            phaseOnline: 'Online · every cycle',
+            loopProbeTitle: '1. Perturb',
+            loopProbeDesc: 'Apply a small motion to one command at a time and record the change in the features.',
+            loopEstimateTitle: '2. Estimate Ĵ',
+            loopEstimateDesc: 'Each feature change divided by its command increment gives one column of the shape Jacobian.',
+            loopCompareTitle: '3. Measure the error',
+            loopCompareDesc: 'Subtract the current feature vector from the target feature vector.',
+            loopControlTitle: '4. Correct and repeat',
+            loopPseudocode: '# ---- stage 1: estimate the shape Jacobian (once) ----\nfor each gripper command u_i:            # 6 in total: x, y and angle per gripper\n    apply a small increment  du_i        # one command at a time, so the cause is known\n    ds = features_now - features_before  # measured feature change\n    J[:, i] = ds / du_i                  # one column of the shape Jacobian\n\n# ---- stage 2: close the loop (every cycle) ----\nwhile shape error is too large:\n    s = measure_features(object)         # points, edge vectors or curvature\n    e = s_target - s                     # shape error in feature space\n    u_dot = gain * damped_pinv(J) @ e    # least-squares gripper velocity\n    move_grippers(u_dot * dt)            # apply one small step, then measure again\n    J = broyden_update(J, du, ds)        # correct J with the measured response',
+            loopCodeAria: 'Pseudocode of the shape servoing loop',
+            loopControlDesc: 'Map the error to a gripper velocity with the damped pseudoinverse of Ĵ, apply one small step and measure again.',
+            manualScoreTitle: 'Manual challenge',
+            manualMatchLabel: 'Shape match',
+            manualMovesLabel: 'Moves',
+            leftGripper: 'Left gripper',
+            rightGripper: 'Right gripper',
+            gripperGroupAria: 'Gripper to move',
+            nudgeGroupAria: 'Move selected gripper',
+            moveLeftAria: 'Move left',
+            moveRightAria: 'Move right',
+            moveUpAria: 'Move up',
+            moveDownAria: 'Move down',
+            rotateLeftAria: 'Rotate counter-clockwise',
+            rotateRightAria: 'Rotate clockwise',
+            manualCoachStartTitle: 'Move one gripper at a time',
+            manualCoachStartDesc: 'Drag a circular gripper point to translate it, or its ring handle to rotate it.',
+            manualCoachImprovingTitle: 'Error decreased',
+            manualCoachImprovingDesc: 'Continue with a small adjustment, or test the other gripper.',
+            manualCoachWrongTitle: 'Error increased',
+            manualCoachWrongDesc: 'Reverse the change and try another direction or gripper.',
+            manualCoachCloseTitle: 'Close to the target',
+            manualCoachCloseDesc: 'Use small gripper motions to reduce the remaining error.',
+            manualCoachSuccessTitle: 'Target matched',
+            manualCoachSuccessDesc: 'You closed the loop manually: measure, compare, correct.',
+            takeawayLabel: 'Takeaway',
+            takeawayTitle: 'The feature vector determines which errors the controller corrects.',
+            takeawayDesc: 'Point coordinates retain pose and shape, edge vectors are invariant to translation, and curvature depends only on bending. The choice depends on whether the task specifies the pose of the object.',
+            manipulateTakeawayTitle: 'You closed a shape-control loop by hand.',
+            manipulateTakeawayDesc: 'Measure the error, choose a correction, apply it and measure again. Steps 3 and 4 replace the operator with a feature vector and a Jacobian estimated from data.',
+            representationsTakeawayTitle: 'Invariance removes disturbances and controllable directions together.',
+            representationsTakeawayDesc: 'A feature vector that is invariant to a motion is insensitive to disturbances along that motion, and errors along it cannot be corrected. Curvature is unaffected when the rod is pushed sideways, but it cannot specify where the rod should be placed.',
+            dataTakeawayTitle: 'The Jacobian is estimated from data, not derived from a model.',
+            dataTakeawayDesc: 'The controller uses no model of the rod mechanics. Six small test motions determine the local relation between gripper motion and feature motion, and the Broyden update adjusts this estimate as the configuration changes.',
+            nextCompare: 'Next: shape similarity →',
+            nextDataDriven: 'Next: data-driven shape control →',
+            finishJourney: 'Related research →',
+            sceneCanvasLabel: 'Two planar robot arms holding a deformable object, with the target shape shown as a dashed curve',
+            pointsPlotLabel: 'Time evolution of the point-coordinate feature components',
+            edgesPlotLabel: 'Time evolution of the edge-vector feature components',
+            curvaturePlotLabel: 'Time evolution of the curvature feature components',
+            actionPlotLabel: 'Time evolution of the six robot velocity commands',
+            errorPlotLabel: 'Time evolution of shape error for all three representations',
+            cmdXL: 'x left',
+            cmdYL: 'y left',
+            cmdTL: 'θ left',
+            cmdXR: 'x right',
+            cmdYR: 'y right',
+            cmdTR: 'θ right',
+            nowLabel: 'now',
+            dimLabel: 'dim'
+        },
+        es: {
+            languageAria: 'Idioma',
+            backToJourney: '← Volver a las demos',
+            demoKicker: 'Demostración interactiva',
+            title: 'Control de forma basado en datos',
+            intro: 'Estima la relación entre el movimiento de las pinzas y el cambio de forma y usa después este modelo local para llevar el objeto a una forma objetivo.',
+            manipulateTitle: 'Control de forma manual',
+            manipulateIntro: 'Dos brazos robóticos sujetan una varilla flexible por sus extremos; la curva discontinua es la forma objetivo. Un movimiento de una pinza cambia la forma de toda la varilla, de modo que cada entrada afecta a la vez a todas las coordenadas de forma. Este acoplamiento es una dificultad central del control de forma.',
+            representationsTitle: 'Representaciones de forma e invariancia',
+            representationsIntro: 'Un controlador no opera sobre la forma en sí, sino sobre un vector de características calculado a partir de ella. Aquí la misma varilla se describe con tres vectores de características, que difieren en los movimientos a los que son invariantes.',
+            dataDrivenTitle: 'Control de forma basado en datos',
+            dataDrivenIntro: 'El controlador no dispone de un modelo previo de la varilla. Primero aplica un pequeño movimiento a cada comando de las pinzas y registra el cambio resultante en las características; con estas medidas estima el jacobiano de forma y lo usa para llevar a cero el error de forma.',
+            experimentEyebrow: 'Prueba esto',
+            experimentTitle: '¿Qué movimientos cambian cada vector de características?',
+            experimentDesc: 'Trasladar y Rotar mueven la varilla como un sólido rígido; Flexionar la deforma. Aplica cada movimiento y compara qué trazas cambian.',
+            manipulateExperimentEyebrow: 'Tarea',
+            manipulateExperimentTitle: 'Alcanza la forma objetivo discontinua',
+            manipulateExperimentDesc: 'Arrastra una pinza para trasladarla, o su anillo para girarla. Cambia una entrada cada vez e invierte cualquier cambio que aumente el error.',
+            dataExperimentEyebrow: 'Procedimiento',
+            dataExperimentTitle: 'Estima el jacobiano y cierra el lazo',
+            dataExperimentDesc: 'Elige un vector de características a la derecha y pulsa Estimar y controlar. Las pinzas ejecutan primero pequeños movimientos de prueba; el lazo de realimentación empieza cuando el jacobiano está estimado.',
+            predictionStartTitle: 'Empieza con Trasladar',
+            predictionStartDesc: 'Antes de pulsarlo: ¿cuál de las tres trazas cambiará si la varilla se desplaza sin deformarse?',
+            predictionTranslateTitle: 'Traslación: solo la posición',
+            predictionTranslateDesc: 'Cada punto tiene coordenadas nuevas, así que la traza de coordenadas de puntos cambia. Los vectores de arista y la curvatura se calculan con diferencias entre puntos vecinos, en las que una traslación común se cancela.',
+            predictionRotateTitle: 'Rotación: posición y orientación',
+            predictionRotateDesc: 'Las coordenadas de puntos y los vectores de arista giran con la varilla. La curvatura es el ángulo entre aristas consecutivas, en el que una rotación común se cancela, así que su traza no cambia.',
+            predictionWaveTitle: 'Flexión: un cambio de forma',
+            predictionWaveDesc: 'La flexión cambia la forma intrínseca de la varilla. Ninguno de los tres vectores de características es invariante a ella, así que cambian las tres trazas.',
+            dataPhaseStartTitle: 'Aún no hay modelo',
+            dataPhaseStartDesc: 'Elige un vector de características. Las pinzas ejecutan movimientos de prueba antes de que empiece el lazo de realimentación.',
+            dataPhaseEstimateTitle: 'Estimando el jacobiano de forma',
+            dataPhaseEstimateDesc: 'Se perturba un comando cada vez, de modo que cada cambio medido de las características se atribuye a una sola entrada y da una columna de Ĵ.',
+            dataPhaseControlTitle: 'Lazo cerrado',
+            dataPhaseControlDesc: 'En cada ciclo se mide el error de características, se transforma en una velocidad de las pinzas mediante Ĵ y se actualiza Ĵ con la respuesta medida.',
+            dataPhaseReadyTitle: 'Jacobiano estimado',
+            dataPhaseReadyDesc: 'Ĵ relaciona el movimiento de las pinzas con el de las características en torno a la configuración actual. Pulsa Estimar y controlar para iniciar el lazo de realimentación.',
+            sceneTitle: 'Robots, objeto y objetivo',
+            sceneHint: 'Arrastra una pinza, su anillo para girarla, o la propia varilla.',
+            legendObject: 'Objeto',
+            legendTarget: 'Forma objetivo',
+            legendFeatures: 'Características medidas',
+            rodModel: 'Varilla discreta de Kirchhoff · 24 segmentos',
+            playBtn: 'Estimar y controlar',
+            pauseBtn: 'Pausar',
+            probeBtn: 'Solo estimar',
+            targetBtn: 'Nuevo objetivo',
+            resetBtn: 'Reiniciar',
+            disturbLabel: 'Mueve el objeto:',
+            rigidBtn: 'Trasladar',
+            rotateBtn: 'Rotar',
+            waveBtn: 'Flexionar',
+            repTitle: 'Vector de características controlado',
+            representationAria: 'Representación de la forma',
+            repComparisonNote: 'Las tres filas tienen unidades y escalas distintas; compara cada valor solo consigo mismo antes y después de un movimiento.',
+            pointCoordinates: 'Coordenadas de puntos',
+            pointsNote: '18 componentes · cambia con cualquier movimiento',
+            edgeVectors: 'Vectores de arista',
+            edgesNote: '16 componentes · invariante a la traslación',
+            curvature: 'Curvatura',
+            curvatureNote: '7 componentes · invariante al movimiento rígido',
+            currentError: 'Error actual',
+            errorNorm: 'Error seleccionado',
+            modelRank: 'Rango',
+            conditioning: 'Condición',
+            jacobianTitle: 'Jacobiano de forma estimado Ĵ',
+            emptyModel: 'Aún no hay estimación. El paso de estimación aplica un pequeño movimiento a cada uno de los seis comandos y mide la respuesta de las características.',
+            featPointsTitle: 'Coordenadas de puntos',
+            featEdgesTitle: 'Vectores de arista',
+            featCurvatureTitle: 'Curvatura',
+            actionTitle: 'Comando del robot u̇',
+            errorTitle: 'Error normalizado',
+            signalsTitle: 'Señales del lazo de realimentación',
+            signalsDesc: 'Cada componente mantiene una escala durante toda la ventana temporal; el panel de error muestra las tres representaciones en el mismo eje normalizado.',
+            manipulateSignalsTitle: 'Error de forma en el tiempo',
+            manipulateSignalsDesc: 'Cada flecha azul une un punto medido con su posición objetivo. La gráfica convierte la norma de estos errores, relativa a su valor inicial, en un porcentaje; llévalo a la banda sombreada bajo el umbral de coincidencia.',
+            representationsSignalsTitle: 'Invariancia de cada vector de características',
+            representationsSignalsDesc: 'Un vector de características es invariante a un movimiento si este no modifica sus componentes. Una traza que no cambia mientras el objeto se mueve indica invariancia a ese movimiento.',
+            dataSignalsTitle: 'Señales del lazo de realimentación',
+            dataSignalsDesc: 'Las componentes de las características, las velocidades de las pinzas y el error se representan en la misma ventana de tres segundos, de modo que los movimientos de prueba de la estimación y la corrección posterior comparten un eje temporal.',
+            timeAxisLabel: 'Tiempo (s)',
+            pointsAxisLabel: 'Posición (m)',
+            edgesAxisLabel: 'Componente de arista (m)',
+            curvatureAxisLabel: 'Ángulo de giro (rad)',
+            actionAxisLabel: 'Tasa de comando (m/s, rad/s)',
+            errorAxisLabel: 'Error normalizado (–)',
+            manualErrorAxisLabel: 'Error de forma (%)',
+            manualErrorTitle: 'Error de forma',
+            manualErrorSeries: 'Error de forma',
+            manualTargetBand: 'umbral de coincidencia',
+            statusIdle: 'En espera. Elige un vector de características y después estima y controla.',
+            statusProbing: 'Perturbando el comando',
+            statusLearned: 'Jacobiano estimado a partir de los movimientos de prueba.',
+            statusRunning: 'Controlador en marcha',
+            statusConverged: 'Convergencia alcanzada para el vector de características elegido.',
+            statusPaused: 'Controlador en pausa.',
+            statusStalled: 'Detenido: el error no converge en este espacio de características.',
+            statusManual: 'Movimiento manual; las gráficas siguen actualizándose.',
+            statusTarget: 'Nuevo objetivo generado a partir de una pose de sujeción factible.',
+            statusLimit: 'Detenido: la distancia entre pinzas pedida supera la longitud de la varilla.',
+            statusDisturb: 'Perturbación aplicada al objeto.',
+            stepsLabel: 'pasos',
+            learnMore: 'Definición de los tres vectores de características',
+            pointsHeading: 'Coordenadas de puntos',
+            pointsDesc: 'Las coordenadas x e y de cada punto medido. El vector conserva posición, orientación y forma, así que las tres pueden controlarse, y cualquier movimiento rígido del objeto aparece como error.',
+            edgesHeading: 'Vectores de arista',
+            edgesDesc: 'El vector de cada punto al siguiente. La diferencia entre puntos vecinos cancela la posición absoluta, así que los vectores de arista son invariantes a la traslación pero cambian con la rotación y la flexión.',
+            curvatureHeading: 'Curvatura',
+            curvatureDesc: 'El ángulo de giro entre aristas consecutivas. La diferencia de ángulos cancela a la vez la posición y la orientación, así que la curvatura es invariante al movimiento rígido y depende solo de la flexión.',
+            showAdvanced: 'Mostrar modelo y señales',
+            hideAdvanced: 'Ocultar modelo y señales',
+            controlLoopTitle: 'El lazo de control de forma',
+            controlLoopDesc: 'El jacobiano se estima una vez con movimientos de prueba y después se usa y se actualiza en cada ciclo del lazo de realimentación.',
+            phaseOffline: 'Fuera de línea · una vez',
+            phaseOnline: 'En línea · cada ciclo',
+            loopProbeTitle: '1. Perturbar',
+            loopProbeDesc: 'Aplica un pequeño movimiento a un comando cada vez y registra el cambio en las características.',
+            loopEstimateTitle: '2. Estimar Ĵ',
+            loopEstimateDesc: 'Cada cambio de las características dividido por el incremento de su comando da una columna del jacobiano de forma.',
+            loopCompareTitle: '3. Medir el error',
+            loopCompareDesc: 'Resta el vector de características actual del vector objetivo.',
+            loopControlTitle: '4. Corregir y repetir',
+            loopPseudocode: '# ---- etapa 1: estimar el jacobiano de forma (una vez) ----\npara cada comando de pinza u_i:          # 6 en total: x, y y angulo por pinza\n    aplica un incremento pequeno du_i    # un comando cada vez, para conocer la causa\n    ds = caracteristicas_ahora - antes   # cambio medido de las caracteristicas\n    J[:, i] = ds / du_i                  # una columna del jacobiano de forma\n\n# ---- etapa 2: cerrar el lazo (en cada ciclo) ----\nmientras el error de forma sea grande:\n    s = medir_caracteristicas(objeto)    # puntos, vectores de arista o curvatura\n    e = s_objetivo - s                   # error de forma en el espacio de caracteristicas\n    u_dot = ganancia * pinv_amortiguada(J) @ e  # velocidad de pinzas por minimos cuadrados\n    mover_pinzas(u_dot * dt)             # aplica un paso pequeno y vuelve a medir\n    J = actualizacion_broyden(J, du, ds) # corrige J con la respuesta medida',
+            loopCodeAria: 'Pseudocódigo del lazo de control de forma',
+            loopControlDesc: 'Transforma el error en una velocidad de las pinzas con la pseudoinversa amortiguada de Ĵ, aplica un paso pequeño y vuelve a medir.',
+            manualScoreTitle: 'Reto manual',
+            manualMatchLabel: 'Coincidencia de forma',
+            manualMovesLabel: 'Movimientos',
+            leftGripper: 'Pinza izquierda',
+            rightGripper: 'Pinza derecha',
+            gripperGroupAria: 'Pinza que se va a mover',
+            nudgeGroupAria: 'Mover la pinza seleccionada',
+            moveLeftAria: 'Mover hacia la izquierda',
+            moveRightAria: 'Mover hacia la derecha',
+            moveUpAria: 'Mover hacia arriba',
+            moveDownAria: 'Mover hacia abajo',
+            rotateLeftAria: 'Girar en sentido antihorario',
+            rotateRightAria: 'Girar en sentido horario',
+            manualCoachStartTitle: 'Mueve una pinza cada vez',
+            manualCoachStartDesc: 'Arrastra el punto circular de una pinza para trasladarla o su anillo para girarla.',
+            manualCoachImprovingTitle: 'El error ha disminuido',
+            manualCoachImprovingDesc: 'Continúa con un ajuste pequeño o prueba la otra pinza.',
+            manualCoachWrongTitle: 'El error ha aumentado',
+            manualCoachWrongDesc: 'Invierte el cambio y prueba otra dirección o pinza.',
+            manualCoachCloseTitle: 'Cerca del objetivo',
+            manualCoachCloseDesc: 'Usa movimientos pequeños de las pinzas para reducir el error restante.',
+            manualCoachSuccessTitle: 'Objetivo alcanzado',
+            manualCoachSuccessDesc: 'Has cerrado el lazo manualmente: medir, comparar, corregir.',
+            takeawayLabel: 'Idea clave',
+            takeawayTitle: 'El vector de características determina qué errores corrige el controlador.',
+            takeawayDesc: 'Las coordenadas de puntos conservan pose y forma, los vectores de arista son invariantes a la traslación y la curvatura depende solo de la flexión. La elección depende de si la tarea especifica la pose del objeto.',
+            manipulateTakeawayTitle: 'Has cerrado a mano un lazo de control de forma.',
+            manipulateTakeawayDesc: 'Medir el error, elegir una corrección, aplicarla y volver a medir. Los pasos 3 y 4 sustituyen al operador por un vector de características y un jacobiano estimado a partir de datos.',
+            representationsTakeawayTitle: 'La invariancia elimina a la vez perturbaciones y direcciones controlables.',
+            representationsTakeawayDesc: 'Un vector de características invariante a un movimiento es insensible a las perturbaciones a lo largo de ese movimiento, y los errores a lo largo de él no pueden corregirse. La curvatura no cambia si la varilla se empuja de lado, pero tampoco puede especificar dónde colocarla.',
+            dataTakeawayTitle: 'El jacobiano se estima a partir de datos, no se deduce de un modelo.',
+            dataTakeawayDesc: 'El controlador no usa ningún modelo de la mecánica de la varilla. Seis pequeños movimientos de prueba determinan la relación local entre el movimiento de las pinzas y el de las características, y la actualización de Broyden ajusta esta estimación a medida que cambia la configuración.',
+            nextCompare: 'Siguiente: similitud de forma →',
+            nextDataDriven: 'Siguiente: control de forma basado en datos →',
+            finishJourney: 'Investigación relacionada →',
+            sceneCanvasLabel: 'Dos brazos robóticos planos sujetan un objeto deformable, con la forma objetivo mostrada como una curva discontinua',
+            pointsPlotLabel: 'Evolución temporal de las componentes de coordenadas de puntos',
+            edgesPlotLabel: 'Evolución temporal de las componentes de vectores de arista',
+            curvaturePlotLabel: 'Evolución temporal de las componentes de curvatura',
+            actionPlotLabel: 'Evolución temporal de los seis comandos de velocidad del robot',
+            errorPlotLabel: 'Evolución temporal del error de forma para las tres representaciones',
+            cmdXL: 'x izq.',
+            cmdYL: 'y izq.',
+            cmdTL: 'θ izq.',
+            cmdXR: 'x der.',
+            cmdYR: 'y der.',
+            cmdTR: 'θ der.',
+            nowLabel: 'ahora',
+            dimLabel: 'dim'
+        }
+    };
+
+    const isEmbedded = window.self !== window.top;
+    const demoMode = document.documentElement.dataset.demoMode || 'data-driven';
+    let lang = localStorage.getItem('language') || 'en';
+    const dict = () => translations[lang] || translations.en;
+
+    // ------------------------------------------------------------------
+    // model constants
+    // ------------------------------------------------------------------
+    const TAU = Math.PI * 2;
+    const N_NODES = 9;                       // measured points along the object
+    // Same discrete Kirchhoff rod as the two-robot manipulation demo, in world
+    // units: inextensible segments of fixed length, clamped at both ends.
+    const ROD = { length: 1.85, segments: 24, stiffness: 1, iterations: 48 };
+    ROD.h = ROD.length / ROD.segments;
+    const STRIDE = ROD.segments / (N_NODES - 1);
+    const ARM = { l1: 1.30, l2: 1.10, l3: 0.28 };
+    const BASES = [[-1.55, -0.95], [1.55, -0.95]];
+    const FLOOR = -1.02;
+    const VIEW = { x0: -2.4, x1: 2.4, y0: -1.18, y1: 1.00 };
+
+    const KEYS = ['x0', 'y0', 'a0', 'x1', 'y1', 'a1'];
+    const CMD_I18N = ['cmdXL', 'cmdYL', 'cmdTL', 'cmdXR', 'cmdYR', 'cmdTR'];
+    const CMD_MATH = ['x₀', 'y₀', 'θ₀', 'x₁', 'y₁', 'θ₁'];
+    const PROBE_AMPLITUDE = 0.085;   // metres for x/y, radians for theta
+    // Clamped SE(2) boundary conditions, boxed so the arms never have to clamp
+    // their IK and the rod stays between 0.39 and 0.90 of its own length.
+    const LIMITS = {
+        x0: [-0.80, -0.36], y0: [-0.22, 0.24], a0: [-0.85, 0.85],
+        x1: [0.36, 0.80], y1: [-0.22, 0.24], a1: [-0.85, 0.85]
+    };
+
+    // an external disturbance may push the object outside the servo box;
+    // both arms still reach every pose in this envelope
+    const DISTURB_LIMITS = {
+        x0: [-1.00, -0.20], y0: [-0.36, 0.38], a0: [-1.00, 1.00],
+        x1: [0.20, 1.00], y1: [-0.36, 0.38], a1: [-1.00, 1.00]
+    };
+
+    const HOME = { x0: -0.58, y0: 0.00, a0: 0.28, x1: 0.58, y1: 0.00, a1: -0.28 };
+    const GOAL = { x0: -0.74, y0: -0.16, a0: 0.70, x1: 0.44, y1: 0.20, a1: 0.05 };
+
+    const REPS = ['points', 'edges', 'curvature'];
+    const REP_TAGS = ['pts', 'edg', 'κ'];
+    // Step 1 is a single-task demo: one error curve, in the same percentage
+    // the on-screen score uses, so "drive this to zero" needs no decoding.
+    const ERROR_SERIES = demoMode === 'manipulate' ? ['points'] : REPS;
+    const MANUAL_ERROR = demoMode === 'manipulate';
+    const MANUAL_TARGET_BAND = 8;
+    const matchFromError = (normalised) => 100 * Math.exp(-1.5 * Math.min(normalised, 3));
+    const DIMS = { points: 2 * N_NODES, edges: 2 * (N_NODES - 1), curvature: N_NODES - 2 };
+
+    // ------------------------------------------------------------------
+    // state
+    // ------------------------------------------------------------------
+    let base = { ...HOME };
+    let goal = { ...GOAL };
+    let representation = 'points';
+    let jacobian = null;
+    let running = false;
+    let steps = 0;
+    let converged = false;
+    let statusKey = 'statusIdle';
+    let probe = null;
+    let gesture = null;
+    let drag = null;
+    let resumeAfterProbe = false;
+    let visible = true;
+    let predictionState = 'Start';
+    let dataPhase = 'Start';
+    let advancedVisible = demoMode === 'data-driven';
+    let manualSide = 0;
+    let manualMoves = 0;
+    let manualPreviousMatch = 0;
+    let manualCoachTitleKey = 'manualCoachStartTitle';
+    let manualCoachTextKey = 'manualCoachStartDesc';
+
+    const probeOffset = { x0: 0, y0: 0, a0: 0, x1: 0, y1: 0, a1: 0 };
+    const zeroOffset = () => ({ x0: 0, y0: 0, a0: 0, x1: 0, y1: 0, a1: 0 });
+
+    // ------------------------------------------------------------------
+    // kinematics & shape model
+    // ------------------------------------------------------------------
+    const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+
+    function effective() {
+        const out = {};
+        const g = gesture ? gestureDelta() : null;
+        const box = g ? DISTURB_LIMITS : LIMITS;
+        for (const k of KEYS) {
+            const v = base[k] + probeOffset[k] + (g ? g[k] : 0);
+            out[k] = clamp(v, box[k][0], box[k][1]);
+        }
+        return out;
+    }
+
+    // ------------------------------------------------------------------
+    // discrete Kirchhoff rod (same model as the two-robot demo)
+    // ------------------------------------------------------------------
+    const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+    const dist = (a, b) => Math.hypot(b[0] - a[0], b[1] - a[1]);
+
+    function integrateRod(start, angles) {
+        const pts = [[start[0], start[1]]];
+        for (const angle of angles) {
+            const prev = pts[pts.length - 1];
+            pts.push([prev[0] + ROD.h * Math.cos(angle), prev[1] + ROD.h * Math.sin(angle)]);
+        }
+        return pts;
+    }
+
+    function bendingEnergy(angles) {
+        let energy = 0;
+        for (let i = 1; i < angles.length; i++) {
+            const kappa = wrapAngle(angles[i] - angles[i - 1]);
+            energy += 0.5 * ROD.stiffness * kappa * kappa;
+        }
+        return energy;
+    }
+
+    function solveDense(matrix, rhs) {
+        const size = rhs.length;
+        const a = matrix.map((row, index) => [...row, rhs[index]]);
+        for (let column = 0; column < size; column++) {
+            let pivot = column;
+            for (let row = column + 1; row < size; row++) {
+                if (Math.abs(a[row][column]) > Math.abs(a[pivot][column])) pivot = row;
+            }
+            if (Math.abs(a[pivot][column]) < 1e-10) return null;
+            [a[column], a[pivot]] = [a[pivot], a[column]];
+            const inv = 1 / a[column][column];
+            for (let e = column; e <= size; e++) a[column][e] *= inv;
+            for (let row = 0; row < size; row++) {
+                if (row === column) continue;
+                const factor = a[row][column];
+                if (Math.abs(factor) < 1e-14) continue;
+                for (let e = column; e <= size; e++) a[row][e] -= factor * a[column][e];
+            }
+        }
+        return a.map(row => row[size]);
+    }
+
+    function initialRodAngles(p0, p1, a0, a1, bend) {
+        const segmentCount = ROD.segments;
+        const internal = segmentCount - 2;
+        const innerL = [p0[0] + ROD.h * Math.cos(a0), p0[1] + ROD.h * Math.sin(a0)];
+        const innerR = [p1[0] - ROD.h * Math.cos(a1), p1[1] - ROD.h * Math.sin(a1)];
+        const chordAngle = Math.atan2(innerR[1] - innerL[1], innerR[0] - innerL[0]);
+        const chord = dist(innerL, innerR);
+        const paired = internal - internal % 2;
+        const centre = internal - paired;
+        const cosine = clamp((chord / ROD.h - centre) / paired, -1, 1);
+        const opening = Math.acos(cosine);
+        const angles = Array(segmentCount).fill(chordAngle);
+        const half = paired / 2;
+        for (let i = 0; i < half; i++) angles[i + 1] = chordAngle + bend * opening;
+        for (let i = 0; i < half; i++) angles[i + 1 + half + centre] = chordAngle - bend * opening;
+        angles[0] = a0;
+        angles[segmentCount - 1] = a1;
+        return angles;
+    }
+
+    function projectEndpoints(angles, p0, p1, maxIterations = 8) {
+        const last = angles.length - 1;
+        for (let iteration = 0; iteration < maxIterations; iteration++) {
+            const pts = integrateRod(p0, angles);
+            const end = pts[pts.length - 1];
+            const error = [end[0] - p1[0], end[1] - p1[1]];
+            if (Math.hypot(...error) < 1e-7) return true;
+            let xx = 1e-8;
+            let xy = 0;
+            let yy = 1e-8;
+            const columns = [];
+            for (let index = 1; index < last; index++) {
+                const column = [-ROD.h * Math.sin(angles[index]), ROD.h * Math.cos(angles[index])];
+                columns.push(column);
+                xx += column[0] * column[0];
+                xy += column[0] * column[1];
+                yy += column[1] * column[1];
+            }
+            const det = xx * yy - xy * xy;
+            if (Math.abs(det) < 1e-10) return false;
+            const mx = (yy * error[0] - xy * error[1]) / det;
+            const my = (-xy * error[0] + xx * error[1]) / det;
+            const correction = columns.map(c => -(c[0] * mx + c[1] * my));
+            const largest = Math.max(...correction.map(Math.abs), 1e-9);
+            const scale = Math.min(1, 0.45 / largest);
+            for (let v = 0; v < correction.length; v++) angles[v + 1] += scale * correction[v];
+        }
+        const pts = integrateRod(p0, angles);
+        return dist(pts[pts.length - 1], p1) < 1e-4;
+    }
+
+    // Quasi-static equilibrium: minimise bending energy over the interior segment
+    // angles while both clamped ends and the endpoint positions are held exactly.
+    // SQP with a KKT step and a merit line search.
+    function solveRod(p0, p1, a0, a1, warm = null, bend = 1) {
+        const segmentCount = ROD.segments;
+        const variables = segmentCount - 2;
+        const angles = warm?.length === segmentCount
+            ? [...warm]
+            : initialRodAngles(p0, p1, a0, a1, bend);
+        angles[0] = a0;
+        angles[segmentCount - 1] = a1;
+        projectEndpoints(angles, p0, p1);
+
+        for (let iteration = 0; iteration < ROD.iterations; iteration++) {
+            const pts = integrateRod(p0, angles);
+            const end = pts[pts.length - 1];
+            const constraint = [end[0] - p1[0], end[1] - p1[1]];
+            const residual = Math.hypot(...constraint);
+
+            const gradient = Array(variables).fill(0);
+            const hessian = Array.from({ length: variables }, () => Array(variables).fill(0));
+            const jac = [Array(variables).fill(0), Array(variables).fill(0)];
+            for (let v = 0; v < variables; v++) {
+                const index = v + 1;
+                const prev = wrapAngle(angles[index] - angles[index - 1]);
+                const next = wrapAngle(angles[index + 1] - angles[index]);
+                gradient[v] = ROD.stiffness * (prev - next);
+                hessian[v][v] = 2 * ROD.stiffness + 1e-5;
+                if (v > 0) hessian[v][v - 1] = -ROD.stiffness;
+                if (v < variables - 1) hessian[v][v + 1] = -ROD.stiffness;
+                jac[0][v] = -ROD.h * Math.sin(angles[index]);
+                jac[1][v] = ROD.h * Math.cos(angles[index]);
+            }
+            if (residual < 1e-4 && Math.max(...gradient.map(Math.abs)) < 1e-4) break;
+
+            const size = variables + 2;
+            const kkt = Array.from({ length: size }, () => Array(size).fill(0));
+            const rhs = Array(size).fill(0);
+            for (let row = 0; row < variables; row++) {
+                rhs[row] = -gradient[row];
+                for (let col = 0; col < variables; col++) kkt[row][col] = hessian[row][col];
+                kkt[row][variables] = jac[0][row];
+                kkt[row][variables + 1] = jac[1][row];
+                kkt[variables][row] = jac[0][row];
+                kkt[variables + 1][row] = jac[1][row];
+            }
+            // a small compliance keeps the KKT solve conditioned at the straight limit
+            kkt[variables][variables] = -1e-8;
+            kkt[variables + 1][variables + 1] = -1e-8;
+            rhs[variables] = -constraint[0];
+            rhs[variables + 1] = -constraint[1];
+
+            const solution = solveDense(kkt, rhs);
+            if (!solution) break;
+            const direction = solution.slice(0, variables);
+            const largest = Math.max(...direction.map(Math.abs), 1e-9);
+            if (residual < 1e-4 && largest < 1e-5) break;
+            const stepLimit = Math.min(1, 0.65 / largest);
+            const penalty = 4;
+            const oldMerit = bendingEnergy(angles) + penalty * residual * residual;
+            let accepted = false;
+            for (let ls = 0; ls < 9; ls++) {
+                const scale = stepLimit * 0.5 ** ls;
+                const candidate = [...angles];
+                for (let v = 0; v < variables; v++) candidate[v + 1] += scale * direction[v];
+                projectEndpoints(candidate, p0, p1, 6);
+                const candidatePts = integrateRod(p0, candidate);
+                const candidateResidual = dist(candidatePts[candidatePts.length - 1], p1);
+                const candidateMerit = bendingEnergy(candidate) +
+                    penalty * candidateResidual * candidateResidual;
+                const closes = residual > 1e-3 && candidateResidual < residual * (1 - 0.04 * scale);
+                if (candidateMerit < oldMerit || closes || candidateResidual < 1e-5) {
+                    for (let i = 1; i < segmentCount - 1; i++) angles[i] = candidate[i];
+                    accepted = true;
+                    break;
+                }
+            }
+            if (!accepted) break;
+        }
+
+        projectEndpoints(angles, p0, p1, 10);
+        const pts = integrateRod(p0, angles);
+        return { points: pts, angles, residual: dist(pts[pts.length - 1], p1) };
+    }
+
+    function solveStableRod(p0, p1, a0, a1, warm = null) {
+        const first = solveRod(p0, p1, a0, a1, warm);
+        if (first.residual <= 0.004) return first;
+        const candidates = [first];
+        if (warm) candidates.push(solveRod(p0, p1, a0, a1, null, 1));
+        candidates.push(solveRod(p0, p1, a0, a1, null, -1));
+        return candidates.reduce((best, c) => (c.residual < best.residual ? c : best));
+    }
+
+    // Reachability of a clamped pose pair: the rod is inextensible, so both the
+    // endpoints and the two inner clamped nodes have to stay within reach.
+    function rodFeasible(s) {
+        const p0 = [s.x0, s.y0];
+        const p1 = [s.x1, s.y1];
+        const innerL = [p0[0] + ROD.h * Math.cos(s.a0), p0[1] + ROD.h * Math.sin(s.a0)];
+        const innerR = [p1[0] - ROD.h * Math.cos(s.a1), p1[1] - ROD.h * Math.sin(s.a1)];
+        return dist(p0, p1) <= ROD.length + 1e-6 &&
+            dist(innerL, innerR) <= ROD.h * (ROD.segments - 2) + 1e-6;
+    }
+
+    // The equilibrium depends on where the rod already is, so each solve is
+    // warm-started from the previous configuration and cached per state.
+    let rodAngles = null;
+    let rodCache = null;
+    let rodCacheKey = '';
+
+    function rodFor(s) {
+        const key = KEYS.map(k => s[k].toFixed(5)).join(',');
+        if (key === rodCacheKey && rodCache) return rodCache;
+        const eq = solveStableRod([s.x0, s.y0], [s.x1, s.y1], s.a0, s.a1, rodAngles);
+        rodAngles = eq.angles;
+        rodCache = eq.points;
+        rodCacheKey = key;
+        return eq.points;
+    }
+
+    const measured = (pts) => pts.filter((_, i) => i % STRIDE === 0);
+
+    // measured points of the *current* object; the target carries its own rod
+    function nodes(s) {
+        return measured(rodFor(s));
+    }
+
+    function featuresOf(pts, type) {
+        if (type === 'points') {
+            const out = new Array(2 * pts.length);
+            for (let i = 0; i < pts.length; i++) { out[2 * i] = pts[i][0]; out[2 * i + 1] = pts[i][1]; }
+            return out;
+        }
+        const ex = [];
+        const ey = [];
+        for (let i = 0; i < pts.length - 1; i++) {
+            ex.push(pts[i + 1][0] - pts[i][0]);
+            ey.push(pts[i + 1][1] - pts[i][1]);
+        }
+        if (type === 'edges') {
+            const out = [];
+            for (let i = 0; i < ex.length; i++) { out.push(ex[i], ey[i]); }
+            return out;
+        }
+        const ang = ex.map((v, i) => Math.atan2(ey[i], v));
+        const out = [];
+        for (let i = 0; i < ang.length - 1; i++) {
+            const d = ang[i + 1] - ang[i];
+            out.push(Math.atan2(Math.sin(d), Math.cos(d)));
+        }
+        return out;
+    }
+
+    const featureSet = (pts) => ({
+        points: featuresOf(pts, 'points'),
+        edges: featuresOf(pts, 'edges'),
+        curvature: featuresOf(pts, 'curvature')
+    });
+
+    const allFeatures = (s) => featureSet(nodes(s));
+
+    let goalRod = null;
+    let goalNodes = null;
+    let goalFeatures = null;
+
+    // A target is a pair of clamped SE(2) boundary conditions plus the rod
+    // equilibrium they produce, so it is reachable by construction.
+    function setTarget(state) {
+        const eq = solveStableRod([state.x0, state.y0], [state.x1, state.y1], state.a0, state.a1, null);
+        goal = { ...state };
+        goalRod = eq.points;
+        goalNodes = measured(eq.points);
+        goalFeatures = featureSet(goalNodes);
+        return eq;
+    }
+
+    // Sample clamped boundary conditions until one is feasible for the rod,
+    // settles cleanly, and is far enough from the current shape to be worth
+    // servoing to.
+    function randomTarget() {
+        const current = allFeatures(effective()).points;
+        for (let attempt = 0; attempt < 240; attempt++) {
+            const candidate = {};
+            for (const k of KEYS) {
+                const [lo, hi] = LIMITS[k];
+                const pad = (hi - lo) * 0.07;
+                candidate[k] = lo + pad + Math.random() * (hi - lo - 2 * pad);
+            }
+            if (!rodFeasible(candidate)) continue;
+            // keep the slack in a plausible manipulation band: below this the
+            // rod folds into a hairpin, above it there is nothing left to shape
+            const ratio = dist([candidate.x0, candidate.y0], [candidate.x1, candidate.y1]) / ROD.length;
+            if (ratio < 0.55 || ratio > 0.88) continue;
+            const eq = solveStableRod(
+                [candidate.x0, candidate.y0], [candidate.x1, candidate.y1],
+                candidate.a0, candidate.a1, null);
+            if (eq.residual > 1e-4) continue;
+            const f = featuresOf(measured(eq.points), 'points');
+            let separation = 0;
+            for (let i = 0; i < f.length; i++) {
+                const d = f[i] - current[i];
+                separation += d * d;
+            }
+            if (Math.sqrt(separation) < 0.6) continue;
+            setTarget(candidate);
+            return true;
+        }
+        return false;
+    }
+
+    setTarget(GOAL);
+
+    function errorNorm(f, rep) {
+        const t = goalFeatures[rep];
+        let sum = 0;
+        for (let i = 0; i < t.length; i++) { const d = t[i] - f[rep][i]; sum += d * d; }
+        return Math.sqrt(sum);
+    }
+
+    let errorScale = { points: 1, edges: 1, curvature: 1 };
+    function refreshErrorScale() {
+        const f = allFeatures(effective());
+        for (const rep of REPS) errorScale[rep] = Math.max(errorNorm(f, rep), 1e-3);
+    }
+
+    // inverse kinematics of a planar 3R arm, elbow-up, with reach clamping
+    function solveArm(baseXY, ee, psi) {
+        let wx = ee[0] - ARM.l3 * Math.cos(psi);
+        let wy = ee[1] - ARM.l3 * Math.sin(psi);
+        let dx = wx - baseXY[0];
+        let dy = wy - baseXY[1];
+        let r = Math.hypot(dx, dy);
+        const rMax = ARM.l1 + ARM.l2 - 1e-4;
+        const rMin = Math.abs(ARM.l1 - ARM.l2) + 1e-3;
+        if (r > rMax) { const f = rMax / r; dx *= f; dy *= f; r = rMax; }
+        if (r < rMin) { const f = r < 1e-6 ? 0 : rMin / r; dx *= f || 1; dy *= f || 1; r = rMin; }
+        const c2 = clamp((r * r - ARM.l1 * ARM.l1 - ARM.l2 * ARM.l2) / (2 * ARM.l1 * ARM.l2), -1, 1);
+        const s2 = Math.sqrt(Math.max(0, 1 - c2 * c2));
+        const phi = Math.atan2(dy, dx);
+        let best = null;
+        for (const sign of [1, -1]) {
+            const t2 = Math.atan2(sign * s2, c2);
+            const t1 = phi - Math.atan2(ARM.l2 * Math.sin(t2), ARM.l1 + ARM.l2 * Math.cos(t2));
+            const elbow = [baseXY[0] + ARM.l1 * Math.cos(t1), baseXY[1] + ARM.l1 * Math.sin(t1)];
+            if (!best || elbow[1] > best.elbow[1]) best = { t1, t2, elbow };
+        }
+        const wrist = [best.elbow[0] + ARM.l2 * Math.cos(best.t1 + best.t2), best.elbow[1] + ARM.l2 * Math.sin(best.t1 + best.t2)];
+        const tip = [wrist[0] + ARM.l3 * Math.cos(psi), wrist[1] + ARM.l3 * Math.sin(psi)];
+        return { base: baseXY, elbow: best.elbow, wrist, tip, psi };
+    }
+
+    const armPoses = (s) => [
+        solveArm(BASES[0], [s.x0, s.y0], s.a0),
+        solveArm(BASES[1], [s.x1, s.y1], s.a1 + Math.PI)
+    ];
+
+    // ------------------------------------------------------------------
+    // linear algebra
+    // ------------------------------------------------------------------
+    function gram(J) {
+        const n = KEYS.length;
+        const G = Array.from({ length: n }, () => new Array(n).fill(0));
+        for (let i = 0; i < n; i++) {
+            for (let j = i; j < n; j++) {
+                let sum = 0;
+                for (let r = 0; r < J.length; r++) sum += J[r][i] * J[r][j];
+                G[i][j] = G[j][i] = sum;
+            }
+        }
+        return G;
+    }
+
+    function solveSym(A, b) {
+        const n = b.length;
+        const M = A.map((row, i) => [...row, b[i]]);
+        for (let c = 0; c < n; c++) {
+            let p = c;
+            for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+            [M[c], M[p]] = [M[p], M[c]];
+            const d = Math.abs(M[c][c]) < 1e-12 ? 1e-12 : M[c][c];
+            for (let j = c; j <= n; j++) M[c][j] /= d;
+            for (let r = 0; r < n; r++) {
+                if (r === c) continue;
+                const f = M[r][c];
+                if (f === 0) continue;
+                for (let j = c; j <= n; j++) M[r][j] -= f * M[c][j];
+            }
+        }
+        return M.map(row => row[n]);
+    }
+
+    function eigenvalues(A) {
+        const a = A.map(row => [...row]);
+        const n = a.length;
+        for (let sweep = 0; sweep < 40; sweep++) {
+            let p = 0, q = 1, largest = 0;
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    if (Math.abs(a[i][j]) > largest) { largest = Math.abs(a[i][j]); p = i; q = j; }
+                }
+            }
+            if (largest < 1e-12) break;
+            const theta = 0.5 * Math.atan2(2 * a[p][q], a[q][q] - a[p][p]);
+            const c = Math.cos(theta);
+            const s = Math.sin(theta);
+            for (let k = 0; k < n; k++) {
+                if (k === p || k === q) continue;
+                const apk = a[p][k];
+                const aqk = a[q][k];
+                a[p][k] = a[k][p] = c * apk - s * aqk;
+                a[q][k] = a[k][q] = s * apk + c * aqk;
+            }
+            const app = a[p][p], aqq = a[q][q], apq = a[p][q];
+            a[p][p] = c * c * app - 2 * s * c * apq + s * s * aqq;
+            a[q][q] = s * s * app + 2 * s * c * apq + c * c * aqq;
+            a[p][q] = a[q][p] = 0;
+        }
+        return a.map((row, i) => Math.max(row[i], 0));
+    }
+
+    // ------------------------------------------------------------------
+    // colours
+    // ------------------------------------------------------------------
+    const hexToRgb = (hex) => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    const rgbToHex = (c) => '#' + c.map(v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+    const mix = (a, b, t) => rgbToHex(hexToRgb(a).map((v, i) => v + (hexToRgb(b)[i] - v) * t));
+    const alpha = (hex, a) => { const c = hexToRgb(hex); return `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`; };
+
+    const isDark = () => document.documentElement.dataset.theme === 'dark';
+
+    function palette() {
+        const dark = isDark();
+        const rep = dark
+            ? { points: '#3987e5', edges: '#d95926', curvature: '#199e70' }
+            : { points: '#2a78d6', edges: '#eb6834', curvature: '#1baf7a' };
+        // neutral chrome so the three feature colours carry the data
+        const ramp = {};
+        for (const key of REPS) {
+            ramp[key] = dark
+                ? [mix(rep[key], '#000000', 0.30), mix(rep[key], '#ffffff', 0.34)]
+                : [mix(rep[key], '#ffffff', 0.26), mix(rep[key], '#000000', 0.38)];
+        }
+        return {
+            dark,
+            rep,
+            ramp,
+            action: dark
+                ? ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300']
+                : ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300'],
+            surface: dark ? '#1a1d20' : '#fafbfb',
+            grid: dark ? '#2a2f34' : '#e9ecee',
+            gridStrong: dark ? '#3a4046' : '#d6dade',
+            text: dark ? '#949da6' : '#697179',
+            textStrong: dark ? '#e1e5e9' : '#23282d',
+            object: dark ? '#e6e9ec' : '#23282d',
+            target: dark ? '#c0a18e' : '#9b8171',
+            robot: dark ? '#6f7881' : '#9ba3ab',
+            robotDeep: dark ? '#59626b' : '#7d868f',
+            joint: dark ? '#aab2ba' : '#5c656e',
+            accent: dark ? '#b8c0c8' : '#3d4650',
+            divPos: dark ? '#3987e5' : '#2a78d6',
+            divNeg: dark ? '#e66767' : '#e34948',
+            divMid: dark ? '#383835' : '#f0efec'
+        };
+    }
+
+    const rampColor = (rep, i, n, p) => mix(p.ramp[rep][0], p.ramp[rep][1], n <= 1 ? 0.5 : i / (n - 1));
+
+    // ------------------------------------------------------------------
+    // history buffer
+    // ------------------------------------------------------------------
+    const HIST = 90;
+    const SAMPLE_MS = 33;
+    const history = [];
+    let lastSample = performance.now();
+    let lastState = { ...HOME };
+    let velocity = new Array(6).fill(0);
+
+    function pushSample(now, dt) {
+        const s = effective();
+        const inst = KEYS.map((k, i) => (s[k] - lastState[k]) / Math.max(dt, 1e-3));
+        velocity = velocity.map((v, i) => v + (inst[i] - v) * 0.45);
+        lastState = s;
+        const f = allFeatures(s);
+        history.push({
+            t: now,
+            f,
+            e: { points: errorNorm(f, 'points'), edges: errorNorm(f, 'edges'), curvature: errorNorm(f, 'curvature') },
+            u: velocity.slice()
+        });
+        while (history.length > HIST) history.shift();
+    }
+
+    // ------------------------------------------------------------------
+    // probing
+    // ------------------------------------------------------------------
+    const PROBE_MS = 430;              // identical for every DoF
+    const PROBE_PEAK = 0.3041;         // phase of the extrema of the windowed sine
+    const PROBE_GAIN = 1 / 0.7698;     // rescales that window back to unit peak
+
+    // One cycle, windowed so the velocity is zero at both ends: every DoF then
+    // gets exactly the same excursion, with no jump at the hand-over.
+    const probeWave = (phase) =>
+        PROBE_AMPLITUDE * PROBE_GAIN * Math.sin(TAU * phase) * Math.sin(Math.PI * phase);
+
+    function startProbe(thenRun) {
+        gesture = null;
+        dataPhase = 'Estimate';
+        resumeAfterProbe = !!thenRun;
+        running = false;
+        // t0 is stamped on the first animation frame, not on the click, so the
+        // first DoF gets the same frame budget as the other five
+        probe = { index: 0, t0: null, plus: [], minus: [] };
+        converged = false;
+        statusKey = 'statusProbing';
+        syncControls();
+    }
+
+    // One command at a time: a full +delta / -delta wiggle, so the column is a
+    // central difference and the exactly-unobservable directions stay at zero.
+    function stepProbe(now) {
+        if (probe.t0 === null) probe.t0 = now;
+        const phase = (now - probe.t0) / PROBE_MS;
+        const key = KEYS[probe.index];
+        if (phase >= 1) {
+            probeOffset[key] = 0;
+            probe.index += 1;
+            probe.t0 = now;
+            if (probe.index >= KEYS.length) finishProbe();
+            return;
+        }
+        probeOffset[key] = probeWave(phase);
+        if (!probe.plus[probe.index] && phase >= PROBE_PEAK) {
+            probe.plus[probe.index] = { f: allFeatures(effective())[representation], d: probeOffset[key] };
+        }
+        if (!probe.minus[probe.index] && phase >= 1 - PROBE_PEAK) {
+            probe.minus[probe.index] = { f: allFeatures(effective())[representation], d: probeOffset[key] };
+        }
+    }
+
+    function finishProbe() {
+        const dim = DIMS[representation];
+        const J = Array.from({ length: dim }, () => new Array(KEYS.length).fill(0));
+        for (let c = 0; c < KEYS.length; c++) {
+            let hi = probe.plus[c];
+            let lo = probe.minus[c];
+            if (!hi || !lo) {
+                // frames were too coarse to catch the excursion: measure the
+                // column directly so the estimate is never silently empty
+                const key = KEYS[c];
+                const saved = probeOffset[key];
+                probeOffset[key] = PROBE_AMPLITUDE;
+                hi = { f: allFeatures(effective())[representation], d: PROBE_AMPLITUDE };
+                probeOffset[key] = -PROBE_AMPLITUDE;
+                lo = { f: allFeatures(effective())[representation], d: -PROBE_AMPLITUDE };
+                probeOffset[key] = saved;
+            }
+            const step = hi.d - lo.d;
+            if (Math.abs(step) < 1e-9) continue;
+            for (let r = 0; r < dim; r++) J[r][c] = (hi.f[r] - lo.f[r]) / step;
+        }
+        jacobian = J;
+        probe = null;
+        for (const k of KEYS) probeOffset[k] = 0;
+        statusKey = 'statusLearned';
+        if (resumeAfterProbe) {
+            resumeAfterProbe = false;
+            running = true;
+            steps = 0;
+            statusKey = 'statusRunning';
+            dataPhase = 'Control';
+        } else {
+            dataPhase = 'Ready';
+        }
+        renderJacobian();
+        syncControls();
+    }
+
+    // ------------------------------------------------------------------
+    // controller
+    // ------------------------------------------------------------------
+    const GAIN = 0.022;
+    const DAMPING = 0.012;
+    const STEP_CLAMP = 0.008;
+    const TOL = { points: 0.010, edges: 0.006, curvature: 0.005 };
+
+    function controlStep() {
+        if (!jacobian) return;
+        const s = effective();
+        const f = allFeatures(s)[representation];
+        const t = goalFeatures[representation];
+        const err = t.map((v, i) => v - f[i]);
+        const norm = Math.hypot(...err);
+        if (norm < TOL[representation]) {
+            running = false;
+            converged = true;
+            statusKey = 'statusConverged';
+            syncControls();
+            return;
+        }
+        if (steps > 2000) {
+            running = false;
+            statusKey = 'statusStalled';
+            syncControls();
+            return;
+        }
+
+        const G = gram(jacobian);
+        let trace = 0;
+        for (let i = 0; i < G.length; i++) trace += G[i][i];
+        const mu = Math.max(DAMPING * trace / G.length, 1e-6);
+        for (let i = 0; i < G.length; i++) G[i][i] += mu;
+        const rhs = KEYS.map((_, c) => {
+            let sum = 0;
+            for (let r = 0; r < jacobian.length; r++) sum += jacobian[r][c] * err[r];
+            return sum;
+        });
+        const raw = solveSym(G, rhs);
+        const du = raw.map(v => clamp(v * GAIN, -STEP_CLAMP, STEP_CLAMP));
+        if (du.some(v => !Number.isFinite(v))) { running = false; statusKey = 'statusStalled'; syncControls(); return; }
+
+        const before = f;
+        const previous = { ...base };
+        KEYS.forEach((k, i) => { base[k] = clamp(base[k] + du[i], LIMITS[k][0], LIMITS[k][1]); });
+        if (!rodFeasible(effective())) {
+            base = previous;
+            running = false;
+            statusKey = 'statusLimit';
+            syncControls();
+            return;
+        }
+        const after = allFeatures(effective())[representation];
+
+        // Broyden rank-one update of the estimated Jacobian
+        let denom = 0;
+        for (const v of du) denom += v * v;
+        if (denom > 1e-10) {
+            for (let r = 0; r < jacobian.length; r++) {
+                let pred = 0;
+                for (let c = 0; c < KEYS.length; c++) pred += jacobian[r][c] * du[c];
+                const resid = (after[r] - before[r] - pred) / denom;
+                for (let c = 0; c < KEYS.length; c++) jacobian[r][c] += 0.35 * resid * du[c];
+            }
+        }
+        steps += 1;
+    }
+
+    // ------------------------------------------------------------------
+    // gestures (rigid translate / rotate / wave)
+    // ------------------------------------------------------------------
+    const GESTURES = {
+        rigid: { dur: 3000 },
+        rotate: { dur: 3000 },
+        wave: { dur: 3200 }
+    };
+
+    function rawGesture(type, phase, ref, amp) {
+        const d = zeroOffset();
+        if (type === 'rigid') {
+            const a = Math.sin(TAU * phase) * amp;
+            d.x0 = d.x1 = 0.42 * a;
+            d.y0 = d.y1 = 0.24 * a;
+        } else if (type === 'rotate') {
+            const th = 0.78 * amp * Math.sin(TAU * phase);
+            const cx = (ref.x0 + ref.x1) / 2;
+            const cy = (ref.y0 + ref.y1) / 2;
+            const c = Math.cos(th);
+            const s = Math.sin(th);
+            const rx0 = ref.x0 - cx, ry0 = ref.y0 - cy;
+            const rx1 = ref.x1 - cx, ry1 = ref.y1 - cy;
+            d.x0 = c * rx0 - s * ry0 - rx0;
+            d.y0 = s * rx0 + c * ry0 - ry0;
+            d.x1 = c * rx1 - s * ry1 - rx1;
+            d.y1 = s * rx1 + c * ry1 - ry1;
+            d.a0 = th;
+            d.a1 = th;
+        } else {
+            const a = Math.sin(2 * TAU * phase) * amp;
+            d.y0 = 0.30 * a;
+            d.y1 = -0.30 * a;
+            d.a0 = 0.85 * a;
+            d.a1 = 0.85 * a;
+        }
+        return d;
+    }
+
+    // Largest amplitude that never runs into a joint limit: without this the
+    // clamp would break the rigid motion and hide the invariance it should show.
+    function feasibleAmplitude(type, ref) {
+        for (let amp = 1; amp > 0.12; amp -= 0.05) {
+            let ok = true;
+            for (let i = 0; i <= 32 && ok; i++) {
+                const d = rawGesture(type, i / 32, ref, amp);
+                const pose = {};
+                for (const k of KEYS) {
+                    const v = ref[k] + d[k];
+                    pose[k] = v;
+                    if (v < DISTURB_LIMITS[k][0] - 1e-9 || v > DISTURB_LIMITS[k][1] + 1e-9) { ok = false; break; }
+                }
+                if (ok && !rodFeasible(pose)) ok = false;
+            }
+            if (ok) return amp;
+        }
+        return 0.12;
+    }
+
+    function gestureDelta() {
+        const phase = (performance.now() - gesture.t0) / GESTURES[gesture.type].dur;
+        if (phase >= 1) { gesture = null; return zeroOffset(); }
+        return rawGesture(gesture.type, phase, gesture.ref, gesture.amp);
+    }
+
+    function startGesture(type) {
+        if (probe) return;
+        const ref = { ...base };
+        gesture = { type, t0: performance.now(), ref, amp: feasibleAmplitude(type, ref) };
+        predictionState = type === 'rigid' ? 'Translate' : type === 'rotate' ? 'Rotate' : 'Wave';
+        renderPrediction();
+        statusKey = 'statusDisturb';
+        syncControls();
+    }
+
+    // ------------------------------------------------------------------
+    // canvas helpers
+    // ------------------------------------------------------------------
+    function fitCanvas(cv) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = cv.clientWidth;
+        const h = cv.clientHeight;
+        if (!w || !h) return null;
+        const pw = Math.round(w * dpr);
+        const ph = Math.round(h * dpr);
+        if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+        const ctx = cv.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, w, h };
+    }
+
+    const scene = document.getElementById('sceneCanvas');
+    let sceneW = 0;
+    let sceneH = 0;
+
+    const toPx = (p) => [
+        (p[0] - VIEW.x0) / (VIEW.x1 - VIEW.x0) * sceneW,
+        (VIEW.y1 - p[1]) / (VIEW.y1 - VIEW.y0) * sceneH
+    ];
+    const toWorld = (x, y) => [
+        VIEW.x0 + (x / sceneW) * (VIEW.x1 - VIEW.x0),
+        VIEW.y1 - (y / sceneH) * (VIEW.y1 - VIEW.y0)
+    ];
+    const pxPerUnit = () => sceneW / (VIEW.x1 - VIEW.x0);
+
+    function smoothCurve(ctx, pts, color, width, dash) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.setLineDash(dash || []);
+        ctx.beginPath();
+        const P = pts.map(toPx);
+        ctx.moveTo(P[0][0], P[0][1]);
+        for (let i = 0; i < P.length - 1; i++) {
+            const mx = (P[i][0] + P[i + 1][0]) / 2;
+            const my = (P[i][1] + P[i + 1][1]) / 2;
+            ctx.quadraticCurveTo(P[i][0], P[i][1], mx, my);
+        }
+        ctx.lineTo(P[P.length - 1][0], P[P.length - 1][1]);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function arrow(ctx, from, to, color, width, head) {
+        const [x0, y0] = toPx(from);
+        const [x1, y1] = toPx(to);
+        const len = Math.hypot(x1 - x0, y1 - y0);
+        if (len < 1.5) return;
+        const ang = Math.atan2(y1 - y0, x1 - x0);
+        const h = head || 6;
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = width || 1.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x1 - h * Math.cos(ang - 0.42), y1 - h * Math.sin(ang - 0.42));
+        ctx.lineTo(x1 - h * Math.cos(ang + 0.42), y1 - h * Math.sin(ang + 0.42));
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function disc(ctx, p, r, fill, stroke, lw) {
+        const [x, y] = toPx(p);
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1.5; ctx.stroke(); }
+    }
+
+    // ------------------------------------------------------------------
+    // scene rendering
+    // ------------------------------------------------------------------
+    function drawRobot(ctx, pose, p, active) {
+        const scale = pxPerUnit();
+        const chain = [pose.base, pose.elbow, pose.wrist, pose.tip];
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const widths = [0.072, 0.055, 0.036];
+        for (let i = 0; i < 3; i++) {
+            const a = toPx(chain[i]);
+            const b = toPx(chain[i + 1]);
+            ctx.strokeStyle = i === 0 ? p.robotDeep : p.robot;
+            ctx.lineWidth = widths[i] * scale;
+            ctx.beginPath();
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(b[0], b[1]);
+            ctx.stroke();
+            ctx.strokeStyle = alpha(p.surface, 0.55);
+            ctx.lineWidth = Math.max(1, widths[i] * scale * 0.16);
+            ctx.beginPath();
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(b[0], b[1]);
+            ctx.stroke();
+        }
+        // pedestal
+        const bp = toPx(pose.base);
+        const fp = toPx([pose.base[0], FLOOR]);
+        ctx.fillStyle = p.robotDeep;
+        ctx.beginPath();
+        ctx.moveTo(bp[0] - 0.055 * scale, bp[1]);
+        ctx.lineTo(bp[0] + 0.055 * scale, bp[1]);
+        ctx.lineTo(fp[0] + 0.16 * scale, fp[1]);
+        ctx.lineTo(fp[0] - 0.16 * scale, fp[1]);
+        ctx.closePath();
+        ctx.fill();
+        // joints
+        for (const j of [pose.base, pose.elbow, pose.wrist]) {
+            disc(ctx, j, 0.032 * scale, p.surface, p.joint, Math.max(1.5, 0.012 * scale));
+        }
+        // gripper jaws
+        const c = Math.cos(pose.psi);
+        const s = Math.sin(pose.psi);
+        const nx = -s;
+        const ny = c;
+        const jaw = 0.10;
+        const open = active ? 0.062 : 0.050;
+        ctx.strokeStyle = active ? p.accent : p.joint;
+        ctx.lineWidth = Math.max(2, 0.022 * scale);
+        for (const sgn of [1, -1]) {
+            const a = [pose.tip[0] - c * 0.03 + nx * sgn * open, pose.tip[1] - s * 0.03 + ny * sgn * open];
+            const b = [a[0] + c * jaw, a[1] + s * jaw];
+            ctx.beginPath();
+            const pa = toPx(a);
+            const pb = toPx(b);
+            ctx.moveTo(pa[0], pa[1]);
+            ctx.lineTo(pb[0], pb[1]);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    function drawHandles(ctx, s, p) {
+        const scale = pxPerUnit();
+        const grips = [[s.x0, s.y0], [s.x1, s.y1]];
+        const angs = [s.a0, s.a1];
+        for (let i = 0; i < 2; i++) {
+            const hx = grips[i][0] + 0.26 * Math.cos(angs[i]);
+            const hy = grips[i][1] + 0.26 * Math.sin(angs[i]);
+            ctx.save();
+            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = alpha(p.accent, 0.5);
+            ctx.lineWidth = 1.2;
+            const a = toPx(grips[i]);
+            const b = toPx([hx, hy]);
+            ctx.beginPath();
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(b[0], b[1]);
+            ctx.stroke();
+            ctx.restore();
+            disc(ctx, [hx, hy], 0.033 * scale, alpha(p.surface, 0.9), p.accent, 2);
+        }
+    }
+
+    function drawScene() {
+        const fit = fitCanvas(scene);
+        if (!fit) return;
+        const { ctx, w, h } = fit;
+        sceneW = w;
+        sceneH = h;
+        const p = palette();
+        const s = effective();
+        const rod = rodFor(s);
+        const pts = measured(rod);
+        const goalPts = goalNodes;
+        const scale = pxPerUnit();
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = p.surface;
+        ctx.fillRect(0, 0, w, h);
+
+        // grid
+        ctx.strokeStyle = p.grid;
+        ctx.lineWidth = 1;
+        for (let gx = Math.ceil(VIEW.x0 / 0.4) * 0.4; gx < VIEW.x1; gx += 0.4) {
+            const x = toPx([gx, 0])[0];
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        }
+        for (let gy = Math.ceil(VIEW.y0 / 0.4) * 0.4; gy < VIEW.y1; gy += 0.4) {
+            const y = toPx([0, gy])[1];
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+        }
+        // floor
+        ctx.strokeStyle = p.gridStrong;
+        ctx.lineWidth = 1.5;
+        const fy = toPx([0, FLOOR])[1];
+        ctx.beginPath(); ctx.moveTo(0, fy); ctx.lineTo(w, fy); ctx.stroke();
+
+        // target
+        smoothCurve(ctx, goalRod, alpha(p.target, 0.95), 0.029 * scale, [7, 6]);
+        for (const g of [[goal.x0, goal.y0], [goal.x1, goal.y1]]) {
+            disc(ctx, g, 0.028 * scale, null, alpha(p.target, 0.8), 1.6);
+        }
+
+        // robots
+        const poses = armPoses(s);
+        const activeArm = drag ? drag.side : (probe ? (probe.index < 3 ? 0 : 1) : -1);
+        poses.forEach((pose, i) => drawRobot(ctx, pose, p, activeArm === i));
+
+        // object
+        smoothCurve(ctx, rod, alpha(p.object, 0.14), 0.062 * scale, null);
+        smoothCurve(ctx, rod, p.object, 0.034 * scale, null);
+
+        // feature overlay
+        const hue = p.rep[representation];
+        if (representation === 'points') {
+            // thin arrow from each measured point to where it should end up:
+            // the task itself, drawn on the object
+            const linkAlpha = MANUAL_ERROR ? 0.8 : 0.45;
+            const linkWidth = MANUAL_ERROR ? 1.5 : 1.3;
+            pts.forEach((pt, i) => {
+                arrow(ctx, pt, goalPts[i], alpha(hue, linkAlpha), linkWidth, MANUAL_ERROR ? 6 : 5);
+            });
+            pts.forEach((pt, i) => {
+                disc(ctx, pt, 0.024 * scale, hue, p.surface, 1.6);
+            });
+        } else if (representation === 'edges') {
+            for (let i = 0; i < pts.length - 1; i++) {
+                arrow(ctx, pts[i], pts[i + 1], hue, 1.8, 6);
+            }
+        } else {
+            const kappa = featuresOf(pts, 'curvature');
+            const kmax = Math.max(...kappa.map(Math.abs), 0.05);
+            for (let i = 1; i < pts.length - 1; i++) {
+                const v = kappa[i - 1];
+                const r = (0.016 + 0.042 * Math.abs(v) / kmax) * scale;
+                // radius = |curvature|, filled vs hollow = its sign
+                disc(ctx, pts[i], r, v >= 0 ? alpha(hue, 0.42) : alpha(p.surface, 0.85), hue, 1.8);
+            }
+        }
+
+        drawHandles(ctx, s, p);
+
+        // probing badge
+        if (probe) {
+            const label = `${dict().statusProbing} ${CMD_MATH[probe.index]}`;
+            ctx.save();
+            ctx.font = '600 12px system-ui, sans-serif';
+            const tw = ctx.measureText(label).width;
+            ctx.fillStyle = alpha(p.accent, 0.14);
+            ctx.strokeStyle = alpha(p.accent, 0.55);
+            ctx.lineWidth = 1;
+            const bx = 12, by = 12, bw = tw + 20, bh = 24;
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 7); else ctx.rect(bx, by, bw, bh);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = p.textStrong;
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, bx + 10, by + bh / 2 + 0.5);
+            ctx.restore();
+            // probe direction indicator at the moving gripper
+            const side = probe.index < 3 ? 0 : 1;
+            const grip = side === 0 ? [s.x0, s.y0] : [s.x1, s.y1];
+            const kind = probe.index % 3;
+            if (kind === 0) arrow(ctx, grip, [grip[0] + 0.28, grip[1]], p.accent, 2, 6);
+            else if (kind === 1) arrow(ctx, grip, [grip[0], grip[1] + 0.28], p.accent, 2, 6);
+            else {
+                ctx.save();
+                const [cx, cy] = toPx(grip);
+                ctx.strokeStyle = p.accent;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 0.16 * scale, -0.9, 0.9);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        // step counter
+        if (running || steps > 0) {
+            ctx.save();
+            ctx.font = '600 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+            ctx.fillStyle = p.text;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(`${steps} ${dict().stepsLabel}`, w - 12, h - 10);
+            ctx.restore();
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // plots
+    // ------------------------------------------------------------------
+    const PAD = { l: 46, r: 22, t: 8, b: 32 };
+    const PLOT_RANGES = {
+        points: [-1.05, 1.05],
+        edges: [-0.24, 0.24],
+        curvature: [-1.6, 1.6],
+        action: [-1.6, 1.6],
+        error: MANUAL_ERROR ? [0, 100] : [0, 2.5]
+    };
+    const plots = {};
+    let cursor = null;
+
+    function definePlots() {
+        for (const rep of REPS) {
+            const dim = DIMS[rep];
+            plots[rep] = {
+                canvas: document.getElementById('plot' + rep[0].toUpperCase() + rep.slice(1)),
+                readout: document.getElementById('readout' + rep[0].toUpperCase() + rep.slice(1)),
+                kind: 'feature',
+                rep,
+                dim,
+                range: PLOT_RANGES[rep],
+                axisKey: `${rep}AxisLabel`
+            };
+        }
+        plots.action = {
+            canvas: document.getElementById('plotAction'),
+            readout: document.getElementById('readoutAction'),
+            kind: 'action',
+            dim: 6,
+            range: PLOT_RANGES.action,
+            axisKey: 'actionAxisLabel'
+        };
+        plots.error = {
+            canvas: document.getElementById('plotError'),
+            readout: document.getElementById('readoutError'),
+            kind: 'error',
+            dim: ERROR_SERIES.length,
+            range: PLOT_RANGES.error,
+            axisKey: MANUAL_ERROR ? 'manualErrorAxisLabel' : 'errorAxisLabel'
+        };
+    }
+
+    function seriesValue(plot, sample, i) {
+        if (plot.kind === 'feature') return sample.f[plot.rep][i];
+        if (plot.kind === 'action') return sample.u[i];
+        const rep = ERROR_SERIES[i];
+        const normalised = sample.e[rep] / errorScale[rep];
+        return MANUAL_ERROR ? 100 - matchFromError(normalised) : normalised;
+    }
+
+    function seriesColor(plot, i, p) {
+        if (plot.kind === 'feature') return rampColor(plot.rep, i, plot.dim, p);
+        if (plot.kind === 'action') return p.action[i];
+        return p.rep[ERROR_SERIES[i]];
+    }
+
+    function drawPlot(plot) {
+        const fit = fitCanvas(plot.canvas);
+        if (!fit) return;
+        const { ctx, w, h } = fit;
+        const p = palette();
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = p.surface;
+        ctx.fillRect(0, 0, w, h);
+
+        const x0 = PAD.l;
+        const x1 = w - PAD.r;
+        const y0 = PAD.t;
+        const y1 = h - PAD.b;
+        if (x1 <= x0 || y1 <= y0) return;
+
+        // Stable semantic ranges make changes comparable instead of allowing
+        // every new sample to visually rescale the chart.
+        const [sLo, sHi] = plot.range;
+        const yOf = (v) => clamp(y1 - (v - sLo) / (sHi - sLo) * (y1 - y0), y0, y1);
+        const xOf = (i) => x0 + (HIST <= 1 ? 1 : i / (HIST - 1)) * (x1 - x0);
+
+        // grid
+        ctx.save();
+        ctx.strokeStyle = p.grid;
+        ctx.lineWidth = 1;
+        for (let k = 0; k <= 4; k++) {
+            const y = y0 + (y1 - y0) * k / 4;
+            ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+        }
+        if (sLo < 0 && sHi > 0) {
+            ctx.strokeStyle = p.gridStrong;
+            const yz = yOf(0);
+            ctx.beginPath(); ctx.moveTo(x0, yz); ctx.lineTo(x1, yz); ctx.stroke();
+        }
+        ctx.restore();
+
+        if (plot.kind === 'error') {
+            ctx.save();
+            const baseline = yOf(MANUAL_ERROR ? MANUAL_TARGET_BAND : 1);
+            if (MANUAL_ERROR) {
+                ctx.fillStyle = alpha(p.accent, 0.14);
+                ctx.fillRect(x0, baseline, x1 - x0, y1 - baseline);
+                ctx.strokeStyle = alpha(p.accent, 0.75);
+            } else {
+                ctx.strokeStyle = alpha(p.textStrong, 0.28);
+            }
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(x0, baseline);
+            ctx.lineTo(x1, baseline);
+            ctx.stroke();
+            if (MANUAL_ERROR) {
+                ctx.setLineDash([]);
+                ctx.font = '600 9px system-ui, sans-serif';
+                ctx.fillStyle = p.accent;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(dict().manualTargetBand, x0 + 4, baseline - 3);
+            }
+            ctx.restore();
+        }
+
+        // target ticks for the feature panels
+        if (plot.kind === 'feature') {
+            const t = goalFeatures[plot.rep];
+            ctx.save();
+            ctx.setLineDash([3, 3]);
+            ctx.lineWidth = 1.4;
+            for (let i = 0; i < t.length; i++) {
+                ctx.strokeStyle = alpha(seriesColor(plot, i, p), 0.55);
+                const y = yOf(t[i]);
+                ctx.beginPath();
+                ctx.moveTo(x1 + 3, y);
+                ctx.lineTo(x1 + 13, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        // series
+        const offset = HIST - history.length;
+        ctx.save();
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        for (let i = 0; i < plot.dim; i++) {
+            ctx.strokeStyle = seriesColor(plot, i, p);
+            ctx.globalAlpha = plot.kind === 'feature' ? 0.82 : 1;
+            ctx.lineWidth = plot.kind === 'feature' ? 1.4 : 2;
+            if (plot.kind === 'error' && REPS[i] === representation) ctx.lineWidth = 2.8;
+            ctx.beginPath();
+            for (let k = 0; k < history.length; k++) {
+                const x = xOf(offset + k);
+                const y = yOf(seriesValue(plot, history[k], i));
+                if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        // current value markers
+        if (history.length) {
+            const last = history[history.length - 1];
+            const xEnd = xOf(HIST - 1);
+            for (let i = 0; i < plot.dim; i++) {
+                ctx.fillStyle = seriesColor(plot, i, p);
+                ctx.beginPath();
+                ctx.arc(xEnd, yOf(seriesValue(plot, last, i)), plot.kind === 'feature' ? 1.8 : 2.6, 0, TAU);
+                ctx.fill();
+            }
+            // direct labels on the error panel
+            if (plot.kind === 'error' && plot.dim > 1) {
+                ctx.font = '600 9.5px system-ui, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                const placed = [];
+                for (let i = 0; i < 3; i++) {
+                    let y = yOf(seriesValue(plot, last, i));
+                    while (placed.some(v => Math.abs(v - y) < 10)) y -= 10;
+                    placed.push(y);
+                    ctx.fillStyle = p.rep[REPS[i]];
+                    ctx.fillText(REP_TAGS[i], x1 + 4, y);
+                }
+            }
+        }
+        ctx.restore();
+
+        // Explicit axes and units. All panels use the same rolling time window.
+        ctx.save();
+        ctx.font = '9px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.fillStyle = p.text;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        const ticks = (y1 - y0) < 92 ? 2 : 4;
+        for (let k = 0; k <= ticks; k++) {
+            const y = y0 + (y1 - y0) * k / ticks;
+            const value = sHi - (sHi - sLo) * k / ticks;
+            ctx.fillText(fmtAxis(value), x0 - 6, y);
+        }
+
+        const windowSeconds = (HIST - 1) * SAMPLE_MS / 1000;
+        ctx.textBaseline = 'top';
+        for (let k = 0; k <= 2; k++) {
+            const ratio = k / 2;
+            const value = -(1 - ratio) * windowSeconds;
+            ctx.textAlign = k === 0 ? 'left' : k === 2 ? 'right' : 'center';
+            ctx.fillText(Math.abs(value) < 0.05 ? '0' : `−${Math.abs(value).toFixed(0)}`, x0 + ratio * (x1 - x0), y1 + 4);
+        }
+
+        ctx.font = '600 9px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(dict().timeAxisLabel, (x0 + x1) / 2, h - 12);
+        ctx.save();
+        ctx.translate(10, (y0 + y1) / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textBaseline = 'top';
+        ctx.fillText(dict()[plot.axisKey], 0, 0);
+        ctx.restore();
+        ctx.restore();
+
+        // shared crosshair
+        if (cursor !== null && history.length) {
+            const idx = clamp(Math.round(offset + cursor * (history.length - 1)), offset, HIST - 1);
+            const x = xOf(idx);
+            ctx.save();
+            ctx.strokeStyle = alpha(p.textStrong, 0.35);
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x, y0);
+            ctx.lineTo(x, y1);
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    const fmtValue = (v) => (Math.abs(v) < 5e-4 ? 0 : v).toFixed(3);
+
+    function fmtAxis(v) {
+        const a = Math.abs(v);
+        if (a >= 100) return v.toFixed(0);
+        if (a >= 10) return v.toFixed(1);
+        return v.toFixed(2);
+    }
+
+    function sampleAtCursor() {
+        if (!history.length) return null;
+        if (cursor === null) return history[history.length - 1];
+        const k = clamp(Math.round(cursor * (history.length - 1)), 0, history.length - 1);
+        return history[k];
+    }
+
+    function updateReadouts() {
+        const sample = sampleAtCursor();
+        if (!sample) return;
+        const words = dict();
+        for (const rep of REPS) {
+            plots[rep].readout.innerHTML =
+                `${words.dimLabel} ${DIMS[rep]} · ‖e‖ <b>${sample.e[rep].toFixed(3)}</b>`;
+        }
+        const speed = Math.hypot(...sample.u);
+        plots.action.readout.innerHTML = `‖u̇‖ <b>${speed.toFixed(3)}</b>`;
+        plots.error.readout.innerHTML = MANUAL_ERROR
+            ? `<b>${(100 - matchFromError(sample.e.points / errorScale.points)).toFixed(0)}%</b>`
+            : ERROR_SERIES.map(r => `${(sample.e[r] / errorScale[r]).toFixed(2)}`).join(' · ');
+        for (let i = 0; i < 6; i++) {
+            const cell = document.getElementById('actVal' + i);
+            if (cell) cell.textContent = fmtValue(sample.u[i]);
+        }
+        for (let i = 0; i < ERROR_SERIES.length; i++) {
+            const cell = document.getElementById('errVal' + i);
+            if (!cell) continue;
+            const rep = ERROR_SERIES[i];
+            cell.textContent = MANUAL_ERROR
+                ? `${(100 - matchFromError(sample.e[rep] / errorScale[rep])).toFixed(0)}%`
+                : (sample.e[rep] / errorScale[rep]).toFixed(2);
+        }
+    }
+
+    function buildSeriesTables() {
+        const p = palette();
+        const words = dict();
+        const action = document.getElementById('actionSeries');
+        action.replaceChildren();
+        for (let i = 0; i < 6; i++) {
+            const item = document.createElement('span');
+            item.className = 'series-item';
+            item.innerHTML =
+                `<i class="series-chip" style="background:${p.action[i]}"></i><em>${CMD_MATH[i]}</em><b id="actVal${i}">0.000</b>`;
+            item.title = words[CMD_I18N[i]];
+            action.appendChild(item);
+        }
+        const err = document.getElementById('errorSeries');
+        err.replaceChildren();
+        ERROR_SERIES.forEach((rep, i) => {
+            const item = document.createElement('span');
+            item.className = 'series-item';
+            const label = MANUAL_ERROR
+                ? words.manualErrorSeries
+                : rep === 'points' ? words.pointCoordinates : rep === 'edges' ? words.edgeVectors : words.curvature;
+            item.innerHTML =
+                `<i class="series-chip" style="background:${p.rep[rep]}"></i><em>${label}</em><b id="errVal${i}">0.000</b>`;
+            err.appendChild(item);
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // Jacobian panel
+    // ------------------------------------------------------------------
+    function divColor(v, scale, p) {
+        const t = clamp(Math.abs(v) / Math.max(scale, 1e-9), 0, 1);
+        return mix(p.divMid, v >= 0 ? p.divPos : p.divNeg, 0.12 + 0.88 * t);
+    }
+
+    function renderJacobian() {
+        const holder = document.getElementById('jacobianContent');
+        const note = document.getElementById('jacobianNote');
+        note.textContent = `6 × ${DIMS[representation]}`;
+        if (!jacobian) {
+            holder.replaceChildren();
+            const msg = document.createElement('p');
+            msg.className = 'empty-model';
+            msg.dataset.i18n = 'emptyModel';
+            msg.textContent = dict().emptyModel;
+            holder.appendChild(msg);
+            document.getElementById('modelRank').textContent = '—';
+            document.getElementById('conditionNumber').textContent = '—';
+            return;
+        }
+        const p = palette();
+        let max = 1e-9;
+        for (const row of jacobian) for (const v of row) max = Math.max(max, Math.abs(v));
+        holder.replaceChildren();
+        for (let c = 0; c < KEYS.length; c++) {
+            const row = document.createElement('div');
+            row.className = 'jacobian-row';
+            const label = document.createElement('span');
+            label.className = 'jacobian-label';
+            label.textContent = CMD_MATH[c];
+            const cells = document.createElement('div');
+            cells.className = 'jacobian-cells';
+            cells.style.gridTemplateColumns = `repeat(${jacobian.length}, minmax(2px, 1fr))`;
+            for (let r = 0; r < jacobian.length; r++) {
+                const cell = document.createElement('span');
+                cell.className = 'jacobian-cell';
+                cell.style.background = divColor(jacobian[r][c], max, p);
+                cell.title = `Ĵ[${r + 1}, ${c + 1}] = ${jacobian[r][c].toFixed(3)}`;
+                cells.appendChild(cell);
+            }
+            row.append(label, cells);
+            holder.appendChild(row);
+        }
+        const sv = eigenvalues(gram(jacobian)).map(Math.sqrt).sort((a, b) => b - a);
+        const active = sv.filter(v => v > sv[0] * 1e-3);
+        document.getElementById('modelRank').textContent = `${active.length}/6`;
+        const cond = active.length > 1 ? active[0] / active[active.length - 1] : Infinity;
+        document.getElementById('conditionNumber').textContent = Number.isFinite(cond) ? cond.toFixed(1) : '∞';
+    }
+
+    // ------------------------------------------------------------------
+    // controls
+    // ------------------------------------------------------------------
+    const playBtn = document.getElementById('playBtn');
+    const probeBtn = document.getElementById('probeBtn');
+
+    function currentManualMatch() {
+        const features = allFeatures(effective());
+        return matchFromError(errorNorm(features, 'points') / Math.max(errorScale.points, 1e-6));
+    }
+
+    function renderManualChallenge() {
+        const words = dict();
+        const match = currentManualMatch();
+        document.getElementById('manualMatch').value = `${Math.round(match)}%`;
+        document.getElementById('manualMoves').value = String(manualMoves);
+        document.getElementById('manualCoachTitle').textContent = words[manualCoachTitleKey];
+        document.getElementById('manualCoachText').textContent = words[manualCoachTextKey];
+        document.querySelectorAll('[data-manual-side]').forEach(button => {
+            button.setAttribute('aria-pressed', String(Number(button.dataset.manualSide) === manualSide));
+        });
+    }
+
+    function resetManualChallenge() {
+        manualSide = 0;
+        manualMoves = 0;
+        manualPreviousMatch = currentManualMatch();
+        manualCoachTitleKey = 'manualCoachStartTitle';
+        manualCoachTextKey = 'manualCoachStartDesc';
+        renderManualChallenge();
+    }
+
+    function recordManualMove() {
+        const match = currentManualMatch();
+        const delta = match - manualPreviousMatch;
+        manualMoves += 1;
+        if (match >= 92) {
+            manualCoachTitleKey = 'manualCoachSuccessTitle';
+            manualCoachTextKey = 'manualCoachSuccessDesc';
+        } else if (match >= 76) {
+            manualCoachTitleKey = 'manualCoachCloseTitle';
+            manualCoachTextKey = 'manualCoachCloseDesc';
+        } else if (delta > 0.4) {
+            manualCoachTitleKey = 'manualCoachImprovingTitle';
+            manualCoachTextKey = 'manualCoachImprovingDesc';
+        } else if (delta < -0.4) {
+            manualCoachTitleKey = 'manualCoachWrongTitle';
+            manualCoachTextKey = 'manualCoachWrongDesc';
+        }
+        manualPreviousMatch = match;
+        renderManualChallenge();
+    }
+
+    function nudgeManualGripper(action) {
+        if (demoMode !== 'manipulate') return;
+        const previous = { ...base };
+        const xKey = manualSide === 0 ? 'x0' : 'x1';
+        const yKey = manualSide === 0 ? 'y0' : 'y1';
+        const angleKey = manualSide === 0 ? 'a0' : 'a1';
+        if (action === 'left') base[xKey] -= 0.035;
+        if (action === 'right') base[xKey] += 0.035;
+        if (action === 'up') base[yKey] += 0.035;
+        if (action === 'down') base[yKey] -= 0.035;
+        if (action === 'rotate-left') base[angleKey] += 0.075;
+        if (action === 'rotate-right') base[angleKey] -= 0.075;
+        base[xKey] = clamp(base[xKey], LIMITS[xKey][0], LIMITS[xKey][1]);
+        base[yKey] = clamp(base[yKey], LIMITS[yKey][0], LIMITS[yKey][1]);
+        base[angleKey] = clamp(base[angleKey], LIMITS[angleKey][0], LIMITS[angleKey][1]);
+        if (!rodFeasible(base) || KEYS.every(key => Math.abs(base[key] - previous[key]) < 1e-6)) {
+            base = previous;
+            return;
+        }
+        statusKey = 'statusManual';
+        recordManualMove();
+    }
+
+    function applyModeCopy() {
+        const words = dict();
+        const modeKeys = {
+            manipulate: {
+                title: 'manipulateTitle', intro: 'manipulateIntro', eyebrow: 'manipulateExperimentEyebrow',
+                experiment: 'manipulateExperimentTitle', desc: 'manipulateExperimentDesc',
+                signals: 'manipulateSignalsTitle', signalsDesc: 'manipulateSignalsDesc',
+                takeaway: 'manipulateTakeawayTitle', takeawayDesc: 'manipulateTakeawayDesc', next: 'nextCompare'
+            },
+            representations: {
+                title: 'representationsTitle', intro: 'representationsIntro', eyebrow: 'experimentEyebrow',
+                experiment: 'experimentTitle', desc: 'experimentDesc',
+                signals: 'representationsSignalsTitle', signalsDesc: 'representationsSignalsDesc',
+                takeaway: 'representationsTakeawayTitle', takeawayDesc: 'representationsTakeawayDesc', next: 'nextDataDriven'
+            },
+            'data-driven': {
+                title: 'dataDrivenTitle', intro: 'dataDrivenIntro', eyebrow: 'dataExperimentEyebrow',
+                experiment: 'dataExperimentTitle', desc: 'dataExperimentDesc',
+                signals: 'dataSignalsTitle', signalsDesc: 'dataSignalsDesc',
+                takeaway: 'dataTakeawayTitle', takeawayDesc: 'dataTakeawayDesc', next: 'finishJourney'
+            }
+        }[demoMode];
+        document.querySelector('h1[data-i18n="title"]').textContent = words[modeKeys.title];
+        document.querySelector('[data-i18n="intro"]').textContent = words[modeKeys.intro];
+        document.querySelector('[data-i18n="experimentEyebrow"]').textContent = words[modeKeys.eyebrow];
+        document.getElementById('experimentTitle').textContent = words[modeKeys.experiment];
+        document.querySelector('[data-i18n="experimentDesc"]').textContent = words[modeKeys.desc];
+        document.getElementById('signalsTitle').textContent = words[modeKeys.signals];
+        document.getElementById('errorPlotTitle').textContent =
+            MANUAL_ERROR ? words.manualErrorTitle : words.errorTitle;
+        document.getElementById('signalsDesc').textContent = words[modeKeys.signalsDesc];
+        document.getElementById('takeawayTitle').textContent = words[modeKeys.takeaway];
+        document.getElementById('takeawayDesc').textContent = words[modeKeys.takeawayDesc];
+        const next = document.getElementById('nextJourneyBtn');
+        next.textContent = words[modeKeys.next];
+        next.href = demoMode === 'manipulate'
+            ? '../../games/shape-comparison/'
+            : demoMode === 'representations'
+                ? '?mode=data-driven'
+                : '../../#research';
+        document.title = `${words[modeKeys.title]} | Ignacio Cuiral-Zueco`;
+    }
+
+    function renderPrediction() {
+        const words = dict();
+        const card = document.getElementById('predictionCard');
+        if (demoMode === 'data-driven') {
+            const marks = { Start: '1', Estimate: 'Ĵ', Ready: '✓', Control: '↻' };
+            card.dataset.state = dataPhase.toLowerCase();
+            card.querySelector('.prediction-mark').textContent = marks[dataPhase];
+            document.getElementById('predictionTitle').textContent = words[`dataPhase${dataPhase}Title`];
+            document.getElementById('predictionText').textContent = words[`dataPhase${dataPhase}Desc`];
+            return;
+        }
+        const marks = { Start: '?', Translate: '↔', Rotate: '↻', Wave: '∿' };
+        card.dataset.state = predictionState.toLowerCase();
+        card.querySelector('.prediction-mark').textContent = marks[predictionState];
+        document.getElementById('predictionTitle').textContent = words[`prediction${predictionState}Title`];
+        document.getElementById('predictionText').textContent = words[`prediction${predictionState}Desc`];
+    }
+
+    function updateRepresentationErrors() {
+        const latest = history[history.length - 1];
+        if (!latest) return;
+        document.getElementById('repErrorPoints').value = latest.e.points.toFixed(3);
+        document.getElementById('repErrorEdges').value = latest.e.edges.toFixed(3);
+        document.getElementById('repErrorCurvature').value = latest.e.curvature.toFixed(3);
+    }
+
+    function updateAdvancedToggle() {
+        const button = document.getElementById('advancedToggle');
+        document.querySelector('.demo-shell').classList.toggle('show-advanced', advancedVisible);
+        button.setAttribute('aria-expanded', String(advancedVisible));
+        button.textContent = dict()[advancedVisible ? 'hideAdvanced' : 'showAdvanced'];
+    }
+
+    function syncControls() {
+        const words = dict();
+        playBtn.setAttribute('aria-pressed', String(running));
+        playBtn.querySelector('.glyph').textContent = running ? '❚❚' : '▶';
+        document.getElementById('playLabel').textContent = running ? words.pauseBtn : words.playBtn;
+        playBtn.disabled = !!probe;
+        probeBtn.disabled = !!probe;
+        const dot = document.getElementById('statusDot');
+        dot.classList.toggle('live', running || !!probe);
+        let text = words[statusKey] || words.statusIdle;
+        if (statusKey === 'statusProbing' && probe) text = `${text} ${CMD_MATH[probe.index]} …`;
+        if (statusKey === 'statusRunning') text = `${text} · ${steps} ${words.stepsLabel}`;
+        document.getElementById('statusText').textContent = text;
+        document.getElementById('errorNorm').textContent =
+            history.length ? history[history.length - 1].e[representation].toFixed(3) : '0.000';
+        updateRepresentationErrors();
+        const legend = document.getElementById('legendFeature');
+        legend.style.color = `var(--rep-${representation})`;
+        renderPrediction();
+        if (demoMode === 'manipulate') renderManualChallenge();
+    }
+
+    function setRepresentation(rep) {
+        if (rep === representation) return;
+        representation = rep;
+        jacobian = null;
+        running = false;
+        converged = false;
+        steps = 0;
+        statusKey = 'statusIdle';
+        dataPhase = 'Start';
+        document.querySelectorAll('[data-representation]').forEach(btn => {
+            btn.setAttribute('aria-pressed', String(btn.dataset.representation === rep));
+        });
+        renderJacobian();
+        syncControls();
+    }
+
+    function togglePlay() {
+        if (probe) return;
+        if (running) {
+            running = false;
+            statusKey = 'statusPaused';
+            dataPhase = 'Ready';
+        } else if (!jacobian) {
+            startProbe(true);
+        } else {
+            if (converged) { converged = false; steps = 0; }
+            running = true;
+            statusKey = 'statusRunning';
+            dataPhase = 'Control';
+        }
+        syncControls();
+    }
+
+    function resetAll() {
+        base = { ...HOME };
+        rodAngles = null;
+        rodCache = null;
+        rodCacheKey = '';
+        setTarget(GOAL);
+        lastState = { ...HOME };
+        for (const k of KEYS) probeOffset[k] = 0;
+        jacobian = null;
+        running = false;
+        probe = null;
+        gesture = null;
+        drag = null;
+        steps = 0;
+        converged = false;
+        statusKey = 'statusIdle';
+        predictionState = 'Start';
+        dataPhase = 'Start';
+        history.length = 0;
+        velocity = new Array(6).fill(0);
+        for (const key of Object.keys(plots)) plots[key].scale = null;
+        refreshErrorScale();
+        resetManualChallenge();
+        renderJacobian();
+        renderPrediction();
+        syncControls();
+    }
+
+    // ------------------------------------------------------------------
+    // pointer interaction on the scene
+    // ------------------------------------------------------------------
+    function hitTest(wx, wy) {
+        const s = effective();
+        const grips = [[s.x0, s.y0], [s.x1, s.y1]];
+        const angs = [s.a0, s.a1];
+        for (let i = 0; i < 2; i++) {
+            const hx = grips[i][0] + 0.26 * Math.cos(angs[i]);
+            const hy = grips[i][1] + 0.26 * Math.sin(angs[i]);
+            if (Math.hypot(wx - hx, wy - hy) < 0.10) return { mode: 'angle', side: i };
+        }
+        for (let i = 0; i < 2; i++) {
+            if (Math.hypot(wx - grips[i][0], wy - grips[i][1]) < 0.13) return { mode: 'grip', side: i };
+        }
+        for (const pt of rodFor(s)) {
+            if (Math.hypot(wx - pt[0], wy - pt[1]) < 0.11) return { mode: 'body', side: -1 };
+        }
+        return null;
+    }
+
+    scene.addEventListener('pointermove', (event) => {
+        if (drag) return;
+        const rect = scene.getBoundingClientRect();
+        const [wx, wy] = toWorld(event.clientX - rect.left, event.clientY - rect.top);
+        const hit = hitTest(wx, wy);
+        scene.style.cursor = hit ? (hit.mode === 'angle' ? 'grab' : 'move') : 'crosshair';
+    });
+
+    scene.addEventListener('pointerdown', (event) => {
+        if (probe) return;
+        const rect = scene.getBoundingClientRect();
+        const [wx, wy] = toWorld(event.clientX - rect.left, event.clientY - rect.top);
+        const hit = hitTest(wx, wy);
+        if (!hit) return;
+        event.preventDefault();
+        scene.setPointerCapture(event.pointerId);
+        drag = { ...hit, wx, wy, start: { ...base } };
+        if (hit.side >= 0) manualSide = hit.side;
+        running = false;
+        gesture = null;
+        statusKey = 'statusManual';
+        syncControls();
+    });
+
+    scene.addEventListener('pointermove', (event) => {
+        if (!drag) return;
+        const rect = scene.getBoundingClientRect();
+        const [wx, wy] = toWorld(event.clientX - rect.left, event.clientY - rect.top);
+        const previous = { ...base };
+        if (drag.mode === 'angle') {
+            const gx = drag.side === 0 ? base.x0 : base.x1;
+            const gy = drag.side === 0 ? base.y0 : base.y1;
+            const ang = Math.atan2(wy - gy, wx - gx);
+            const key = drag.side === 0 ? 'a0' : 'a1';
+            base[key] = clamp(ang, LIMITS[key][0], LIMITS[key][1]);
+        } else if (drag.mode === 'grip') {
+            const kx = drag.side === 0 ? 'x0' : 'x1';
+            const ky = drag.side === 0 ? 'y0' : 'y1';
+            base[kx] = clamp(drag.start[kx] + (wx - drag.wx), LIMITS[kx][0], LIMITS[kx][1]);
+            base[ky] = clamp(drag.start[ky] + (wy - drag.wy), LIMITS[ky][0], LIMITS[ky][1]);
+        } else {
+            const dx = wx - drag.wx;
+            const dy = wy - drag.wy;
+            base.x0 = clamp(drag.start.x0 + dx, LIMITS.x0[0], LIMITS.x0[1]);
+            base.x1 = clamp(drag.start.x1 + dx, LIMITS.x1[0], LIMITS.x1[1]);
+            base.y0 = clamp(drag.start.y0 + dy, LIMITS.y0[0], LIMITS.y0[1]);
+            base.y1 = clamp(drag.start.y1 + dy, LIMITS.y1[0], LIMITS.y1[1]);
+        }
+        // the rod is inextensible: refuse a drag it could not follow
+        if (!rodFeasible(effective())) base = previous;
+    });
+
+    const endDrag = (event) => {
+        if (!drag) return;
+        const changed = KEYS.some(key => Math.abs(base[key] - drag.start[key]) > 1e-4);
+        drag = null;
+        if (scene.hasPointerCapture && event.pointerId !== undefined && scene.hasPointerCapture(event.pointerId)) {
+            scene.releasePointerCapture(event.pointerId);
+        }
+        if (demoMode === 'manipulate' && changed) recordManualMove();
+    };
+    scene.addEventListener('pointerup', endDrag);
+    scene.addEventListener('pointercancel', endDrag);
+
+    // crosshair over the plots
+    function attachCursor(canvasEl) {
+        canvasEl.addEventListener('pointermove', (event) => {
+            const rect = canvasEl.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const inner = rect.width - PAD.l - PAD.r;
+            cursor = clamp((x - PAD.l) / Math.max(inner, 1), 0, 1);
+        });
+        canvasEl.addEventListener('pointerleave', () => { cursor = null; });
+    }
+
+    // ------------------------------------------------------------------
+    // main loop
+    // ------------------------------------------------------------------
+    let lastFrame = performance.now();
+
+    // A frame inside a hidden tab panel is never rendered, so the animation
+    // callback armed at start-up is never delivered and nothing re-arms it:
+    // the demo the visitor opens second would stay frozen for good. The loop
+    // therefore carries a generation token and a timer-driven watchdog, which
+    // keeps running when animation callbacks do not.
+    let loopId = 0;
+    let lastTick = performance.now();
+    let lastRaf = 0;
+    let laidOut = true;
+
+    // The demo is driven by animation callbacks when they are delivered and
+    // by a timer when they are not - a frame inside a hidden tab panel gets
+    // none, and nothing re-arms the callback once it is shown again. Both
+    // funnel through tick(), which coalesces them so the two drivers cannot
+    // double-step the simulation.
+    function tick(now) {
+        if (now - lastTick < 8) return;
+        lastTick = now;
+        frame(now);
+    }
+
+    function startLoop() {
+        const id = ++loopId;
+        const step = (now) => {
+            if (id !== loopId) return;          // superseded by a later restart
+            lastRaf = now;
+            tick(now);
+            requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    // Everything the signal panels depend on - the sample clock, the rolling
+    // history, the canvas backing sizes - goes stale while the demo sits in a
+    // hidden tab panel. Start the traces from scratch when it comes back
+    // rather than stitching a gap into them.
+    function resumeSignals() {
+        const now = performance.now();
+        history.length = 0;
+        lastSample = now;
+        lastFrame = now;
+        lastTick = now;
+        velocity = new Array(6).fill(0);
+        lastState = effective();
+        for (const key of Object.keys(plots)) drawPlot(plots[key]);
+        drawScene();
+        startLoop();
+    }
+
+    // cheap to run often; the layout read is kept on the slow timer
+    function driveFrame() {
+        if (!laidOut || document.hidden) return;
+        // stay out of the way while animation callbacks are arriving, so the
+        // two drivers never step the simulation twice per frame
+        if (performance.now() - lastRaf < 100) return;
+        tick(performance.now());
+    }
+
+    function watchdog() {
+        if (document.hidden) return;
+        // zero while this frame is inside a hidden panel, so a rising edge
+        // marks the moment the visitor switched back to this demo
+        const now = scene.clientWidth > 0 && scene.clientHeight > 0;
+        if (now && !laidOut) resumeSignals();
+        laidOut = now;
+    }
+
+    function frame(now) {
+        const dt = Math.min((now - lastFrame) / 1000, 0.1);
+        lastFrame = now;
+        if (visible) {
+            if (probe) stepProbe(now);
+            else if (running) controlStep();
+            if (gesture && (now - gesture.t0) >= GESTURES[gesture.type].dur) gesture = null;
+
+            if (now - lastSample >= SAMPLE_MS) {
+                pushSample(now, (now - lastSample) / 1000);
+                lastSample = now;
+                for (const key of Object.keys(plots)) drawPlot(plots[key]);
+                updateReadouts();
+                updateRepresentationErrors();
+                if (demoMode === 'manipulate') renderManualChallenge();
+                if (running || probe) syncControls();
+                else {
+                    document.getElementById('errorNorm').textContent =
+                        history[history.length - 1].e[representation].toFixed(3);
+                }
+            }
+            drawScene();
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // i18n / theme plumbing
+    // ------------------------------------------------------------------
+    // Comments carry the explanation, so they are dimmed rather than dropped.
+    function renderPseudocode() {
+        const host = document.getElementById('loopCode');
+        if (!host) return;
+        host.replaceChildren();
+        for (const line of (dict().loopPseudocode || '').split('\n')) {
+            const row = document.createElement('span');
+            row.className = 'code-line';
+            const at = line.indexOf('#');
+            if (at === -1) {
+                row.textContent = line || ' ';
+            } else {
+                row.append(document.createTextNode(line.slice(0, at)));
+                const comment = document.createElement('em');
+                comment.className = 'code-comment';
+                comment.textContent = line.slice(at);
+                row.appendChild(comment);
+            }
+            host.appendChild(row);
+        }
+    }
+
+    function applyTranslations() {
+        const words = dict();
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const value = words[el.dataset.i18n];
+            if (value) el.textContent = value;
+        });
+        document.documentElement.lang = lang;
+        document.querySelector('.language-switcher').setAttribute('aria-label', words.languageAria);
+        document.querySelector('.rep-group').setAttribute('aria-label', words.representationAria);
+        document.querySelector('.manual-gripper-select').setAttribute('aria-label', words.gripperGroupAria);
+        document.querySelector('.manual-nudge-grid').setAttribute('aria-label', words.nudgeGroupAria);
+        const nudgeAriaKeys = {
+            left: 'moveLeftAria', right: 'moveRightAria', up: 'moveUpAria', down: 'moveDownAria',
+            'rotate-left': 'rotateLeftAria', 'rotate-right': 'rotateRightAria'
+        };
+        document.querySelectorAll('[data-manual-nudge]').forEach(button => {
+            button.setAttribute('aria-label', words[nudgeAriaKeys[button.dataset.manualNudge]]);
+        });
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            const active = btn.dataset.lang === lang;
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-pressed', String(active));
+        });
+        document.getElementById('sceneCanvas').setAttribute('aria-label', words.sceneCanvasLabel);
+        document.getElementById('plotPoints').setAttribute('aria-label', words.pointsPlotLabel);
+        document.getElementById('plotEdges').setAttribute('aria-label', words.edgesPlotLabel);
+        document.getElementById('plotCurvature').setAttribute('aria-label', words.curvaturePlotLabel);
+        document.getElementById('plotAction').setAttribute('aria-label', words.actionPlotLabel);
+        document.getElementById('plotError').setAttribute('aria-label', words.errorPlotLabel);
+        applyModeCopy();
+        renderPrediction();
+        renderManualChallenge();
+        updateAdvancedToggle();
+        renderPseudocode();
+        buildSeriesTables();
+        renderJacobian();
+        syncControls();
+        updateReadouts();
+        requestAnimationFrame(reportHeight);
+    }
+
+    function setLanguage(next) {
+        if (!translations[next]) return;
+        lang = next;
+        localStorage.setItem('language', next);
+        applyTranslations();
+    }
+
+    function setTheme(theme) {
+        if (theme !== 'light' && theme !== 'dark') return;
+        document.documentElement.dataset.theme = theme;
+        if (!isEmbedded) localStorage.setItem('theme', theme);
+        buildSeriesTables();
+        renderJacobian();
+        updateReadouts();
+        requestAnimationFrame(reportHeight);
+    }
+
+    let lastReportedHeight = 0;
+
+    function reportHeight() {
+        if (!isEmbedded) return;
+        const height = Math.ceil(document.querySelector('.demo-shell').getBoundingClientRect().height);
+        if (Math.abs(height - lastReportedHeight) < 2) return;
+        lastReportedHeight = height;
+        window.parent.postMessage({
+            type: 'demoHeight',
+            demo: 'shape-features',
+            height
+        }, window.location.protocol === 'file:' ? '*' : window.location.origin);
+    }
+
+    window.addEventListener('load', reportHeight);
+    // hidden panels get no rendering lifecycle, so poll for the moment
+    // this demo is finally laid out; reportHeight() ignores no-op changes
+    setInterval(reportHeight, 500);
+
+    window.addEventListener('message', (event) => {
+        if (window.location.protocol !== 'file:' && event.origin !== window.location.origin) return;
+        if (event.data?.type === 'setPreferences') {
+            setLanguage(event.data.language);
+            setTheme(event.data.theme);
+        } else if (event.data?.type === 'setLanguage') {
+            setLanguage(event.data.language);
+        }
+    });
+
+    // ------------------------------------------------------------------
+    // wiring
+    // ------------------------------------------------------------------
+    definePlots();
+    for (const key of Object.keys(plots)) attachCursor(plots[key].canvas);
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    });
+    document.querySelectorAll('[data-representation]').forEach(btn => {
+        btn.addEventListener('click', () => setRepresentation(btn.dataset.representation));
+    });
+    document.querySelectorAll('[data-manual-side]').forEach(button => {
+        button.addEventListener('click', () => {
+            manualSide = Number(button.dataset.manualSide);
+            renderManualChallenge();
+        });
+    });
+    document.querySelectorAll('[data-manual-nudge]').forEach(button => {
+        button.addEventListener('click', () => nudgeManualGripper(button.dataset.manualNudge));
+    });
+    playBtn.addEventListener('click', togglePlay);
+    probeBtn.addEventListener('click', () => startProbe(false));
+    document.getElementById('targetBtn').addEventListener('click', () => {
+        if (probe) return;
+        running = false;
+        converged = false;
+        steps = 0;
+        gesture = null;
+        statusKey = randomTarget() ? 'statusTarget' : 'statusIdle';
+        refreshErrorScale();
+        dataPhase = jacobian ? 'Ready' : 'Start';
+        resetManualChallenge();
+        for (const key of Object.keys(plots)) plots[key].scale = null;
+        syncControls();
+    });
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    document.getElementById('rigidBtn').addEventListener('click', () => startGesture('rigid'));
+    document.getElementById('rotateBtn').addEventListener('click', () => startGesture('rotate'));
+    document.getElementById('waveBtn').addEventListener('click', () => startGesture('wave'));
+    document.getElementById('advancedToggle').addEventListener('click', () => {
+        advancedVisible = !advancedVisible;
+        updateAdvancedToggle();
+        requestAnimationFrame(reportHeight);
+    });
+    document.getElementById('nextJourneyBtn').addEventListener('click', (event) => {
+        if (!isEmbedded || demoMode === 'data-driven') return;
+        event.preventDefault();
+        window.parent.postMessage({
+            type: 'demoNavigate',
+            target: demoMode === 'manipulate' ? 'demo-shape-compare' : 'demo-data-driven'
+        }, window.location.protocol === 'file:' ? '*' : window.location.origin);
+    });
+
+    const observer = new ResizeObserver(() => reportHeight());
+    observer.observe(document.querySelector('.demo-shell'));
+
+    // rendering is already suspended by the browser while this frame is in a
+    // hidden tab panel, so the loop only has to skip work for a hidden tab
+    document.addEventListener('visibilitychange', () => {
+        visible = !document.hidden;
+    });
+
+    refreshErrorScale();
+    resetManualChallenge();
+    applyTranslations();
+    startLoop();
+    setInterval(driveFrame, 16);
+    setInterval(watchdog, 500);
+    reportHeight();
+})();

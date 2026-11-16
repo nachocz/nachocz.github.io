@@ -28,8 +28,9 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 
-# Exclude files from processing (development scripts are not part of the site)
+# Exclude files from processing (development scripts and the sources of index.html are not part of the site)
 exclude:
   - README.md
   - .gitignore
   - tools/
+  - sections/
